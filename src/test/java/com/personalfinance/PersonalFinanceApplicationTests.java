@@ -7,6 +7,9 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import jakarta.persistence.EntityManagerFactory;
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.exception.FlywayValidateException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -43,6 +46,9 @@ class PersonalFinanceApplicationTests {
 	@Autowired
 	private Environment environment;
 
+	@Autowired
+	private Flyway flyway;
+
 	@Test
 	void contextLoads() {
 		assertThat(entityManagerFactory.isOpen()).isTrue();
@@ -76,6 +82,85 @@ class PersonalFinanceApplicationTests {
 		assertThat(environment.getProperty("spring.jpa.hibernate.ddl-auto")).isEqualTo("validate");
 		assertThat(environment.getProperty("spring.jpa.open-in-view", Boolean.class)).isFalse();
 		assertThat(environment.getProperty("spring.sql.init.mode")).isEqualTo("never");
+	}
+
+	@Test
+	void flywayAppliesInitialMigrationAndRecordsHistory() throws SQLException {
+		assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("1");
+		assertThat(flyway.info().pending()).isEmpty();
+		try (Connection connection = dataSource.getConnection();
+			 var statement = connection.createStatement();
+			 var result = statement.executeQuery(
+					"SELECT script, success FROM flyway_schema_history WHERE version = '1'")) {
+			assertThat(result.next()).isTrue();
+			assertThat(result.getString("script")).isEqualTo("V1__create_users.sql");
+			assertThat(result.getBoolean("success")).isTrue();
+			assertThat(result.next()).isFalse();
+		}
+	}
+
+	@Test
+	void repeatedMigrationDoesNotReapplyChangesOrRemoveData() throws SQLException {
+		try (Connection connection = dataSource.getConnection()) {
+			connection.setAutoCommit(false);
+			try {
+				try (var statement = connection.createStatement()) {
+					statement.executeUpdate("""
+							INSERT INTO users (name, email, password_hash)
+							VALUES ('Migration Test', 'migration@example.test', 'test-hash-not-a-real-credential')
+							""");
+					connection.commit();
+					assertThat(flyway.migrate().migrationsExecuted).isZero();
+					try (var result = statement.executeQuery(
+							"SELECT count(*) FROM users WHERE email = 'migration@example.test'")) {
+						assertThat(result.next()).isTrue();
+						assertThat(result.getInt(1)).isEqualTo(1);
+					}
+				}
+			} finally {
+				connection.rollback();
+			}
+		}
+	}
+
+	@Test
+	void flywayRejectsChangedAppliedMigration() {
+		Flyway original = flywayForSchema("checksum_test", "classpath:db/migration");
+		original.migrate();
+		Flyway changed = flywayForSchema("checksum_test", "classpath:db/changed-migration");
+		assertThatThrownBy(changed::migrate)
+				.isInstanceOf(FlywayValidateException.class)
+				.hasMessageContaining("checksum mismatch");
+	}
+
+	@Test
+	void flywayRefusesToBaselineAnUnmanagedNonemptySchema() throws SQLException {
+		try (Connection connection = dataSource.getConnection();
+			 var statement = connection.createStatement()) {
+			statement.execute("CREATE SCHEMA unmanaged_test");
+			statement.execute("CREATE TABLE unmanaged_test.existing_data (id BIGINT PRIMARY KEY)");
+		}
+		assertThatThrownBy(flywayForSchema("unmanaged_test", "classpath:db/migration")::migrate)
+				.isInstanceOf(FlywayException.class)
+				.hasMessageContaining("non-empty schema");
+	}
+
+	@Test
+	void destructiveFlywayCleanIsDisabled() {
+		assertThatThrownBy(flyway::clean)
+				.isInstanceOf(FlywayException.class)
+				.hasMessageContaining("cleanDisabled");
+	}
+
+	private Flyway flywayForSchema(String schema, String location) {
+		return Flyway.configure()
+				.dataSource(dataSource)
+				.schemas(schema)
+				.locations(location)
+				.validateOnMigrate(flyway.getConfiguration().isValidateOnMigrate())
+				.baselineOnMigrate(flyway.getConfiguration().isBaselineOnMigrate())
+				.cleanDisabled(flyway.getConfiguration().isCleanDisabled())
+				.load();
 	}
 
 }

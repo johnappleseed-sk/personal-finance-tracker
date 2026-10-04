@@ -10,11 +10,12 @@ are planned; they are **not implemented yet**.
 - Spring MVC, Thymeleaf, Spring Security, Jakarta Validation, and Spring Data JPA
 - PostgreSQL 18 through Docker Compose
 - Environment-based datasource configuration and isolated PostgreSQL tests
+- Flyway versioned migrations with an initial users table
 
 The architecture is a feature-oriented modular monolith under `com.personalfinance`.
 Future requests will flow from controller to service to repository. There are no
-domain entities or database migrations yet. Hibernate validates the schema and
-does not create it; Flyway migrations are the next phase.
+Java domain entities yet. Flyway creates the schema before Hibernate validates it;
+Hibernate does not generate or update tables.
 
 ## Requirements
 
@@ -89,11 +90,43 @@ an actual database query, rejection of incorrect credentials, and safe JPA confi
 The application starts an embedded web server on a random port. Docker unavailability fails
 the tests rather than silently skipping them.
 
+Migration tests also verify first application, schema history, repeat runs,
+checksum mismatch rejection, refusal to baseline unmanaged schemas, disabled
+clean operations, and users-table constraints. All test data lives in disposable
+containers, not your Compose database.
+
+## Database migrations
+
+Spring Boot automatically runs Flyway on startup using the configured datasource.
+Versioned SQL lives in `src/main/resources/db/migration`:
+
+- `V1__create_users.sql`: identity primary key, required name/email/password hash,
+  unique normalized email, and timezone-aware creation/update timestamps.
+- Flyway maintains `flyway_schema_history` to record versions and checksums.
+
+Email must be trimmed and lowercase before persistence. The unique constraint
+also supplies an index for future email lookups. `password_hash` is reserved for
+encoded passwords; the database cannot determine whether a value is securely
+encoded, so registration must enforce BCrypt. Timestamp defaults initialize both
+fields; future user services must maintain `updated_at` on changes.
+
+Add a new migration for each schema change, for example `V2__create_accounts.sql`.
+Never edit, rename, or delete an already-applied migration. Flyway validates
+checksums and stops startup if migration history no longer matches the files.
+
+Automatic baselining is disabled: an existing nonempty schema without Flyway
+history requires investigation and an explicit adoption plan, not a bypass.
+Flyway `clean` is disabled to protect data. If migration startup fails, inspect
+the error and database state; do not delete volumes, enable automatic baselining,
+or run repair merely to suppress the error. Back up existing data before applying
+schema changes to any non-disposable database.
+
 ## Structure
 
 ```text
 src/main/java/com/personalfinance/       Application entry point; future features
 src/main/resources/application.properties
+src/main/resources/db/migration/        Versioned Flyway SQL migrations
 src/test/java/com/personalfinance/      PostgreSQL-backed foundation tests
 compose.yaml                           Local PostgreSQL service and volume
 .env.example                           Credential-free configuration template
@@ -101,5 +134,5 @@ compose.yaml                           Local PostgreSQL service and volume
 
 ## Next milestone
 
-Introduce Flyway before creating the user model, then implement registration
-and authentication with BCrypt, validation, CSRF protection, and ownership checks.
+Create the Java user model and implement registration with BCrypt and validation,
+then add authentication, CSRF-protected forms, and user-owned financial features.
