@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Create your account')}"></head>
+<body>
+<main class="auth-card" aria-labelledby="page-title">
+    <p class="brand">Personal Finance Tracker</p>
+    <h1 id="page-title">Create your account</h1>
+    <p>Start with your details. Your financial data will belong only to you.</p>
+    <form th:action="@{/register}" th:object="${registrationForm}" method="post">
+        <div class="alert" role="alert" th:if="${#fields.hasAnyErrors()}">
+            Please check the highlighted fields and re-enter both passwords.
+        </div>
+        <div class="field">
+            <label for="name">Name</label>
+            <input id="name" type="text" th:field="*{name}" autocomplete="name" required maxlength="100"
+                   aria-describedby="name-errors" th:attr="aria-invalid=${#fields.hasErrors('name')}">
+            <p id="name-errors" class="error" th:errors="*{name}"></p>
+        </div>
+        <div class="field">
+            <label for="email">Email address</label>
+            <input id="email" type="email" th:field="*{email}" autocomplete="email" inputmode="email"
+                   required maxlength="254" aria-describedby="email-errors"
+                   th:attr="aria-invalid=${#fields.hasErrors('email')}">
+            <p id="email-errors" class="error" th:errors="*{email}"></p>
+        </div>
+        <div class="field">
+            <label for="password">Password</label>
+            <!-- Deliberately omit th:field and value so submitted passwords are never rendered. -->
+            <input id="password" name="password" type="password" autocomplete="new-password" required
+                   minlength="12" maxlength="72" aria-describedby="password-help password-errors byte-errors"
+                   th:attr="aria-invalid=${#fields.hasErrors('password') or #fields.hasErrors('passwordWithinByteLimit')}">
+            <p id="password-help" class="hint">Use 12–72 characters (at most 72 UTF-8 bytes). A long, unique passphrase is best.</p>
+            <p id="password-errors" class="error" th:errors="*{password}"></p>
+            <p id="byte-errors" class="error" th:errors="*{passwordWithinByteLimit}"></p>
+        </div>
+        <div class="field">
+            <label for="confirmPassword">Confirm password</label>
+            <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password"
+                   required maxlength="72" aria-describedby="confirmation-errors matching-errors"
+                   th:attr="aria-invalid=${#fields.hasErrors('confirmPassword') or #fields.hasErrors('passwordsMatching')}">
+            <p id="confirmation-errors" class="error" th:errors="*{confirmPassword}"></p>
+            <p id="matching-errors" class="error" th:errors="*{passwordsMatching}"></p>
+        </div>
+        <button type="submit">Create account</button>
+    </form>
+    <p class="hint">Registration is available now. Sign-in will be added in the next development milestone.</p>
+</main>
+</body>
+</html>

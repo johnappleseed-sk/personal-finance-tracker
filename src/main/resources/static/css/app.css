@@ -1,0 +1,29 @@
+:root {
+    color-scheme: light;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #172b3a;
+    background: #f2f6f8;
+    line-height: 1.5;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; padding: 1rem; }
+.auth-card { width: 100%; max-width: 32rem; margin: 1rem auto; padding: 1.25rem; background: #fff; border-radius: 1rem; }
+.brand { color: #22596a; font-weight: 700; }
+h1 { font-size: 1.75rem; line-height: 1.2; }
+.field { margin-bottom: 1.25rem; }
+label { display: block; margin-bottom: .4rem; font-weight: 600; }
+input, button { width: 100%; min-height: 48px; padding: .75rem; border-radius: .5rem; font: inherit; }
+input { border: 1px solid #697b86; background: #fff; }
+input[aria-invalid="true"] { border: 2px solid #a51e2c; }
+button { border: 0; background: #14576a; color: #fff; cursor: pointer; font-weight: 700; }
+button:hover { background: #0b4152; }
+a { color: #14576a; display: inline-block; padding: .75rem 0; }
+:focus-visible { outline: 3px solid #126cbe; outline-offset: 3px; }
+.hint { color: #4c5d68; font-size: .9rem; }
+.error { color: #a51e2c; margin: .35rem 0 0; }
+.alert { padding: .75rem; border: 1px solid #a51e2c; border-radius: .5rem; margin-bottom: 1rem; }
+
+@media (min-width: 48rem) {
+    .auth-card { margin-top: 3rem; padding: 2rem; }
+}

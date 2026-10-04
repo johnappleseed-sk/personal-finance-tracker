@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Registration complete')}"></head>
+<body>
+<main class="auth-card" aria-labelledby="page-title">
+    <p class="brand">Personal Finance Tracker</p>
+    <h1 id="page-title">Registration complete</h1>
+    <p>Your account has been created. You have not been signed in.</p>
+    <p>Sign-in will be available in the next development milestone.</p>
+    <a th:href="@{/register}">Back to registration</a>
+</main>
+</body>
+</html>
