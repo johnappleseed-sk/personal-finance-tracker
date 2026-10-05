@@ -86,7 +86,7 @@ class PersonalFinanceApplicationTests {
 
 	@Test
 	void flywayAppliesInitialMigrationAndRecordsHistory() throws SQLException {
-		assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("3");
+		assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("4");
 		assertThat(flyway.info().pending()).isEmpty();
 		try (Connection connection = dataSource.getConnection();
 			 var statement = connection.createStatement();
@@ -110,8 +110,8 @@ class PersonalFinanceApplicationTests {
 					VALUES ('Existing User', 'existing@example.test', 'synthetic-unused-hash')
 					""");
 			Flyway upgrade = flywayForSchema("upgrade_test", "classpath:db/migration");
-			assertThat(upgrade.migrate().migrationsExecuted).isEqualTo(2);
-			assertThat(upgrade.info().current().getVersion().getVersion()).isEqualTo("3");
+			assertThat(upgrade.migrate().migrationsExecuted).isEqualTo(3);
+			assertThat(upgrade.info().current().getVersion().getVersion()).isEqualTo("4");
 			try (var result = statement.executeQuery("SELECT count(*) FROM upgrade_test.users")) {
 				assertThat(result.next()).isTrue();
 				assertThat(result.getInt(1)).isEqualTo(1);
@@ -139,7 +139,7 @@ class PersonalFinanceApplicationTests {
 					SELECT id, 'Preserved account', 'CASH', 'EUR', -12.34 FROM categories_upgrade_test.users
 					""");
 			Flyway upgrade = flywayForSchema("categories_upgrade_test", "classpath:db/migration");
-			assertThat(upgrade.migrate().migrationsExecuted).isEqualTo(1);
+			assertThat(upgrade.migrate().migrationsExecuted).isEqualTo(2);
 			try (var result = statement.executeQuery("SELECT name, initial_balance FROM categories_upgrade_test.accounts")) {
 				assertThat(result.next()).isTrue();
 				assertThat(result.getString("name")).isEqualTo("Preserved account");
@@ -150,6 +150,49 @@ class PersonalFinanceApplicationTests {
 					INSERT INTO categories_upgrade_test.categories (user_id, name, category_type)
 					SELECT id, 'Groceries', 'EXPENSE' FROM categories_upgrade_test.users
 					""");
+			assertThat(upgrade.migrate().migrationsExecuted).isZero();
+		}
+	}
+
+	@Test
+	void ledgerMigrationUpgradesExistingAccountsAndCategoriesWithoutRewritingThem() throws SQLException {
+		Flyway initial = Flyway.configure().dataSource(dataSource).schemas("ledger_upgrade_test")
+				.locations("classpath:db/migration").target("3").cleanDisabled(true).load();
+		assertThat(initial.migrate().migrationsExecuted).isEqualTo(3);
+		try (Connection connection = dataSource.getConnection(); var statement = connection.createStatement()) {
+			statement.executeUpdate("""
+					INSERT INTO ledger_upgrade_test.users (name, email, password_hash)
+					VALUES ('Existing User', 'existing@example.test', 'synthetic-unused-hash')
+					""");
+			statement.executeUpdate("""
+					INSERT INTO ledger_upgrade_test.accounts (user_id, name, account_type, currency, initial_balance)
+					SELECT id, 'Preserved account', 'CASH', 'EUR', -12.34 FROM ledger_upgrade_test.users
+					""");
+			statement.executeUpdate("""
+					INSERT INTO ledger_upgrade_test.categories (user_id, name, category_type)
+					SELECT id, 'Preserved category', 'EXPENSE' FROM ledger_upgrade_test.users
+					""");
+			Flyway upgrade = flywayForSchema("ledger_upgrade_test", "classpath:db/migration");
+			assertThat(upgrade.migrate().migrationsExecuted).isEqualTo(1);
+			statement.executeUpdate("""
+					INSERT INTO ledger_upgrade_test.transactions
+					(user_id, account_id, category_id, transaction_type, amount, currency, transaction_date)
+					SELECT a.user_id, a.id, c.id, c.category_type, 0.01, a.currency, CURRENT_DATE
+					FROM ledger_upgrade_test.accounts a JOIN ledger_upgrade_test.categories c ON a.user_id = c.user_id
+					""");
+			try (var result = statement.executeQuery("""
+					SELECT a.name AS account_name, a.initial_balance, c.name AS category_name, t.amount
+					FROM ledger_upgrade_test.transactions t
+					JOIN ledger_upgrade_test.accounts a ON a.id = t.account_id
+					JOIN ledger_upgrade_test.categories c ON c.id = t.category_id
+					""")) {
+				assertThat(result.next()).isTrue();
+				assertThat(result.getString("account_name")).isEqualTo("Preserved account");
+				assertThat(result.getString("category_name")).isEqualTo("Preserved category");
+				assertThat(result.getBigDecimal("initial_balance")).isEqualByComparingTo("-12.34");
+				assertThat(result.getBigDecimal("amount")).isEqualByComparingTo("0.01");
+				assertThat(result.next()).isFalse();
+			}
 			assertThat(upgrade.migrate().migrationsExecuted).isZero();
 		}
 	}

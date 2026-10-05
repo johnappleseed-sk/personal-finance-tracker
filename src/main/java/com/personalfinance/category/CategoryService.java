@@ -2,6 +2,8 @@ package com.personalfinance.category;
 
 import java.util.List;
 
+import com.personalfinance.transaction.HistoryConflictException;
+import com.personalfinance.transaction.TransactionRepository;
 import com.personalfinance.user.User;
 import com.personalfinance.user.UserNotFoundException;
 import com.personalfinance.user.UserRepository;
@@ -20,10 +22,13 @@ public class CategoryService {
 
 	private final CategoryRepository categoryRepository;
 	private final UserRepository userRepository;
+	private final TransactionRepository transactionRepository;
 
-	public CategoryService(CategoryRepository categoryRepository, UserRepository userRepository) {
+	public CategoryService(CategoryRepository categoryRepository, UserRepository userRepository,
+			TransactionRepository transactionRepository) {
 		this.categoryRepository = categoryRepository;
 		this.userRepository = userRepository;
+		this.transactionRepository = transactionRepository;
 	}
 
 	/**
@@ -70,20 +75,29 @@ public class CategoryService {
 	@Transactional
 	public void updateCategory(@NotNull @Positive Long userId, @NotNull @Positive Long categoryId,
 			@NotNull @Valid CategoryForm form) {
-		Category category = findOwnedCategory(userId, categoryId);
+		Category category = categoryRepository.findOwnedForUpdate(categoryId, userId).orElseThrow(CategoryNotFoundException::new);
+		if (category.getCategoryType() != form.getCategoryType()
+				&& transactionRepository.existsByCategoryIdAndUserId(categoryId, userId)) {
+			throw new HistoryConflictException("A category with transactions cannot change type.");
+		}
 		category.updateDetails(form.getName(), form.getCategoryType());
 		categoryRepository.flush();
 	}
 
 	/**
-	 * Deletes an owned category. Future transaction foreign keys must prevent history loss.
+	 * Deletes an owned category only when it has no transactions; never cascades history.
 	 * @param userId trusted authenticated identity
 	 * @param categoryId requested resource
 	 * @throws CategoryNotFoundException for missing/foreign categories
 	 */
 	@Transactional
 	public void deleteCategory(@NotNull @Positive Long userId, @NotNull @Positive Long categoryId) {
-		categoryRepository.delete(findOwnedCategory(userId, categoryId));
+		Category category = categoryRepository.findOwnedForUpdate(categoryId, userId).orElseThrow(CategoryNotFoundException::new);
+		if (transactionRepository.existsByCategoryIdAndUserId(categoryId, userId)) {
+			throw new HistoryConflictException("A category with transactions cannot be deleted. Keep it to preserve your history.");
+		}
+		categoryRepository.delete(category);
+		categoryRepository.flush();
 	}
 
 	private Category findOwnedCategory(Long userId, Long categoryId) {

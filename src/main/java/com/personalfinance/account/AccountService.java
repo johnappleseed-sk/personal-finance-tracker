@@ -1,7 +1,12 @@
 package com.personalfinance.account;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.personalfinance.transaction.HistoryConflictException;
+import com.personalfinance.transaction.TransactionRepository;
 import com.personalfinance.user.User;
 import com.personalfinance.user.UserNotFoundException;
 import com.personalfinance.user.UserRepository;
@@ -23,10 +28,13 @@ public class AccountService {
 
 	private final AccountRepository accountRepository;
 	private final UserRepository userRepository;
+	private final TransactionRepository transactionRepository;
 
-	public AccountService(AccountRepository accountRepository, UserRepository userRepository) {
+	public AccountService(AccountRepository accountRepository, UserRepository userRepository,
+			TransactionRepository transactionRepository) {
 		this.accountRepository = accountRepository;
 		this.userRepository = userRepository;
+		this.transactionRepository = transactionRepository;
 	}
 
 	/**
@@ -36,7 +44,9 @@ public class AccountService {
 	 * @return detached account views in name/ID order
 	 */
 	public List<AccountView> findAccountsForUser(@NotNull @Positive Long userId) {
-		return accountRepository.findAllByUserIdOrderByNameAscIdAsc(userId).stream().map(this::toView).toList();
+		Map<Long, BigDecimal> deltas = findDeltas(userId);
+		return accountRepository.findAllByUserIdOrderByNameAscIdAsc(userId).stream()
+				.map(account -> toView(account, deltas.getOrDefault(account.getId(), BigDecimal.ZERO))).toList();
 	}
 
 	/**
@@ -48,7 +58,7 @@ public class AccountService {
 	 * @throws AccountNotFoundException if the account is absent or belongs to another user
 	 */
 	public AccountView findAccountForUser(@NotNull @Positive Long userId, @NotNull @Positive Long accountId) {
-		return toView(findOwnedAccount(userId, accountId));
+		return toView(findOwnedAccount(userId, accountId), findDeltas(userId).getOrDefault(accountId, BigDecimal.ZERO));
 	}
 
 	/**
@@ -63,7 +73,7 @@ public class AccountService {
 	public AccountView createAccount(@NotNull @Positive Long userId, @NotNull @Valid AccountForm form) {
 		User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 		Account account = new Account(user, form.getName(), form.getAccountType(), form.getInitialBalance(), form.getCurrency());
-		return toView(accountRepository.saveAndFlush(account));
+		return toView(accountRepository.saveAndFlush(account), BigDecimal.ZERO);
 	}
 
 	/**
@@ -77,13 +87,16 @@ public class AccountService {
 	@Transactional
 	public void updateAccount(@NotNull @Positive Long userId, @NotNull @Positive Long accountId,
 			@NotNull @Valid AccountForm form) {
-		Account account = findOwnedAccount(userId, accountId);
+		Account account = accountRepository.findOwnedForUpdate(accountId, userId).orElseThrow(AccountNotFoundException::new);
+		if (account.getCurrency() != form.getCurrency() && transactionRepository.existsByAccountIdAndUserId(accountId, userId)) {
+			throw new HistoryConflictException("An account with transactions cannot change currency.");
+		}
 		account.updateDetails(form.getName(), form.getAccountType(), form.getInitialBalance(), form.getCurrency());
 		accountRepository.flush();
 	}
 
 	/**
-	 * Deletes only an ownership-checked account; future transaction foreign keys must prevent history loss.
+	 * Deletes only an ownership-checked account without transactions; never cascades ledger history.
 	 *
 	 * @param userId trusted authenticated identity
 	 * @param accountId requested account
@@ -91,15 +104,25 @@ public class AccountService {
 	 */
 	@Transactional
 	public void deleteAccount(@NotNull @Positive Long userId, @NotNull @Positive Long accountId) {
-		accountRepository.delete(findOwnedAccount(userId, accountId));
+		Account account = accountRepository.findOwnedForUpdate(accountId, userId).orElseThrow(AccountNotFoundException::new);
+		if (transactionRepository.existsByAccountIdAndUserId(accountId, userId)) {
+			throw new HistoryConflictException("An account with transactions cannot be deleted. Keep it to preserve your history.");
+		}
+		accountRepository.delete(account);
+		accountRepository.flush();
 	}
 
 	private Account findOwnedAccount(Long userId, Long accountId) {
 		return accountRepository.findByIdAndUserId(accountId, userId).orElseThrow(AccountNotFoundException::new);
 	}
 
-	private AccountView toView(Account account) {
+	private Map<Long, BigDecimal> findDeltas(Long userId) {
+		return transactionRepository.findAccountDeltas(userId).stream().collect(Collectors.toMap(
+				TransactionRepository.AccountDelta::getAccountId, TransactionRepository.AccountDelta::getNetAmount));
+	}
+
+	private AccountView toView(Account account, BigDecimal delta) {
 		return new AccountView(account.getId(), account.getName(), account.getAccountType(), account.getInitialBalance(),
-				account.getCurrency());
+				account.getCurrency(), account.getInitialBalance().add(delta));
 	}
 }

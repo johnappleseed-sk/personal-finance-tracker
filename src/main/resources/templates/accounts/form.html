@@ -27,7 +27,7 @@
             <label for="initialBalance">Opening balance</label>
             <input id="initialBalance" type="number" th:field="*{initialBalance}" step="0.01" required
                    aria-describedby="balance-help balance-errors" th:attr="aria-invalid=${#fields.hasErrors('initialBalance')}">
-            <p id="balance-help" class="hint">Use at most 2 decimal places. A negative amount represents debt or an overdraft.</p>
+            <p id="balance-help" class="hint">Use at most 2 decimal places. Negative amounts represent debt or overdrafts. Correcting this value also changes the current balance.</p>
             <p id="balance-errors" class="error" th:errors="*{initialBalance}"></p>
         </div>
         <div class="field">
@@ -38,6 +38,7 @@
                 <option th:each="code : ${currencies}" th:value="${code}" th:text="${code}"></option>
             </select>
             <p id="currency-errors" class="error" th:errors="*{currency}"></p>
+            <p class="hint">Currency cannot change while this account has transactions.</p>
         </div>
         <button type="submit">Save account</button>
         <a th:href="@{/accounts}">Cancel</a>

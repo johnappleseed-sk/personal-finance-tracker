@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('History protected')}"></head>
+<body>
+<main class="auth-card" aria-labelledby="page-title">
+    <h1 id="page-title">Your transaction history is protected</h1>
+    <p role="alert" th:text="${message}">This change would affect existing transactions.</p>
+    <a th:href="@{/accounts}">Back to your accounts</a>
+    <a th:href="@{/categories}">Back to your categories</a>
+</main>
+</body>
+</html>

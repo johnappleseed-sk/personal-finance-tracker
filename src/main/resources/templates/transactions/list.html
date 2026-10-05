@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Transactions')}"></head>
+<body>
+<main class="workspace" aria-labelledby="page-title">
+    <p class="brand">Personal Finance Tracker</p>
+    <nav th:replace="~{fragments/navigation :: navigation('transactions')}"></nav>
+    <h1 id="page-title">Your transactions</h1>
+    <p class="notice" role="status" th:if="${successMessage != null}" th:text="${successMessage}"></p>
+    <a class="button-link" th:href="@{/transactions/new}">Create transaction</a>
+    <p th:if="${#lists.isEmpty(transactions)}">No transactions yet. Record an income or expense to get started.</p>
+    <div class="transaction-grid">
+        <article class="transaction-card" th:each="transaction : ${transactions}">
+            <h2><span th:text="${transaction.transactionType.label}">Expense</span> —
+                <span th:text="${transaction.categoryName}">Category</span></h2>
+            <dl>
+                <dt>Amount</dt><dd class="money"><span th:text="${transaction.currency}">EUR</span>
+                    <span th:text="${transaction.amount.toPlainString()}">0.00</span></dd>
+                <dt>Account</dt><dd th:text="${transaction.accountName}">Account</dd>
+                <dt>Date</dt><dd><time th:datetime="${transaction.transactionDate}" th:text="${transaction.transactionDate}"></time></dd>
+                <th:block th:if="${!#strings.isEmpty(transaction.description)}">
+                    <dt>Description</dt><dd th:text="${transaction.description}">Description</dd>
+                </th:block>
+            </dl>
+            <div class="actions">
+                <a th:href="@{/transactions/{id}/edit(id=${transaction.id})}"
+                   th:attr="aria-label=${'Edit transaction ' + transaction.id}">Edit</a>
+                <a th:href="@{/transactions/{id}/delete(id=${transaction.id})}"
+                   th:attr="aria-label=${'Delete transaction ' + transaction.id}">Delete</a>
+            </div>
+        </article>
+    </div>
+    <p class="hint">Newest dates first. Amounts use their account's currency; no conversion or transfers are supported.</p>
+</main>
+</body>
+</html>

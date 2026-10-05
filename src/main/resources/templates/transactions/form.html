@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(${pageTitle})}"></head>
+<body>
+<main class="auth-card" aria-labelledby="page-title">
+    <p class="brand">Personal Finance Tracker</p>
+    <nav th:replace="~{fragments/navigation :: navigation('transactions')}"></nav>
+    <h1 id="page-title" th:text="${pageTitle}">Transaction</h1>
+    <p th:if="${#lists.isEmpty(accounts) or #lists.isEmpty(categories)}" class="notice">
+        You need an account and a matching category first.
+        <a th:href="@{/accounts/new}">Create account</a> or <a th:href="@{/categories/new}">create category</a>.
+    </p>
+    <form th:action="@{${formAction}}" th:object="${transactionForm}" method="post">
+        <p class="alert" role="alert" th:if="${#fields.hasAnyErrors()}">Please check the highlighted fields.</p>
+        <div class="field">
+            <label for="accountId">Account</label>
+            <select id="accountId" th:field="*{accountId}" required aria-describedby="account-help account-errors"
+                    th:attr="aria-invalid=${#fields.hasErrors('accountId')}">
+                <option value="">Choose an account</option>
+                <option th:each="account : ${accounts}" th:value="${account.id}"
+                        th:text="${account.name + ' (' + account.currency + ')'}"></option>
+            </select>
+            <p id="account-help" class="hint">The amount uses the selected account's currency. Changing accounts does not convert money or create a transfer.</p>
+            <p id="account-errors" class="error" th:errors="*{accountId}"></p>
+        </div>
+        <div class="field">
+            <label for="transactionType">Transaction type</label>
+            <select id="transactionType" th:field="*{transactionType}" required aria-describedby="type-errors"
+                    th:attr="aria-invalid=${#fields.hasErrors('transactionType')}">
+                <option value="">Choose a type</option>
+                <option th:each="type : ${transactionTypes}" th:value="${type}" th:text="${type.label}"></option>
+            </select>
+            <p id="type-errors" class="error" th:errors="*{transactionType}"></p>
+        </div>
+        <div class="field">
+            <label for="categoryId">Category</label>
+            <select id="categoryId" th:field="*{categoryId}" required aria-describedby="category-help category-errors"
+                    th:attr="aria-invalid=${#fields.hasErrors('categoryId')}">
+                <option value="">Choose a category</option>
+                <option th:each="category : ${categories}" th:value="${category.id}"
+                        th:text="${category.name + ' (' + category.categoryType.label + ')'}"></option>
+            </select>
+            <p id="category-help" class="hint">Choose a category of the same type as the transaction.</p>
+            <p id="category-errors" class="error" th:errors="*{categoryId}"></p>
+        </div>
+        <div class="field">
+            <label for="amount">Amount</label>
+            <input id="amount" type="number" th:field="*{amount}" min="0.01" step="0.01" required
+                   aria-describedby="amount-help amount-errors" th:attr="aria-invalid=${#fields.hasErrors('amount')}">
+            <p id="amount-help" class="hint">Enter a positive amount with at most 2 decimal places. Expenses are subtracted automatically.</p>
+            <p id="amount-errors" class="error" th:errors="*{amount}"></p>
+        </div>
+        <div class="field">
+            <label for="transactionDate">Date</label>
+            <input id="transactionDate" type="date" th:field="*{transactionDate}" th:max="${today}" required
+                   aria-describedby="date-errors" th:attr="aria-invalid=${#fields.hasErrors('transactionDate')}">
+            <p id="date-errors" class="error" th:errors="*{transactionDate}"></p>
+        </div>
+        <div class="field">
+            <label for="description">Description (optional)</label>
+            <input id="description" type="text" th:field="*{description}" maxlength="255"
+                   aria-describedby="description-errors" th:attr="aria-invalid=${#fields.hasErrors('description')}">
+            <p id="description-errors" class="error" th:errors="*{description}"></p>
+        </div>
+        <button type="submit">Save transaction</button>
+        <a th:href="@{/transactions}">Cancel</a>
+    </form>
+</main>
+</body>
+</html>

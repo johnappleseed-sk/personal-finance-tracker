@@ -2,8 +2,8 @@
 
 A student-friendly, production-style personal finance application built incrementally.
 User registration, login/logout, an authenticated welcome page, and user-owned
-account and category management are implemented. Transactions, budgets, financial
-dashboards, and reports are planned; they are **not implemented yet**.
+account/category management and income/expense transactions are implemented.
+Budgets, financial dashboards, and reports are planned; they are **not implemented yet**.
 
 ## Current foundation
 
@@ -17,6 +17,7 @@ dashboards, and reports are planned; they are **not implemented yet**.
 - Database-backed authentication with email login and a CSRF-protected sign-out form
 - Ownership-scoped account CRUD with exact opening balances and responsive pages
 - Private income/expense category CRUD with validated forms and confirmation before deletion
+- Private transaction CRUD, exact derived account balances, and database-enforced history protection
 
 The architecture is a feature-oriented modular monolith under `com.personalfinance`.
 Registration flows from `RegistrationController` to `RegistrationService` to
@@ -142,10 +143,12 @@ Create, list, edit, and delete accounts belonging to your user:
   debt or overdrafts. This is not a transaction-derived current balance.
 - Currency: EUR, USD, or GBP; all use two decimal places. No conversion or
   cross-currency total is calculated.
-- Editing can change all four fields. There is no transaction history yet;
-  future transaction features must protect history and define balance adjustments.
+- Current balance is calculated from the opening balance plus recorded income
+  minus recorded expenses, per account/currency. Negative current balances are allowed.
+- Editing the opening balance is a correction and also changes the current balance;
+  it does not create a ledger entry. Currency cannot change while transactions exist.
 - Deletion requires a confirmation page and CSRF-protected POST, and is permanent.
-  Merely visiting a GET URL never deletes an account.
+  Accounts with transactions cannot be deleted. GET never deletes an account.
 
 `AccountController` accepts an allowlisted form DTO, extracts the trusted
 `FinanceUserDetails.getUserId()`, and calls `AccountService`. Every resource lookup
@@ -176,14 +179,59 @@ delete. It returns detached `CategoryView` data. Submitted owner IDs cannot
 reassign ownership, and missing/foreign resources share the same safe 404 page,
 including invalid foreign edit submissions.
 
-There are no transactions or category totals yet. Both name and type are editable
-and deletion is permanent. The transaction milestone must protect historical
-references and define whether a used category's type may change.
+Categories can be renamed. A category with transactions cannot change type or be
+deleted; the application gives safe HTTP 409 feedback rather than cascading history.
+Unused categories can change type or be permanently deleted. Category totals are
+not implemented yet. Renames are reflected in ledger views; names are not snapshots.
 
 To check manually, create both types, edit one, cancel deletion, then confirm it.
 Try an empty name and verify that nothing is saved. In a second browser profile,
 sign in as another user: the list must be separate and the first user's edit/delete
 URLs must return 404. Use synthetic category names during development.
+
+## Transactions and balances
+
+Open `/transactions` after creating an account and a matching income/expense
+category. Create, list (newest date/ID first), edit, and delete ledger entries:
+
+- Account and category: both must belong to the signed-in user. Browser-submitted
+  reference IDs are untrusted and are checked at the service boundary.
+- Type: Income or Expense; it must match the chosen category. Transfers are not supported.
+- Amount: positive, at least 0.01, at most 17 whole-number digits and 2 decimal
+  places; extra decimals are rejected, not rounded. Income adds and expenses subtract.
+- Date: required, today or earlier according to the server's date. Future/scheduled
+  transactions are not supported. Dates are calendar dates, not UTC timestamps.
+- Description: optional, trimmed, at most 255 characters; escaped in HTML.
+- Owner, currency, IDs, and timestamps are not bindable. Currency is derived from
+  the authorized account. No conversion or combined cross-currency total exists.
+
+Editing replaces an entry atomically. It can change the account, category, type,
+amount, date, or description. Moving to another account removes the old balance
+effect and applies the submitted amount in the new account's currency; it is a
+correction, **not an exchange or transfer**. Enter the intended amount in that
+currency yourself. Deletion requires a read-only confirmation page and CSRF-protected
+POST and permanently removes the entry and its balance effect. There is no audit
+trail, reconciliation, undo, pagination, or transaction filtering yet; lists are
+intended for assignment-sized datasets.
+
+Balances are not mutable cached counters. `TransactionRepository` calculates exact
+income-minus-expense deltas in one grouped query, and `AccountService` adds each
+account's opening balance using `BigDecimal`. Creating, editing, moving, and deleting
+entries cannot leave a stale cached balance. Aggregate balances may exceed the
+precision limit of a single amount; no database column truncates the total.
+
+Ledger writes lock authorized account/category rows; parent edits/deletes use the
+same locks before checking usage, and entry edits/deletes lock the entry. Composite
+foreign keys independently enforce matching owner, account currency, and category
+type, including direct SQL writes. They prevent deletion/reinterpretation of referenced
+resources without cascading transactions. Missing/foreign transaction URLs share
+the same generic 404. Unavailable selected references produce neutral form errors.
+
+To check manually, start an account at 100.00, record income of 20.10 and an expense
+of 5.20, and verify its current balance is 114.90. Edit/delete an entry and confirm
+the balance changes. Try a mismatching category or another user's reference IDs:
+nothing must be saved. Try deleting the used account/category: history must remain
+and the response must explain the conflict. Use synthetic ledger data.
 
 ## Database operations
 
@@ -245,6 +293,12 @@ mutations, validation, safe malformed-ID responses, HTML escaping, timestamps,
 read-only confirmation, and PostgreSQL constraints. The V2-to-V3 migration test
 preserves an existing user and exact account balance while adding categories.
 
+Transaction tests cover ownership of entries and both references, forged owner/currency
+inputs, CSRF/authentication, validation, exact arithmetic, negative and large balances,
+create/edit/move/delete effects, atomic failure, ordering, escaping, concurrent inserts,
+history-protected parent changes, composite foreign keys, and non-finite amount rejection.
+The V3-to-V4 upgrade test preserves account/category data and inserts a valid ledger entry.
+
 ## Database migrations
 
 Spring Boot automatically runs Flyway on startup using the configured datasource.
@@ -256,6 +310,9 @@ Versioned SQL lives in `src/main/resources/db/migration`:
   balance, supported currency checks, timestamps, and an owner/name/ID index.
 - `V3__create_categories.sql`: owner foreign key, required name, income/expense
   check, timestamps, and an owner/name/ID index. Existing migrations are unchanged.
+- `V4__create_transactions.sql`: exact positive amounts, dated income/expense entries,
+  composite ownership/currency/type foreign keys, and ledger lookup indexes. V1–V3
+  are unchanged; new unique parent keys support those foreign keys without rewriting data.
 - Flyway maintains `flyway_schema_history` to record versions and checksums.
 
 Email must be trimmed and lowercase before persistence. The unique constraint
@@ -283,6 +340,7 @@ src/main/java/com/personalfinance/       Application entry point; future feature
 src/main/java/com/personalfinance/auth/  Authentication pages and registration
 src/main/java/com/personalfinance/account/ Owner-scoped account CRUD and view/form DTOs
 src/main/java/com/personalfinance/category/ Private income/expense category CRUD
+src/main/java/com/personalfinance/transaction/ Private ledger CRUD and history protection
 src/main/java/com/personalfinance/user/  User entity and repository
 src/main/java/com/personalfinance/security/ Security policy, principal, identity lookup, password encoder
 src/main/resources/application.properties
@@ -296,6 +354,6 @@ compose.yaml                           Local PostgreSQL service and volume
 
 ## Next milestone
 
-Add user-owned transactions with explicit balance semantics, account/category
-ownership and type checks, and history-safe deletion. Budgets, financial dashboards,
-and reports remain future work. Applied V1 and V2 migrations remain unchanged.
+Add transaction filtering/pagination and user-owned budgets before financial dashboards
+and reports. Transfers, currency conversion, and an audit trail remain future work.
+Applied V1–V3 migrations remain unchanged.

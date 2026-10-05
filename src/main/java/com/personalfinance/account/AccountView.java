@@ -10,7 +10,8 @@ import java.math.BigDecimal;
  * @param accountType account kind
  * @param initialBalance opening balance, not a transaction-derived current balance
  * @param currency currency code associated with the amount
+ * @param currentBalance opening balance plus all recorded income minus expenses
  */
 public record AccountView(Long id, String name, AccountType accountType, BigDecimal initialBalance,
-		AccountCurrency currency) {
+		AccountCurrency currency, BigDecimal currentBalance) {
 }

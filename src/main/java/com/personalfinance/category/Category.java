@@ -61,7 +61,7 @@ public class Category {
 	/**
 	 * Updates editable fields without reassigning ownership.
 	 * @param name validated, trimmed display name
-	 * @param categoryType supported kind; future transactions must protect historical semantics
+	 * @param categoryType supported kind; the service prevents type changes while referenced by transactions
 	 */
 	public void updateDetails(String name, CategoryType categoryType) {
 		this.name = name;

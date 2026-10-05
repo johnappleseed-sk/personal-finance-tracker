@@ -17,6 +17,9 @@
                 <dt>Opening balance</dt>
                 <dd class="money"><span th:text="${account.currency}">EUR</span>
                     <span th:text="${account.initialBalance.toPlainString()}">0.00</span></dd>
+                <dt>Current balance</dt>
+                <dd class="money"><span th:text="${account.currency}">EUR</span>
+                    <span th:text="${account.currentBalance.toPlainString()}">0.00</span></dd>
             </dl>
             <div class="actions">
                 <a th:href="@{/accounts/{id}/edit(id=${account.id})}"
@@ -26,7 +29,7 @@
             </div>
         </article>
     </div>
-    <p class="hint">Opening balances only. Transaction-derived balances are not available yet; currencies are not combined.</p>
+    <p class="hint">Current balance = opening balance + recorded income − expenses. Currencies are not combined.</p>
 </main>
 </body>
 </html>

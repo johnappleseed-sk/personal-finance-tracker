@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Delete transaction')}"></head>
+<body>
+<main class="auth-card" aria-labelledby="page-title">
+    <p class="brand">Personal Finance Tracker</p>
+    <nav th:replace="~{fragments/navigation :: navigation('transactions')}"></nav>
+    <h1 id="page-title">Delete transaction?</h1>
+    <p><strong th:text="${transaction.transactionType.label}">Expense</strong>:
+        <span th:text="${transaction.currency}">EUR</span>
+        <span th:text="${transaction.amount.toPlainString()}">0.00</span>
+        in <strong th:text="${transaction.accountName}">Account</strong>,
+        <span th:text="${transaction.categoryName}">Category</span>,
+        <time th:text="${transaction.transactionDate}" th:datetime="${transaction.transactionDate}"></time>.</p>
+    <p>This permanently removes the entry and its effect on the account balance. This action cannot be undone.</p>
+    <form th:action="@{/transactions/{id}/delete(id=${transaction.id})}" method="post">
+        <button class="danger" type="submit">Delete transaction permanently</button>
+        <a th:href="@{/transactions}">Cancel and keep transaction</a>
+    </form>
+</main>
+</body>
+</html>
