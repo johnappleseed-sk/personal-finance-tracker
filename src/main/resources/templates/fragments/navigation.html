@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <body>
-<nav th:fragment="navigation" class="navigation" aria-label="Main navigation">
-    <a th:href="@{/home}" aria-current="page">Home</a>
+<nav th:fragment="navigation(activePage)" class="navigation" aria-label="Main navigation">
+    <a th:href="@{/home}" th:attr="aria-current=${activePage == 'home' ? 'page' : null}">Home</a>
+    <a th:href="@{/accounts}" th:attr="aria-current=${activePage == 'accounts' ? 'page' : null}">Accounts</a>
     <form th:action="@{/logout}" method="post">
         <button type="submit">Sign out</button>
     </form>

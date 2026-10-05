@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Accounts')}"></head>
+<body>
+<main class="workspace" aria-labelledby="page-title">
+    <p class="brand">Personal Finance Tracker</p>
+    <nav th:replace="~{fragments/navigation :: navigation('accounts')}"></nav>
+    <h1 id="page-title">Your accounts</h1>
+    <p class="notice" role="status" th:if="${successMessage != null}" th:text="${successMessage}"></p>
+    <a class="button-link" th:href="@{/accounts/new}">Create account</a>
+    <p th:if="${#lists.isEmpty(accounts)}">No accounts yet. Create your first account to get started.</p>
+    <div class="account-grid">
+        <article class="account-card" th:each="account : ${accounts}">
+            <h2 th:text="${account.name}">Account name</h2>
+            <dl>
+                <dt>Type</dt><dd th:text="${account.accountType.label}">Checking</dd>
+                <dt>Opening balance</dt>
+                <dd class="money"><span th:text="${account.currency}">EUR</span>
+                    <span th:text="${account.initialBalance.toPlainString()}">0.00</span></dd>
+            </dl>
+            <div class="actions">
+                <a th:href="@{/accounts/{id}/edit(id=${account.id})}"
+                   th:attr="aria-label=${'Edit ' + account.name}">Edit</a>
+                <a th:href="@{/accounts/{id}/delete(id=${account.id})}"
+                   th:attr="aria-label=${'Delete ' + account.name}">Delete</a>
+            </div>
+        </article>
+    </div>
+    <p class="hint">Opening balances only. Transaction-derived balances are not available yet; currencies are not combined.</p>
+</main>
+</body>
+</html>

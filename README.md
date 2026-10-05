@@ -1,8 +1,8 @@
 # Personal Finance Tracker
 
 A student-friendly, production-style personal finance application built incrementally.
-User registration, login/logout, and an authenticated welcome page are implemented.
-Accounts, categories, transactions, budgets, financial dashboards, and reports are
+User registration, login/logout, an authenticated welcome page, and user-owned
+account management are implemented. Categories, transactions, budgets, financial dashboards, and reports are
 planned; they are **not implemented yet**.
 
 ## Current foundation
@@ -15,6 +15,7 @@ planned; they are **not implemented yet**.
 - Validated, CSRF-protected registration with BCrypt password hashing
 - Responsive Thymeleaf registration pages and a JPA user model
 - Database-backed authentication with email login and a CSRF-protected sign-out form
+- Ownership-scoped account CRUD with exact opening balances and responsive pages
 
 The architecture is a feature-oriented modular monolith under `com.personalfinance`.
 Registration flows from `RegistrationController` to `RegistrationService` to
@@ -64,7 +65,7 @@ PostgreSQL. Open Session in View is disabled so future services must load the da
 needed by the UI within their transactional boundaries.
 
 Visit `http://localhost:8080`. Anonymous visitors are redirected to `/login`.
-Create an account at `/register`, then sign in with its email and password.
+Register a user at `/register`, then sign in with its email and password.
 Registration still does not sign you in automatically. There is no generated
 development account. The authenticated `/home` page is a welcome screen, not a
 financial dashboard. Do not deploy this foundation as a finished application.
@@ -104,7 +105,7 @@ message for unknown emails and incorrect passwords.
 Successful authentication always redirects to `/home`, rotates an existing
 session ID, and erases credentials from the security context. A detached
 `FinanceUserDetails` principal retains the trusted database user ID and display
-name; future ownership checks must use that ID, never a submitted `userId`.
+name; ownership checks use that ID, never a submitted `userId`.
 The welcome page renders only that user's escaped display name, not their entity,
 email, or hash. Display names are session snapshots and refresh on a new login.
 
@@ -126,6 +127,37 @@ password should show a generic error and leave the password field empty. Try
 two separate browser profiles with different users: each should see only its own
 name. Existing users created through registration in Phase 4 can sign in without
 schema changes.
+
+## Financial accounts
+
+After signing in, open `/accounts` or follow **Accounts** in the navigation.
+Create, list, edit, and delete accounts belonging to your user:
+
+- Name: required, trimmed, at most 100 characters; duplicate names are allowed.
+- Type: Checking, Savings, Cash, or Credit card.
+- Opening balance: required, at most 17 whole-number digits and 2 decimal places.
+  Java `BigDecimal` and PostgreSQL `NUMERIC(19,2)` preserve exact decimal amounts;
+  extra decimal places are rejected, not silently rounded. Negative values represent
+  debt or overdrafts. This is not a transaction-derived current balance.
+- Currency: EUR, USD, or GBP; all use two decimal places. No conversion or
+  cross-currency total is calculated.
+- Editing can change all four fields. There is no transaction history yet;
+  future transaction features must protect history and define balance adjustments.
+- Deletion requires a confirmation page and CSRF-protected POST, and is permanent.
+  Merely visiting a GET URL never deletes an account.
+
+`AccountController` accepts an allowlisted form DTO, extracts the trusted
+`FinanceUserDetails.getUserId()`, and calls `AccountService`. Every resource lookup
+uses both account ID and owner ID, including edit, delete, and invalid edit
+submissions. Foreign and nonexistent accounts return the same generic 404 page.
+Services validate input and return detached `AccountView` records without exposing
+the owner entity. Browser-supplied IDs, owners, and timestamps cannot be assigned.
+
+To check manually, create an account, edit its opening balance, and cancel deletion
+before confirming it. In another browser profile, register a second user and try
+the first user's edit/delete URLs: they must return 404, and each list must show
+only its owner's accounts. Try an amount with three decimal places or an empty
+name; no data should change. Use synthetic financial data during development.
 
 Useful database commands:
 
@@ -173,6 +205,12 @@ session isolation, escaped display names, logout invalidation, and rejection of
 oversized passwords without BCrypt prefix matching. All preexisting migration and
 registration tests remain part of the suite.
 
+Account tests cover ownership isolation at MVC and service boundaries, forged
+owner/ID input, CSRF and authentication on every mutation, escaped account names,
+exact monetary boundaries, negative amounts, validation, timestamps, safe 404s,
+delete confirmation, and PostgreSQL checks/foreign keys. Migration tests also
+verify upgrading an existing V1 users schema without losing its users.
+
 ## Database migrations
 
 Spring Boot automatically runs Flyway on startup using the configured datasource.
@@ -180,6 +218,8 @@ Versioned SQL lives in `src/main/resources/db/migration`:
 
 - `V1__create_users.sql`: identity primary key, required name/email/password hash,
   unique normalized email, and timezone-aware creation/update timestamps.
+- `V2__create_accounts.sql`: owner foreign key, account name/type, exact opening
+  balance, supported currency checks, timestamps, and an owner/name/ID index.
 - Flyway maintains `flyway_schema_history` to record versions and checksums.
 
 Email must be trimmed and lowercase before persistence. The unique constraint
@@ -189,7 +229,7 @@ encoded, so registration enforces BCrypt in its service. Timestamp defaults supp
 SQL inserts; JPA lifecycle callbacks initialize timestamps and update `updated_at`
 when a managed user changes. Bulk SQL updates would need to maintain it explicitly.
 
-Add a new migration for each schema change, for example `V2__create_accounts.sql`.
+Add a new migration for each schema change, using the next version number.
 Never edit, rename, or delete an already-applied migration. Flyway validates
 checksums and stops startup if migration history no longer matches the files.
 
@@ -205,6 +245,7 @@ schema changes to any non-disposable database.
 ```text
 src/main/java/com/personalfinance/       Application entry point; future features
 src/main/java/com/personalfinance/auth/  Authentication pages and registration
+src/main/java/com/personalfinance/account/ Owner-scoped account CRUD and view/form DTOs
 src/main/java/com/personalfinance/user/  User entity and repository
 src/main/java/com/personalfinance/security/ Security policy, principal, identity lookup, password encoder
 src/main/resources/application.properties
@@ -218,7 +259,6 @@ compose.yaml                           Local PostgreSQL service and volume
 
 ## Next milestone
 
-Add user-owned account management: a new Flyway migration, account entity/form,
-ownership-scoped service and repository queries, mobile pages, and security tests.
-No schema changes were needed for authentication; the existing V1 migration
-remains unchanged.
+Add user-owned categories, then transactions with explicit balance semantics and
+history-safe account deletion. Budgets, financial dashboards, and reports remain
+future work. The applied V1 users migration remains unchanged.

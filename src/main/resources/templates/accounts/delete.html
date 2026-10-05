@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Delete account')}"></head>
+<body>
+<main class="auth-card" aria-labelledby="page-title">
+    <p class="brand">Personal Finance Tracker</p>
+    <nav th:replace="~{fragments/navigation :: navigation('accounts')}"></nav>
+    <h1 id="page-title">Delete account?</h1>
+    <p>You are about to permanently delete <strong th:text="${account.name}">this account</strong>.</p>
+    <p>This action cannot be undone.</p>
+    <form th:action="@{/accounts/{id}/delete(id=${account.id})}" method="post">
+        <button class="danger" type="submit">Delete account permanently</button>
+        <a th:href="@{/accounts}">Cancel and keep account</a>
+    </form>
+</main>
+</body>
+</html>

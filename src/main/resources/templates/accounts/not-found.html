@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Account unavailable')}"></head>
+<body>
+<main class="auth-card" aria-labelledby="page-title">
+    <h1 id="page-title">Account unavailable</h1>
+    <p>The requested account is not available.</p>
+    <a th:href="@{/accounts}">Back to your accounts</a>
+</main>
+</body>
+</html>

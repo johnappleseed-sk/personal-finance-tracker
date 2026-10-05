@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(${pageTitle})}"></head>
+<body>
+<main class="auth-card" aria-labelledby="page-title">
+    <p class="brand">Personal Finance Tracker</p>
+    <nav th:replace="~{fragments/navigation :: navigation('accounts')}"></nav>
+    <h1 id="page-title" th:text="${pageTitle}">Account</h1>
+    <form th:action="@{${formAction}}" th:object="${accountForm}" method="post">
+        <p class="alert" role="alert" th:if="${#fields.hasAnyErrors()}">Please check the highlighted fields.</p>
+        <div class="field">
+            <label for="name">Account name</label>
+            <input id="name" type="text" th:field="*{name}" required maxlength="100"
+                   aria-describedby="name-errors" th:attr="aria-invalid=${#fields.hasErrors('name')}">
+            <p id="name-errors" class="error" th:errors="*{name}"></p>
+        </div>
+        <div class="field">
+            <label for="accountType">Account type</label>
+            <select id="accountType" th:field="*{accountType}" required aria-describedby="type-errors"
+                    th:attr="aria-invalid=${#fields.hasErrors('accountType')}">
+                <option value="">Choose a type</option>
+                <option th:each="type : ${accountTypes}" th:value="${type}" th:text="${type.label}"></option>
+            </select>
+            <p id="type-errors" class="error" th:errors="*{accountType}"></p>
+        </div>
+        <div class="field">
+            <label for="initialBalance">Opening balance</label>
+            <input id="initialBalance" type="number" th:field="*{initialBalance}" step="0.01" required
+                   aria-describedby="balance-help balance-errors" th:attr="aria-invalid=${#fields.hasErrors('initialBalance')}">
+            <p id="balance-help" class="hint">Use at most 2 decimal places. A negative amount represents debt or an overdraft.</p>
+            <p id="balance-errors" class="error" th:errors="*{initialBalance}"></p>
+        </div>
+        <div class="field">
+            <label for="currency">Currency</label>
+            <select id="currency" th:field="*{currency}" required aria-describedby="currency-errors"
+                    th:attr="aria-invalid=${#fields.hasErrors('currency')}">
+                <option value="">Choose a currency</option>
+                <option th:each="code : ${currencies}" th:value="${code}" th:text="${code}"></option>
+            </select>
+            <p id="currency-errors" class="error" th:errors="*{currency}"></p>
+        </div>
+        <button type="submit">Save account</button>
+        <a th:href="@{/accounts}">Cancel</a>
+    </form>
+</main>
+</body>
+</html>

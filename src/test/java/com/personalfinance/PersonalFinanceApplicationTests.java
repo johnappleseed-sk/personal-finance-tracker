@@ -86,7 +86,7 @@ class PersonalFinanceApplicationTests {
 
 	@Test
 	void flywayAppliesInitialMigrationAndRecordsHistory() throws SQLException {
-		assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("1");
+		assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("2");
 		assertThat(flyway.info().pending()).isEmpty();
 		try (Connection connection = dataSource.getConnection();
 			 var statement = connection.createStatement();
@@ -96,6 +96,31 @@ class PersonalFinanceApplicationTests {
 			assertThat(result.getString("script")).isEqualTo("V1__create_users.sql");
 			assertThat(result.getBoolean("success")).isTrue();
 			assertThat(result.next()).isFalse();
+		}
+	}
+
+	@Test
+	void accountsMigrationUpgradesExistingUsersWithoutLosingData() throws SQLException {
+		Flyway initial = Flyway.configure().dataSource(dataSource).schemas("upgrade_test")
+				.locations("classpath:db/migration").target("1").cleanDisabled(true).load();
+		assertThat(initial.migrate().migrationsExecuted).isEqualTo(1);
+		try (Connection connection = dataSource.getConnection(); var statement = connection.createStatement()) {
+			statement.executeUpdate("""
+					INSERT INTO upgrade_test.users (name, email, password_hash)
+					VALUES ('Existing User', 'existing@example.test', 'synthetic-unused-hash')
+					""");
+			Flyway upgrade = flywayForSchema("upgrade_test", "classpath:db/migration");
+			assertThat(upgrade.migrate().migrationsExecuted).isEqualTo(1);
+			assertThat(upgrade.info().current().getVersion().getVersion()).isEqualTo("2");
+			try (var result = statement.executeQuery("SELECT count(*) FROM upgrade_test.users")) {
+				assertThat(result.next()).isTrue();
+				assertThat(result.getInt(1)).isEqualTo(1);
+			}
+			statement.executeUpdate("""
+					INSERT INTO upgrade_test.accounts (user_id, name, account_type, currency, initial_balance)
+					SELECT id, 'Existing user account', 'CASH', 'EUR', 1.23 FROM upgrade_test.users
+					""");
+			assertThat(upgrade.migrate().migrationsExecuted).isZero();
 		}
 	}
 
