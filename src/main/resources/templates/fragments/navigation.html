@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="navigation" class="navigation" aria-label="Main navigation">
+    <a th:href="@{/home}" aria-current="page">Home</a>
+    <form th:action="@{/logout}" method="post">
+        <button type="submit">Sign out</button>
+    </form>
+</nav>
+</body>
+</html>

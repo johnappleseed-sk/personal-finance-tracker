@@ -23,6 +23,10 @@ a { color: #14576a; display: inline-block; padding: .75rem 0; }
 .hint { color: #4c5d68; font-size: .9rem; }
 .error { color: #a51e2c; margin: .35rem 0 0; }
 .alert { padding: .75rem; border: 1px solid #a51e2c; border-radius: .5rem; margin-bottom: 1rem; }
+.notice { padding: .75rem; border: 1px solid #14576a; border-radius: .5rem; margin-bottom: 1rem; }
+.navigation { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.navigation form { margin: 0; }
+h1, p { overflow-wrap: anywhere; }
 
 @media (min-width: 48rem) {
     .auth-card { margin-top: 3rem; padding: 2rem; }

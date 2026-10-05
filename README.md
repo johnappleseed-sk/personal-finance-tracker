@@ -1,8 +1,9 @@
 # Personal Finance Tracker
 
 A student-friendly, production-style personal finance application built incrementally.
-User registration is implemented. Login, accounts, categories, transactions,
-budgets, dashboards, and reports are planned; they are **not implemented yet**.
+User registration, login/logout, and an authenticated welcome page are implemented.
+Accounts, categories, transactions, budgets, financial dashboards, and reports are
+planned; they are **not implemented yet**.
 
 ## Current foundation
 
@@ -13,6 +14,7 @@ budgets, dashboards, and reports are planned; they are **not implemented yet**.
 - Flyway versioned migrations with an initial users table
 - Validated, CSRF-protected registration with BCrypt password hashing
 - Responsive Thymeleaf registration pages and a JPA user model
+- Database-backed authentication with email login and a CSRF-protected sign-out form
 
 The architecture is a feature-oriented modular monolith under `com.personalfinance`.
 Registration flows from `RegistrationController` to `RegistrationService` to
@@ -44,6 +46,7 @@ should be supplied through environment variables rather than this local file.
 | `DB_URL` | JDBC URL used by Spring |
 | `DB_USERNAME` | Database username for Compose and Spring |
 | `DB_PASSWORD` | Required database password; no committed default |
+| `SESSION_COOKIE_SECURE` | Set `true` when serving the application through production HTTPS; local HTTP defaults to `false` |
 
 If you change `DB_NAME`, update the database name in `DB_URL` too. Environment
 variables override `.env` values. The database is published only on
@@ -60,11 +63,11 @@ auto-configuration creates the JDBC connection pool; JPA uses it to connect to
 PostgreSQL. Open Session in View is disabled so future services must load the data
 needed by the UI within their transactional boundaries.
 
-Visit `http://localhost:8080/register`. Registration creates a user and redirects
-to a confirmation page without signing in. Login is the next milestone: a
-deny-all identity lookup deliberately prevents both registered users and Spring's
-generated development account from signing in. Other application routes remain
-protected. Do not deploy this foundation as a finished application.
+Visit `http://localhost:8080`. Anonymous visitors are redirected to `/login`.
+Create an account at `/register`, then sign in with its email and password.
+Registration still does not sign you in automatically. There is no generated
+development account. The authenticated `/home` page is a welcome screen, not a
+financial dashboard. Do not deploy this foundation as a finished application.
 
 ## Registration
 
@@ -84,10 +87,45 @@ Try an invalid email or mismatching passwords and verify the form shows errors
 while both password fields stay empty. Refreshing the success page does not
 resubmit registration. Use synthetic test details while developing.
 
-Before a public deployment, finish authentication and add operational protections
-such as HTTPS, secure production session cookies, and registration/login rate
+Before a public deployment, add operational protections
+such as HTTPS, `SESSION_COOKIE_SECURE=true`, and registration/login rate
 limiting. Duplicate-email feedback can reveal whether an address is registered;
 the current assignment flow uses a neutral message but does not eliminate that risk.
+
+## Login, logout, and sessions
+
+Spring Security processes `POST /login`; the MVC controller only renders the
+Thymeleaf form. `DatabaseUserDetailsService` normalizes the email and loads the
+stored BCrypt hash. A strict `PasswordEncoder` wrapper rejects inputs beyond
+72 UTF-8 bytes on both encoding and verification, preventing BCrypt prefix
+truncation. Passwords are never trimmed. Failed logins show the same generic
+message for unknown emails and incorrect passwords.
+
+Successful authentication always redirects to `/home`, rotates an existing
+session ID, and erases credentials from the security context. A detached
+`FinanceUserDetails` principal retains the trusted database user ID and display
+name; future ownership checks must use that ID, never a submitted `userId`.
+The welcome page renders only that user's escaped display name, not their entity,
+email, or hash. Display names are session snapshots and refresh on a new login.
+
+Login and logout require CSRF tokens. Sign out uses `POST /logout`, invalidates
+the session, clears authentication, and deletes the session cookie. `GET /logout`
+does not sign a user out. Redirect destinations are fixed; saved requests and
+browser-supplied return URLs are not used. Spring Security sends no-store headers
+for protected pages.
+
+Sessions expire after 20 minutes of inactivity. Cookies are HttpOnly and
+SameSite=Lax, and session IDs are not written into URLs. Secure cookies are
+configurable because local development uses HTTP; production requires HTTPS
+and `SESSION_COOKIE_SECURE=true`. Remember-me, password resets, and account
+verification are not implemented.
+
+To test manually, sign in, open `/home`, and sign out. `/home` must then redirect
+back to login. An uppercase version of a registered email should work; a wrong
+password should show a generic error and leave the password field empty. Try
+two separate browser profiles with different users: each should see only its own
+name. Existing users created through registration in Phase 4 can sign in without
+schema changes.
 
 Useful database commands:
 
@@ -129,6 +167,12 @@ protected routes, mass-assignment protection, HTML escaping, and password redact
 Service unit tests cover concurrent unique-constraint error translation and ensure
 unrelated database failures are not mislabeled as email conflicts.
 
+Authentication tests cover real database login, generic failures, canonical emails,
+CSRF for login/logout, session ID rotation, credential erasure, fixed redirects,
+session isolation, escaped display names, logout invalidation, and rejection of
+oversized passwords without BCrypt prefix matching. All preexisting migration and
+registration tests remain part of the suite.
+
 ## Database migrations
 
 Spring Boot automatically runs Flyway on startup using the configured datasource.
@@ -160,9 +204,9 @@ schema changes to any non-disposable database.
 
 ```text
 src/main/java/com/personalfinance/       Application entry point; future features
-src/main/java/com/personalfinance/auth/  Registration form, controller, service
+src/main/java/com/personalfinance/auth/  Authentication pages and registration
 src/main/java/com/personalfinance/user/  User entity and repository
-src/main/java/com/personalfinance/security/ Security policy and password encoder
+src/main/java/com/personalfinance/security/ Security policy, principal, identity lookup, password encoder
 src/main/resources/application.properties
 src/main/resources/db/migration/        Versioned Flyway SQL migrations
 src/main/resources/templates/           Thymeleaf pages and reusable head fragment
@@ -174,6 +218,7 @@ compose.yaml                           Local PostgreSQL service and volume
 
 ## Next milestone
 
-Implement database-backed login/logout and an authenticated landing page, then
-add user-owned account management. No schema changes were needed for registration;
-the existing V1 migration remains unchanged.
+Add user-owned account management: a new Flyway migration, account entity/form,
+ownership-scoped service and repository queries, mobile pages, and security tests.
+No schema changes were needed for authentication; the existing V1 migration
+remains unchanged.

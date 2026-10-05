@@ -203,7 +203,7 @@ class RegistrationIntegrationTests {
 	void noGeneratedDevelopmentAccountCanAuthenticate() throws Exception {
 		assertThatThrownBy(() -> userDetailsService.loadUserByUsername("user"))
 				.isInstanceOf(UsernameNotFoundException.class);
-		mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", PASSWORD))
+		mvc.perform(post("/login").with(csrf()).param("email", "user").param("password", PASSWORD))
 				.andExpect(redirectedUrl("/login?error"))
 				.andExpect(unauthenticated());
 	}

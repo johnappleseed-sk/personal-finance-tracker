@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Sign in')}"></head>
+<body>
+<main class="auth-card" aria-labelledby="page-title">
+    <p class="brand">Personal Finance Tracker</p>
+    <h1 id="page-title">Sign in</h1>
+    <p>Use the email address and password you registered with.</p>
+    <div class="alert" role="alert" th:if="${param.error != null}">
+        Invalid email or password. Please try again.
+    </div>
+    <div class="notice" role="status" th:if="${param.logout != null}">
+        You have been signed out.
+    </div>
+    <form th:action="@{/login}" method="post">
+        <div class="field">
+            <label for="email">Email address</label>
+            <input id="email" name="email" type="email" autocomplete="username" inputmode="email"
+                   required maxlength="254">
+        </div>
+        <div class="field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password"
+                   required maxlength="72">
+        </div>
+        <button type="submit">Sign in</button>
+    </form>
+    <p>New here? <a th:href="@{/register}">Create an account</a></p>
+</main>
+</body>
+</html>

@@ -2,21 +2,19 @@ package com.personalfinance.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.savedrequest.NullRequestCache;
 
-/** Protects all non-public routes and retains CSRF protection during registration development. */
+/** Configures session-based authentication, BCrypt verification, and CSRF-protected login/logout. */
 @Configuration
 public class SecurityConfiguration {
 
 	/**
-	 * Allows registration and static CSS while requiring authentication elsewhere.
-	 * Spring Security retains its session fixation protection, security headers, and POST logout.
+	 * Allows public authentication pages while requiring authentication elsewhere.
+	 * Fixed redirects and a disabled saved-request cache avoid untrusted return URLs.
+	 * Spring Security retains session fixation protection and its default security headers.
 	 *
 	 * @param http Spring Security's filter-chain builder
 	 * @return configured servlet security chain
@@ -26,29 +24,26 @@ public class SecurityConfiguration {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		return http
 				.authorizeHttpRequests(authorize -> authorize
-						.requestMatchers("/register", "/register/success", "/css/**", "/error").permitAll()
+						.requestMatchers("/", "/login", "/register", "/register/success", "/css/**", "/error").permitAll()
 						.anyRequest().authenticated())
-				.formLogin(Customizer.withDefaults())
-				.logout(Customizer.withDefaults())
+				.requestCache(cache -> cache.requestCache(new NullRequestCache()))
+				.formLogin(form -> form
+						.loginPage("/login")
+						.usernameParameter("email")
+						.defaultSuccessUrl("/home", true)
+						.failureUrl("/login?error"))
+				.logout(logout -> logout
+						.logoutUrl("/logout")
+						.logoutSuccessUrl("/login?logout")
+						.invalidateHttpSession(true)
+						.clearAuthentication(true)
+						.deleteCookies("JSESSIONID"))
 				.build();
 	}
 
-	/** @return BCrypt encoder with work factor 12 for newly registered passwords */
+	/** @return BCrypt encoder with work factor 12 and strict byte-limit checks for registration and login */
 	@Bean
 	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder(12);
-	}
-
-	/**
-	 * Prevents Spring Boot from creating a generated development user.
-	 * Database-backed login is the next milestone; no identity can sign in yet.
-	 *
-	 * @return deny-all identity lookup until authentication is implemented
-	 */
-	@Bean
-	public UserDetailsService pendingAuthenticationUserDetailsService() {
-		return username -> {
-			throw new UsernameNotFoundException("Sign-in is not available yet.");
-		};
+		return new StrictBCryptPasswordEncoder();
 	}
 }

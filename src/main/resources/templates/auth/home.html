@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Home')}"></head>
+<body>
+<main class="auth-card" aria-labelledby="page-title">
+    <p class="brand">Personal Finance Tracker</p>
+    <nav th:replace="~{fragments/navigation :: navigation}"></nav>
+    <h1 id="page-title">Welcome, <span th:text="${displayName}">User</span></h1>
+    <p>You are signed in securely.</p>
+    <section aria-labelledby="next-title">
+        <h2 id="next-title">Your finance workspace</h2>
+        <p>Account management is the next feature. Financial totals and reports are not available yet.</p>
+    </section>
+</main>
+</body>
+</html>
