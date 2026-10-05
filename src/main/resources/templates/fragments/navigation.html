@@ -4,6 +4,7 @@
 <nav th:fragment="navigation(activePage)" class="navigation" aria-label="Main navigation">
     <a th:href="@{/home}" th:attr="aria-current=${activePage == 'home' ? 'page' : null}">Home</a>
     <a th:href="@{/accounts}" th:attr="aria-current=${activePage == 'accounts' ? 'page' : null}">Accounts</a>
+    <a th:href="@{/categories}" th:attr="aria-current=${activePage == 'categories' ? 'page' : null}">Categories</a>
     <form th:action="@{/logout}" method="post">
         <button type="submit">Sign out</button>
     </form>

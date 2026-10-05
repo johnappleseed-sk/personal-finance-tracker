@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(${pageTitle})}"></head>
+<body>
+<main class="auth-card" aria-labelledby="page-title">
+    <p class="brand">Personal Finance Tracker</p>
+    <nav th:replace="~{fragments/navigation :: navigation('categories')}"></nav>
+    <h1 id="page-title" th:text="${pageTitle}">Category</h1>
+    <form th:action="@{${formAction}}" th:object="${categoryForm}" method="post">
+        <p class="alert" role="alert" th:if="${#fields.hasAnyErrors()}">Please check the highlighted fields.</p>
+        <div class="field">
+            <label for="name">Category name</label>
+            <input id="name" type="text" th:field="*{name}" required maxlength="100"
+                   aria-describedby="name-errors" th:attr="aria-invalid=${#fields.hasErrors('name')}">
+            <p id="name-errors" class="error" th:errors="*{name}"></p>
+        </div>
+        <div class="field">
+            <label for="categoryType">Category type</label>
+            <select id="categoryType" th:field="*{categoryType}" required aria-describedby="type-help type-errors"
+                    th:attr="aria-invalid=${#fields.hasErrors('categoryType')}">
+                <option value="">Choose a type</option>
+                <option th:each="type : ${categoryTypes}" th:value="${type}" th:text="${type.label}"></option>
+            </select>
+            <p id="type-help" class="hint">Income is money received; expense is money spent. Transfers are neither.</p>
+            <p id="type-errors" class="error" th:errors="*{categoryType}"></p>
+        </div>
+        <button type="submit">Save category</button>
+        <a th:href="@{/categories}">Cancel</a>
+    </form>
+</main>
+</body>
+</html>

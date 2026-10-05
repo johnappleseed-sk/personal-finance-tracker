@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Delete category')}"></head>
+<body>
+<main class="auth-card" aria-labelledby="page-title">
+    <p class="brand">Personal Finance Tracker</p>
+    <nav th:replace="~{fragments/navigation :: navigation('categories')}"></nav>
+    <h1 id="page-title">Delete category?</h1>
+    <p>You are about to permanently delete <strong th:text="${category.name}">this category</strong>.</p>
+    <p>This action cannot be undone.</p>
+    <form th:action="@{/categories/{id}/delete(id=${category.id})}" method="post">
+        <button class="danger" type="submit">Delete category permanently</button>
+        <a th:href="@{/categories}">Cancel and keep category</a>
+    </form>
+</main>
+</body>
+</html>

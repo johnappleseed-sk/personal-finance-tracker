@@ -2,8 +2,8 @@
 
 A student-friendly, production-style personal finance application built incrementally.
 User registration, login/logout, an authenticated welcome page, and user-owned
-account management are implemented. Categories, transactions, budgets, financial dashboards, and reports are
-planned; they are **not implemented yet**.
+account and category management are implemented. Transactions, budgets, financial
+dashboards, and reports are planned; they are **not implemented yet**.
 
 ## Current foundation
 
@@ -16,6 +16,7 @@ planned; they are **not implemented yet**.
 - Responsive Thymeleaf registration pages and a JPA user model
 - Database-backed authentication with email login and a CSRF-protected sign-out form
 - Ownership-scoped account CRUD with exact opening balances and responsive pages
+- Private income/expense category CRUD with validated forms and confirmation before deletion
 
 The architecture is a feature-oriented modular monolith under `com.personalfinance`.
 Registration flows from `RegistrationController` to `RegistrationService` to
@@ -159,6 +160,33 @@ the first user's edit/delete URLs: they must return 404, and each list must show
 only its owner's accounts. Try an amount with three decimal places or an empty
 name; no data should change. Use synthetic financial data during development.
 
+## Categories
+
+Open `/categories` after signing in, or follow **Categories** in the navigation.
+Create a label such as Salary (Income) or Groceries (Expense), edit its name/type,
+or delete it through a read-only confirmation page followed by a CSRF-protected
+POST. Names are required, trimmed, and limited to 100 characters. Only Income and
+Expense are supported; transfers are neither. Duplicate names are allowed, and
+no shared or default categories are seeded.
+
+Categories belong to the authenticated user, not to a particular account.
+The allowlisted form accepts only name and type. `CategoryService` validates
+inputs and uses owner-scoped repository queries for every lookup, update, and
+delete. It returns detached `CategoryView` data. Submitted owner IDs cannot
+reassign ownership, and missing/foreign resources share the same safe 404 page,
+including invalid foreign edit submissions.
+
+There are no transactions or category totals yet. Both name and type are editable
+and deletion is permanent. The transaction milestone must protect historical
+references and define whether a used category's type may change.
+
+To check manually, create both types, edit one, cancel deletion, then confirm it.
+Try an empty name and verify that nothing is saved. In a second browser profile,
+sign in as another user: the list must be separate and the first user's edit/delete
+URLs must return 404. Use synthetic category names during development.
+
+## Database operations
+
 Useful database commands:
 
 ```bash
@@ -211,6 +239,12 @@ exact monetary boundaries, negative amounts, validation, timestamps, safe 404s,
 delete confirmation, and PostgreSQL checks/foreign keys. Migration tests also
 verify upgrading an existing V1 users schema without losing its users.
 
+Category tests cover both types, duplicate names and stable ordering, ownership
+isolation at MVC/service boundaries, forged IDs/owners, authentication/CSRF on all
+mutations, validation, safe malformed-ID responses, HTML escaping, timestamps,
+read-only confirmation, and PostgreSQL constraints. The V2-to-V3 migration test
+preserves an existing user and exact account balance while adding categories.
+
 ## Database migrations
 
 Spring Boot automatically runs Flyway on startup using the configured datasource.
@@ -220,6 +254,8 @@ Versioned SQL lives in `src/main/resources/db/migration`:
   unique normalized email, and timezone-aware creation/update timestamps.
 - `V2__create_accounts.sql`: owner foreign key, account name/type, exact opening
   balance, supported currency checks, timestamps, and an owner/name/ID index.
+- `V3__create_categories.sql`: owner foreign key, required name, income/expense
+  check, timestamps, and an owner/name/ID index. Existing migrations are unchanged.
 - Flyway maintains `flyway_schema_history` to record versions and checksums.
 
 Email must be trimmed and lowercase before persistence. The unique constraint
@@ -246,6 +282,7 @@ schema changes to any non-disposable database.
 src/main/java/com/personalfinance/       Application entry point; future features
 src/main/java/com/personalfinance/auth/  Authentication pages and registration
 src/main/java/com/personalfinance/account/ Owner-scoped account CRUD and view/form DTOs
+src/main/java/com/personalfinance/category/ Private income/expense category CRUD
 src/main/java/com/personalfinance/user/  User entity and repository
 src/main/java/com/personalfinance/security/ Security policy, principal, identity lookup, password encoder
 src/main/resources/application.properties
@@ -259,6 +296,6 @@ compose.yaml                           Local PostgreSQL service and volume
 
 ## Next milestone
 
-Add user-owned categories, then transactions with explicit balance semantics and
-history-safe account deletion. Budgets, financial dashboards, and reports remain
-future work. The applied V1 users migration remains unchanged.
+Add user-owned transactions with explicit balance semantics, account/category
+ownership and type checks, and history-safe deletion. Budgets, financial dashboards,
+and reports remain future work. Applied V1 and V2 migrations remain unchanged.

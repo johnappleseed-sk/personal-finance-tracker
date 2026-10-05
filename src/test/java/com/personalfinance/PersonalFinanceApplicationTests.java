@@ -86,7 +86,7 @@ class PersonalFinanceApplicationTests {
 
 	@Test
 	void flywayAppliesInitialMigrationAndRecordsHistory() throws SQLException {
-		assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("2");
+		assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("3");
 		assertThat(flyway.info().pending()).isEmpty();
 		try (Connection connection = dataSource.getConnection();
 			 var statement = connection.createStatement();
@@ -110,8 +110,8 @@ class PersonalFinanceApplicationTests {
 					VALUES ('Existing User', 'existing@example.test', 'synthetic-unused-hash')
 					""");
 			Flyway upgrade = flywayForSchema("upgrade_test", "classpath:db/migration");
-			assertThat(upgrade.migrate().migrationsExecuted).isEqualTo(1);
-			assertThat(upgrade.info().current().getVersion().getVersion()).isEqualTo("2");
+			assertThat(upgrade.migrate().migrationsExecuted).isEqualTo(2);
+			assertThat(upgrade.info().current().getVersion().getVersion()).isEqualTo("3");
 			try (var result = statement.executeQuery("SELECT count(*) FROM upgrade_test.users")) {
 				assertThat(result.next()).isTrue();
 				assertThat(result.getInt(1)).isEqualTo(1);
@@ -119,6 +119,36 @@ class PersonalFinanceApplicationTests {
 			statement.executeUpdate("""
 					INSERT INTO upgrade_test.accounts (user_id, name, account_type, currency, initial_balance)
 					SELECT id, 'Existing user account', 'CASH', 'EUR', 1.23 FROM upgrade_test.users
+					""");
+			assertThat(upgrade.migrate().migrationsExecuted).isZero();
+		}
+	}
+
+	@Test
+	void categoriesMigrationUpgradesExistingAccountsWithoutLosingData() throws SQLException {
+		Flyway initial = Flyway.configure().dataSource(dataSource).schemas("categories_upgrade_test")
+				.locations("classpath:db/migration").target("2").cleanDisabled(true).load();
+		assertThat(initial.migrate().migrationsExecuted).isEqualTo(2);
+		try (Connection connection = dataSource.getConnection(); var statement = connection.createStatement()) {
+			statement.executeUpdate("""
+					INSERT INTO categories_upgrade_test.users (name, email, password_hash)
+					VALUES ('Existing User', 'existing@example.test', 'synthetic-unused-hash')
+					""");
+			statement.executeUpdate("""
+					INSERT INTO categories_upgrade_test.accounts (user_id, name, account_type, currency, initial_balance)
+					SELECT id, 'Preserved account', 'CASH', 'EUR', -12.34 FROM categories_upgrade_test.users
+					""");
+			Flyway upgrade = flywayForSchema("categories_upgrade_test", "classpath:db/migration");
+			assertThat(upgrade.migrate().migrationsExecuted).isEqualTo(1);
+			try (var result = statement.executeQuery("SELECT name, initial_balance FROM categories_upgrade_test.accounts")) {
+				assertThat(result.next()).isTrue();
+				assertThat(result.getString("name")).isEqualTo("Preserved account");
+				assertThat(result.getBigDecimal("initial_balance")).isEqualByComparingTo("-12.34");
+				assertThat(result.next()).isFalse();
+			}
+			statement.executeUpdate("""
+					INSERT INTO categories_upgrade_test.categories (user_id, name, category_type)
+					SELECT id, 'Groceries', 'EXPENSE' FROM categories_upgrade_test.users
 					""");
 			assertThat(upgrade.migrate().migrationsExecuted).isZero();
 		}

@@ -28,9 +28,9 @@ a { color: #14576a; display: inline-block; padding: .75rem 0; }
 .navigation form { margin: 0; }
 h1, p { overflow-wrap: anywhere; }
 .workspace { width: 100%; max-width: 64rem; margin: 1rem auto; padding: 1.25rem; background: #fff; border-radius: 1rem; }
-.account-grid { display: grid; gap: 1rem; margin-top: 1rem; }
-.account-card { min-width: 0; padding: 1rem; border: 1px solid #697b86; border-radius: .75rem; }
-.account-card h2, .money { overflow-wrap: anywhere; }
+.account-grid, .category-grid { display: grid; gap: 1rem; margin-top: 1rem; }
+.account-card, .category-card { min-width: 0; padding: 1rem; border: 1px solid #697b86; border-radius: .75rem; }
+.account-card h2, .category-card h2, .money { overflow-wrap: anywhere; }
 dt { font-weight: 600; }
 dd { margin: 0 0 .75rem; }
 .actions { display: flex; gap: 1.5rem; }
@@ -40,5 +40,5 @@ dd { margin: 0 0 .75rem; }
 
 @media (min-width: 48rem) {
     .auth-card { margin-top: 3rem; padding: 2rem; }
-    .account-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .account-grid, .category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

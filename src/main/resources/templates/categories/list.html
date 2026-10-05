@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Categories')}"></head>
+<body>
+<main class="workspace" aria-labelledby="page-title">
+    <p class="brand">Personal Finance Tracker</p>
+    <nav th:replace="~{fragments/navigation :: navigation('categories')}"></nav>
+    <h1 id="page-title">Your categories</h1>
+    <p class="notice" role="status" th:if="${successMessage != null}" th:text="${successMessage}"></p>
+    <a class="button-link" th:href="@{/categories/new}">Create category</a>
+    <p th:if="${#lists.isEmpty(categories)}">No categories yet. Create an income or expense category to get started.</p>
+    <div class="category-grid">
+        <article class="category-card" th:each="category : ${categories}">
+            <h2 th:text="${category.name}">Category name</h2>
+            <dl>
+                <dt>Type</dt><dd th:text="${category.categoryType.label}">Expense</dd>
+            </dl>
+            <div class="actions">
+                <a th:href="@{/categories/{id}/edit(id=${category.id})}"
+                   th:attr="aria-label=${'Edit ' + category.name}">Edit</a>
+                <a th:href="@{/categories/{id}/delete(id=${category.id})}"
+                   th:attr="aria-label=${'Delete ' + category.name}">Delete</a>
+            </div>
+        </article>
+    </div>
+    <p class="hint">Categories are private to you. Transactions and category totals are not available yet.</p>
+</main>
+</body>
+</html>

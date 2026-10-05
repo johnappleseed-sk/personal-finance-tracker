@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Category unavailable')}"></head>
+<body>
+<main class="auth-card" aria-labelledby="page-title">
+    <h1 id="page-title">Category unavailable</h1>
+    <p>The requested category is not available.</p>
+    <a th:href="@{/categories}">Back to your categories</a>
+</main>
+</body>
+</html>
