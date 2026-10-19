@@ -1,6 +1,7 @@
 package com.personalfinance.transaction;
 
 import java.util.List;
+import java.util.Locale;
 
 import com.personalfinance.account.Account;
 import com.personalfinance.account.AccountRepository;
@@ -33,6 +34,43 @@ public class TransactionService {
 	/** @return only the trusted session user's entries, mapped inside a transaction */
 	public List<TransactionView> findTransactionsForUser(@NotNull @Positive Long userId) {
 		return transactionRepository.findAllByUserIdOrderByTransactionDateDescIdDesc(userId).stream().map(this::toView).toList();
+	}
+
+	/** @return filtered entries owned by the trusted session user */
+	public List<TransactionView> findTransactionsForUser(@NotNull @Positive Long userId, TransactionFilter filter) {
+		List<TransactionView> all = findTransactionsForUser(userId);
+		if (filter == null || !filter.hasActiveFilters()) {
+			return all;
+		}
+		String queryLower = filter.q() == null ? null : filter.q().toLowerCase(Locale.ROOT);
+		return all.stream()
+				.filter(tx -> filter.accountId() == null || tx.accountId().equals(filter.accountId()))
+				.filter(tx -> filter.categoryId() == null || tx.categoryId().equals(filter.categoryId()))
+				.filter(tx -> filter.type() == null || tx.transactionType() == filter.type())
+				.filter(tx -> filter.startDate() == null || !tx.transactionDate().isBefore(filter.startDate()))
+				.filter(tx -> filter.endDate() == null || !tx.transactionDate().isAfter(filter.endDate()))
+				.filter(tx -> queryLower == null
+						|| tx.description().toLowerCase(Locale.ROOT).contains(queryLower)
+						|| tx.categoryName().toLowerCase(Locale.ROOT).contains(queryLower)
+						|| tx.accountName().toLowerCase(Locale.ROOT).contains(queryLower))
+				.toList();
+	}
+
+	/** Exports the user's (optionally filtered) transactions to RFC-4180 CSV with formula-injection protection. */
+	public String exportTransactionsCsv(@NotNull @Positive Long userId, TransactionFilter filter) {
+		List<TransactionView> rows = findTransactionsForUser(userId, filter);
+		StringBuilder csv = new StringBuilder();
+		csv.append("Date,Type,Category,Account,Amount,Currency,Description\r\n");
+		for (TransactionView row : rows) {
+			csv.append(escapeCsv(row.transactionDate().toString())).append(',')
+					.append(escapeCsv(row.transactionType().getLabel())).append(',')
+					.append(escapeCsv(row.categoryName())).append(',')
+					.append(escapeCsv(row.accountName())).append(',')
+					.append(escapeCsv(row.amount().toPlainString())).append(',')
+					.append(escapeCsv(row.currency().name())).append(',')
+					.append(escapeCsv(row.description())).append("\r\n");
+		}
+		return csv.toString();
 	}
 
 	/** @return authorized detached entry; missing/foreign IDs both raise a safe not-found error */
@@ -99,5 +137,20 @@ public class TransactionService {
 		return new TransactionView(transaction.getId(), transaction.getAccount().getId(), transaction.getAccount().getName(),
 				transaction.getCategory().getId(), transaction.getCategory().getName(), transaction.getTransactionType(),
 				transaction.getAmount(), transaction.getCurrency(), transaction.getTransactionDate(), transaction.getDescription());
+	}
+
+	private static String escapeCsv(String raw) {
+		if (raw == null || raw.isEmpty()) {
+			return "";
+		}
+		String safe = raw;
+		char first = safe.charAt(0);
+		if (first == '=' || first == '+' || first == '-' || first == '@') {
+			safe = "'" + safe;
+		}
+		if (safe.indexOf(',') >= 0 || safe.indexOf('"') >= 0 || safe.indexOf('\n') >= 0 || safe.indexOf('\r') >= 0) {
+			return "\"" + safe.replace("\"", "\"\"") + "\"";
+		}
+		return safe;
 	}
 }

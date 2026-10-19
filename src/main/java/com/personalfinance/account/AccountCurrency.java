@@ -5,5 +5,7 @@ public enum AccountCurrency {
 
 	EUR,
 	USD,
-	GBP
+	GBP,
+	KHR
+
 }

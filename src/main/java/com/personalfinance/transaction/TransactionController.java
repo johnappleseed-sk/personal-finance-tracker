@@ -1,5 +1,6 @@
 package com.personalfinance.transaction;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 
 import com.personalfinance.account.AccountService;
@@ -8,6 +9,10 @@ import com.personalfinance.category.CategoryType;
 import com.personalfinance.security.FinanceUserDetails;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +24,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /** Coordinates private ledger pages; the service checks every reference and ownership boundary. */
@@ -43,11 +49,40 @@ public class TransactionController {
 		binder.setAllowedFields("accountId", "categoryId", "transactionType", "amount", "transactionDate", "description");
 	}
 
-	/** @return newest-first entries owned by the authenticated user */
+	/** @return newest-first entries owned by the authenticated user, optionally filtered */
 	@GetMapping
-	public String listTransactions(@AuthenticationPrincipal FinanceUserDetails user, Model model) {
-		model.addAttribute("transactions", transactionService.findTransactionsForUser(user.getUserId()));
+	public String listTransactions(@AuthenticationPrincipal FinanceUserDetails user,
+			@RequestParam(name = "accountId", required = false) Long accountId,
+			@RequestParam(name = "categoryId", required = false) Long categoryId,
+			@RequestParam(name = "type", required = false) CategoryType type,
+			@RequestParam(name = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+			@RequestParam(name = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+			@RequestParam(name = "q", required = false) String q,
+			Model model) {
+		TransactionFilter filter = new TransactionFilter(accountId, categoryId, type, startDate, endDate, q);
+		model.addAttribute("transactions", transactionService.findTransactionsForUser(user.getUserId(), filter));
+		model.addAttribute("filter", filter);
+		model.addAttribute("accounts", accountService.findAccountsForUser(user.getUserId()));
+		model.addAttribute("categories", categoryService.findCategoriesForUser(user.getUserId()));
+		model.addAttribute("transactionTypes", CategoryType.values());
 		return "transactions/list";
+	}
+
+	/** Exports the authenticated user's (optionally filtered) transactions to CSV. */
+	@GetMapping(value = "/export.csv", produces = "text/csv")
+	public ResponseEntity<byte[]> exportTransactionsCsv(@AuthenticationPrincipal FinanceUserDetails user,
+			@RequestParam(name = "accountId", required = false) Long accountId,
+			@RequestParam(name = "categoryId", required = false) Long categoryId,
+			@RequestParam(name = "type", required = false) CategoryType type,
+			@RequestParam(name = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+			@RequestParam(name = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+			@RequestParam(name = "q", required = false) String q) {
+		TransactionFilter filter = new TransactionFilter(accountId, categoryId, type, startDate, endDate, q);
+		String csv = transactionService.exportTransactionsCsv(user.getUserId(), filter);
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"transactions.csv\"")
+				.contentType(new MediaType("text", "csv", StandardCharsets.UTF_8))
+				.body(csv.getBytes(StandardCharsets.UTF_8));
 	}
 
 	/** @return form with display-only defaults and this user's account/category choices */

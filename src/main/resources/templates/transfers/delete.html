@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Delete transfer')}"></head>
+<body>
+<main class="auth-card" aria-labelledby="page-title">
+    <p class="brand">Personal Finance Tracker</p>
+    <nav th:replace="~{fragments/navigation :: navigation('transfers')}"></nav>
+    <h1 id="page-title">Delete transfer</h1>
+    <p class="alert" role="alert">Deleting this transfer is permanent and cannot be undone. Both account balances will be updated.</p>
+    <dl>
+        <dt>From</dt><dd th:text="${transfer.sourceAccountName}">Source</dd>
+        <dt>To</dt><dd th:text="${transfer.targetAccountName}">Target</dd>
+        <dt>Amount</dt><dd class="money"><span th:text="${transfer.currency}">EUR</span> <span th:text="${transfer.amount.toPlainString()}">0.00</span></dd>
+        <dt>Date</dt><dd th:text="${transfer.transferDate}">2026-10-19</dd>
+    </dl>
+    <form th:action="@{/transfers/{id}/delete(id=${transfer.id})}" method="post">
+        <button class="danger" type="submit">Confirm delete</button>
+        <a th:href="@{/transfers}">Cancel</a>
+    </form>
+</main>
+</body>
+</html>

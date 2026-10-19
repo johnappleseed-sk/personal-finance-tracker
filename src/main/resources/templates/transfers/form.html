@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(${pageTitle})}"></head>
+<body>
+<main class="auth-card" aria-labelledby="page-title">
+    <p class="brand">Personal Finance Tracker</p>
+    <nav th:replace="~{fragments/navigation :: navigation('transfers')}"></nav>
+    <h1 id="page-title" th:text="${pageTitle}">Transfer funds</h1>
+    <p th:if="${#lists.size(accounts) < 2}" class="notice">
+        You need at least two accounts in the same currency to record a transfer.
+        <a th:href="@{/accounts/new}">Create account</a>.
+    </p>
+    <form th:action="@{/transfers}" th:object="${transferForm}" method="post">
+        <p class="alert" role="alert" th:if="${#fields.hasAnyErrors()}">Please check the highlighted fields.</p>
+        <div class="field">
+            <label for="sourceAccountId">From account</label>
+            <select id="sourceAccountId" th:field="*{sourceAccountId}" required aria-describedby="source-errors"
+                    th:attr="aria-invalid=${#fields.hasErrors('sourceAccountId')}">
+                <option value="">Choose source account</option>
+                <option th:each="account : ${accounts}" th:value="${account.id}"
+                        th:text="${account.name + ' (' + account.currency + ' ' + account.currentBalance.toPlainString() + ')'}"></option>
+            </select>
+            <p id="source-errors" class="error" th:errors="*{sourceAccountId}"></p>
+        </div>
+        <div class="field">
+            <label for="targetAccountId">To account</label>
+            <select id="targetAccountId" th:field="*{targetAccountId}" required aria-describedby="target-help target-errors"
+                    th:attr="aria-invalid=${#fields.hasErrors('targetAccountId')}">
+                <option value="">Choose target account</option>
+                <option th:each="account : ${accounts}" th:value="${account.id}"
+                        th:text="${account.name + ' (' + account.currency + ' ' + account.currentBalance.toPlainString() + ')'}"></option>
+            </select>
+            <p id="target-help" class="hint">Both accounts must use the same currency.</p>
+            <p id="target-errors" class="error" th:errors="*{targetAccountId}"></p>
+        </div>
+        <div class="field">
+            <label for="amount">Amount</label>
+            <input id="amount" type="number" th:field="*{amount}" min="0.01" step="0.01" required
+                   aria-describedby="amount-errors" th:attr="aria-invalid=${#fields.hasErrors('amount')}">
+            <p id="amount-errors" class="error" th:errors="*{amount}"></p>
+        </div>
+        <div class="field">
+            <label for="transferDate">Date</label>
+            <input id="transferDate" type="date" th:field="*{transferDate}" th:max="${today}" required
+                   aria-describedby="date-errors" th:attr="aria-invalid=${#fields.hasErrors('transferDate')}">
+            <p id="date-errors" class="error" th:errors="*{transferDate}"></p>
+        </div>
+        <div class="field">
+            <label for="description">Description (optional)</label>
+            <input id="description" type="text" th:field="*{description}" maxlength="255"
+                   aria-describedby="description-errors" th:attr="aria-invalid=${#fields.hasErrors('description')}">
+            <p id="description-errors" class="error" th:errors="*{description}"></p>
+        </div>
+        <button type="submit">Record transfer</button>
+        <a th:href="@{/transfers}">Cancel</a>
+    </form>
+</main>
+</body>
+</html>

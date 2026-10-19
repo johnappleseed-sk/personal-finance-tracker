@@ -2,13 +2,20 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <body>
 <nav th:fragment="navigation(activePage)" class="navigation" aria-label="Main navigation">
-    <a th:href="@{/home}" th:attr="aria-current=${activePage == 'home' ? 'page' : null}">Home</a>
-    <a th:href="@{/accounts}" th:attr="aria-current=${activePage == 'accounts' ? 'page' : null}">Accounts</a>
-    <a th:href="@{/categories}" th:attr="aria-current=${activePage == 'categories' ? 'page' : null}">Categories</a>
-    <a th:href="@{/transactions}" th:attr="aria-current=${activePage == 'transactions' ? 'page' : null}">Transactions</a>
-    <form th:action="@{/logout}" method="post">
-        <button type="submit">Sign out</button>
-    </form>
+    <div class="nav-links">
+        <a th:href="@{/home}" th:attr="aria-current=${activePage == 'home' ? 'page' : null}">Dashboard</a>
+        <a th:href="@{/accounts}" th:attr="aria-current=${activePage == 'accounts' ? 'page' : null}">Accounts</a>
+        <a th:href="@{/categories}" th:attr="aria-current=${activePage == 'categories' ? 'page' : null}">Categories</a>
+        <a th:href="@{/transactions}" th:attr="aria-current=${activePage == 'transactions' ? 'page' : null}">Transactions</a>
+        <a th:href="@{/transfers}" th:attr="aria-current=${activePage == 'transfers' ? 'page' : null}">Transfers</a>
+        <a th:href="@{/budgets}" th:attr="aria-current=${activePage == 'budgets' ? 'page' : null}">Budgets</a>
+    </div>
+    <div class="nav-controls">
+        <button id="theme-toggle" type="button" class="btn-theme" aria-label="Switch theme">☾ Dark</button>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="btn-logout">Sign out</button>
+        </form>
+    </div>
 </nav>
 </body>
 </html>

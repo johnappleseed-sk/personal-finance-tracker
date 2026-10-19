@@ -2,17 +2,186 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('Home')}"></head>
 <body>
-<main class="auth-card" aria-labelledby="page-title">
+<main class="workspace" aria-labelledby="page-title">
     <p class="brand">Personal Finance Tracker</p>
     <nav th:replace="~{fragments/navigation :: navigation('home')}"></nav>
-    <h1 id="page-title">Welcome, <span th:text="${displayName}">User</span></h1>
-    <p>You are signed in securely.</p>
-    <section aria-labelledby="next-title">
-        <h2 id="next-title">Your finance workspace</h2>
-        <a th:href="@{/accounts}">Manage your accounts</a>
-        <a th:href="@{/categories}">Manage your categories</a>
-        <a th:href="@{/transactions}">Manage your transactions</a>
-        <p>Account balances are available on the Accounts page. Dashboards and reports are not available yet.</p>
+
+    <header class="page-header">
+        <div>
+            <h1 id="page-title">Welcome, <span th:text="${displayName}">User</span></h1>
+            <p class="hint">Financial overview for <strong th:text="${dashboard.currentMonth}">2026-10</strong></p>
+        </div>
+        <div class="page-header-actions">
+            <a class="button-link" th:href="@{/transactions/new}">+ New Transaction</a>
+            <a class="button-outline" th:href="@{/transfers/new}">⇄ Transfer Funds</a>
+            <a class="button-outline" th:href="@{/budgets/new}">◎ Set Budget</a>
+        </div>
+    </header>
+
+    <!-- Onboarding state if no accounts exist yet -->
+    <section th:if="${#lists.isEmpty(dashboard.currencySummaries)}" class="empty-state" aria-labelledby="onboarding-title">
+        <h2 id="onboarding-title">Get started with your finance workspace</h2>
+        <p class="hint">Create your first account and category to begin tracking balances, cash flow, and monthly budgets.</p>
+        <div class="quick-links" style="justify-content: center;">
+            <a class="button-link" th:href="@{/accounts/new}">1. Create an Account</a>
+            <a class="button-outline" th:href="@{/categories/new}">2. Create a Category</a>
+            <a class="button-outline" th:href="@{/transactions/new}">3. Record a Transaction</a>
+        </div>
+    </section>
+
+    <!-- Currency Summary KPI Cards & Cash Flow Visual Bars -->
+    <section th:if="${!#lists.isEmpty(dashboard.currencySummaries)}" aria-labelledby="summary-title">
+        <h2 id="summary-title">Net Balance &amp; Monthly Cash Flow</h2>
+        <div class="kpi-grid">
+            <article class="kpi-card" th:each="summary : ${dashboard.currencySummaries}">
+                <div>
+                    <div class="card-top">
+                        <span class="badge badge-info" th:text="${summary.currency}">EUR</span>
+                        <span class="hint" th:text="${summary.accountCount + (summary.accountCount == 1 ? ' account' : ' accounts')}">1 account</span>
+                    </div>
+                    <p class="hint" style="margin: 0;">Total Current Balance</p>
+                    <p class="money-lg">
+                        <span th:text="${summary.currency}">EUR</span>
+                        <span th:text="${summary.totalBalance.toPlainString()}">0.00</span>
+                    </p>
+                    <dl>
+                        <div>
+                            <dt>Month Income</dt>
+                            <dd class="money money-income">+<span th:text="${summary.monthlyIncome.toPlainString()}">0.00</span></dd>
+                        </div>
+                        <div>
+                            <dt>Month Expense</dt>
+                            <dd class="money money-expense">-<span th:text="${summary.monthlyExpense.toPlainString()}">0.00</span></dd>
+                        </div>
+                    </dl>
+                </div>
+                <div>
+                    <div class="flow-row">
+                        <div class="flow-label">
+                            <span>Income</span>
+                            <span class="money" th:text="${summary.currency + ' ' + summary.monthlyIncome.toPlainString()}">EUR 0.00</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill income" th:style="${'width:' + summary.incomeBarPercent + '%'}"></div>
+                        </div>
+                    </div>
+                    <div class="flow-row">
+                        <div class="flow-label">
+                            <span>Expenses</span>
+                            <span class="money" th:text="${summary.currency + ' ' + summary.monthlyExpense.toPlainString()}">EUR 0.00</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill expense" th:style="${'width:' + summary.expenseBarPercent + '%'}"></div>
+                        </div>
+                    </div>
+                    <p class="hint" style="margin-top: 0.65rem;">
+                        Monthly Net:
+                        <strong class="money" th:text="${summary.currency + ' ' + summary.monthlyNet.toPlainString()}">EUR 0.00</strong>
+                    </p>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <div class="dashboard-columns" style="margin-top: 1.5rem;">
+        <!-- Expense Category Breakdown -->
+        <section class="panel-card" aria-labelledby="breakdown-title">
+            <div>
+                <div class="card-top">
+                    <h2 id="breakdown-title">Top Expense Categories</h2>
+                    <a th:href="@{/categories}">Manage categories</a>
+                </div>
+                <p class="hint" th:if="${#lists.isEmpty(dashboard.topExpenses)}">No expenses recorded yet.</p>
+                <div th:each="item : ${dashboard.topExpenses}" class="flow-row">
+                    <div class="flow-label">
+                        <strong><span th:text="${item.categoryName}">Groceries</span> (<span th:text="${item.currency}">EUR</span>)</strong>
+                        <span class="money"><span th:text="${item.currency}">EUR</span> <span th:text="${item.totalAmount.toPlainString()}">0.00</span> (<span th:text="${item.sharePercent}">0</span>%)</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill expense" th:style="${'width:' + item.sharePercent + '%'}"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Current Month Budgets -->
+        <section class="panel-card" aria-labelledby="budgets-title">
+            <div>
+                <div class="card-top">
+                    <h2 id="budgets-title">Budgets (<span th:text="${dashboard.currentMonth}">2026-10</span>)</h2>
+                    <a th:href="@{/budgets}">View all budgets</a>
+                </div>
+                <p class="hint" th:if="${#lists.isEmpty(dashboard.currentMonthBudgets)}">
+                    No monthly budgets configured for <span th:text="${dashboard.currentMonth}">2026-10</span>.
+                </p>
+                <div th:each="budget : ${dashboard.currentMonthBudgets}" class="flow-row">
+                    <div class="flow-label">
+                        <span>
+                            <strong th:text="${budget.categoryName}">Category</strong>
+                            <span class="badge badge-expense" th:if="${budget.overBudget}">Over budget</span>
+                            <span class="badge badge-warning" th:if="${budget.nearLimit}">Near limit</span>
+                        </span>
+                        <span class="money">
+                            <span th:text="${budget.currency}">EUR</span>
+                            <span th:text="${budget.spentAmount.toPlainString()}">0.00</span> /
+                            <span th:text="${budget.limitAmount.toPlainString()}">0.00</span>
+                            (<span th:text="${budget.usagePercent}">0</span>%)
+                        </span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill"
+                             th:classappend="${budget.overBudget ? 'danger' : (budget.nearLimit ? 'warning' : '')}"
+                             th:style="${'width:' + budget.progressBarWidth + '%'}"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Recent Transactions -->
+    <section style="margin-top: 1.5rem;" aria-labelledby="recent-title">
+        <div class="card-top">
+            <h2 id="recent-title">Recent Transactions</h2>
+            <a th:href="@{/transactions}">View all transactions</a>
+        </div>
+        <p class="hint" th:if="${#lists.isEmpty(dashboard.recentTransactions)}">No transactions recorded yet.</p>
+        <div class="transaction-grid" th:if="${!#lists.isEmpty(dashboard.recentTransactions)}">
+            <article class="transaction-card" th:each="tx : ${dashboard.recentTransactions}">
+                <div class="card-top">
+                    <h3 style="margin:0; font-size:1.05rem;" th:text="${tx.categoryName}">Category</h3>
+                    <span class="badge"
+                          th:classappend="${tx.transactionType.name() == 'INCOME' ? 'badge-income' : 'badge-expense'}"
+                          th:text="${tx.transactionType.label}">Expense</span>
+                </div>
+                <p class="money-lg"
+                   th:classappend="${tx.transactionType.name() == 'INCOME' ? 'money-income' : 'money-expense'}">
+                    <span th:text="${tx.transactionType.name() == 'INCOME' ? '+' : '-'}">-</span><span th:text="${tx.currency}">EUR</span>
+                    <span th:text="${tx.amount.toPlainString()}">0.00</span>
+                </p>
+                <dl>
+                    <div>
+                        <dt>Account</dt>
+                        <dd th:text="${tx.accountName}">Account</dd>
+                    </div>
+                    <div>
+                        <dt>Date</dt>
+                        <dd><time th:datetime="${tx.transactionDate}" th:text="${tx.transactionDate}"></time></dd>
+                    </div>
+                </dl>
+                <p class="hint" th:if="${!#strings.isEmpty(tx.description)}" th:text="${tx.description}"></p>
+            </article>
+        </div>
+    </section>
+
+    <section style="margin-top: 1.5rem;" aria-labelledby="next-title">
+        <h2 id="next-title">Quick Workspace Links</h2>
+        <div class="quick-links">
+            <a class="button-outline" th:href="@{/accounts}">Manage your accounts (<span th:text="${dashboard.totalAccounts}">0</span>)</a>
+            <a class="button-outline" th:href="@{/categories}">Manage your categories (<span th:text="${dashboard.totalCategories}">0</span>)</a>
+            <a class="button-outline" th:href="@{/transactions}">Manage your transactions (<span th:text="${dashboard.totalTransactions}">0</span>)</a>
+            <a class="button-outline" th:href="@{/transfers}">Account transfers</a>
+            <a class="button-outline" th:href="@{/budgets}">Monthly budgets</a>
+        </div>
     </section>
 </main>
 </body>

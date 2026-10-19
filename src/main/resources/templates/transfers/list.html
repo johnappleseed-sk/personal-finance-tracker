@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Transfers')}"></head>
+<body>
+<main class="workspace" aria-labelledby="page-title">
+    <p class="brand">Personal Finance Tracker</p>
+    <nav th:replace="~{fragments/navigation :: navigation('transfers')}"></nav>
+    <header class="page-header">
+        <div>
+            <h1 id="page-title">Account transfers</h1>
+            <p class="hint">Move funds between your accounts using the same currency.</p>
+        </div>
+        <div class="page-header-actions">
+            <a class="button-link" th:href="@{/transfers/new}">+ Transfer funds</a>
+        </div>
+    </header>
+
+    <p class="notice" role="status" th:if="${successMessage != null}" th:text="${successMessage}"></p>
+
+    <div class="empty-state" th:if="${#lists.isEmpty(transfers)}">
+        <p>No transfers yet. Record a transfer between two same-currency accounts to get started.</p>
+    </div>
+
+    <div class="transfer-grid" th:if="${!#lists.isEmpty(transfers)}">
+        <article class="transfer-card" th:each="transfer : ${transfers}">
+            <div>
+                <div class="card-top">
+                    <h2>
+                        <span th:text="${transfer.sourceAccountName}">Source</span> →
+                        <span th:text="${transfer.targetAccountName}">Target</span>
+                    </h2>
+                    <span class="badge badge-info">Transfer</span>
+                </div>
+                <p class="money-lg">
+                    <span th:text="${transfer.currency}">EUR</span>
+                    <span th:text="${transfer.amount.toPlainString()}">0.00</span>
+                </p>
+                <dl>
+                    <div>
+                        <dt>From account</dt>
+                        <dd th:text="${transfer.sourceAccountName}">Source</dd>
+                    </div>
+                    <div>
+                        <dt>To account</dt>
+                        <dd th:text="${transfer.targetAccountName}">Target</dd>
+                    </div>
+                    <div>
+                        <dt>Date</dt>
+                        <dd><time th:datetime="${transfer.transferDate}" th:text="${transfer.transferDate}"></time></dd>
+                    </div>
+                    <div th:if="${!#strings.isEmpty(transfer.description)}">
+                        <dt>Description</dt>
+                        <dd th:text="${transfer.description}">Description</dd>
+                    </div>
+                </dl>
+            </div>
+            <div class="actions">
+                <a th:href="@{/transfers/{id}/delete(id=${transfer.id})}"
+                   th:attr="aria-label=${'Delete transfer ' + transfer.id}">Delete</a>
+            </div>
+        </article>
+    </div>
+</main>
+</body>
+</html>

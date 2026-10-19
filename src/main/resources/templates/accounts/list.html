@@ -5,23 +5,48 @@
 <main class="workspace" aria-labelledby="page-title">
     <p class="brand">Personal Finance Tracker</p>
     <nav th:replace="~{fragments/navigation :: navigation('accounts')}"></nav>
-    <h1 id="page-title">Your accounts</h1>
+    <header class="page-header">
+        <div>
+            <h1 id="page-title">Your accounts</h1>
+            <p class="hint">Track checking, savings, cash, and credit card balances per currency.</p>
+        </div>
+        <div class="page-header-actions">
+            <a class="button-outline" th:href="@{/transfers/new}">⇄ Transfer funds</a>
+            <a class="button-link" th:href="@{/accounts/new}">+ Create account</a>
+        </div>
+    </header>
     <p class="notice" role="status" th:if="${successMessage != null}" th:text="${successMessage}"></p>
-    <a class="button-link" th:href="@{/accounts/new}">Create account</a>
-    <p th:if="${#lists.isEmpty(accounts)}">No accounts yet. Create your first account to get started.</p>
-    <div class="account-grid">
+    <div class="empty-state" th:if="${#lists.isEmpty(accounts)}">
+        <p>No accounts yet. Create your first account to get started.</p>
+    </div>
+    <div class="account-grid" th:if="${!#lists.isEmpty(accounts)}">
         <article class="account-card" th:each="account : ${accounts}">
-            <h2 th:text="${account.name}">Account name</h2>
-            <dl>
-                <dt>Type</dt><dd th:text="${account.accountType.label}">Checking</dd>
-                <dt>Opening balance</dt>
-                <dd class="money"><span th:text="${account.currency}">EUR</span>
-                    <span th:text="${account.initialBalance.toPlainString()}">0.00</span></dd>
-                <dt>Current balance</dt>
-                <dd class="money"><span th:text="${account.currency}">EUR</span>
-                    <span th:text="${account.currentBalance.toPlainString()}">0.00</span></dd>
-            </dl>
+            <div>
+                <div class="card-top">
+                    <h2 th:text="${account.name}">Account name</h2>
+                    <span class="badge badge-info" th:text="${account.accountType.label}">Checking</span>
+                </div>
+                <p class="hint" style="margin: 0;">Current balance</p>
+                <p class="money-lg">
+                    <span th:text="${account.currency}">EUR</span>
+                    <span th:text="${account.currentBalance.toPlainString()}">0.00</span>
+                </p>
+                <dl>
+                    <div>
+                        <dt>Type</dt>
+                        <dd th:text="${account.accountType.label}">Checking</dd>
+                    </div>
+                    <div>
+                        <dt>Opening balance</dt>
+                        <dd class="money">
+                            <span th:text="${account.currency}">EUR</span>
+                            <span th:text="${account.initialBalance.toPlainString()}">0.00</span>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
             <div class="actions">
+                <a th:href="@{/transactions(accountId=${account.id})}">View ledger</a>
                 <a th:href="@{/accounts/{id}/edit(id=${account.id})}"
                    th:attr="aria-label=${'Edit ' + account.name}">Edit</a>
                 <a th:href="@{/accounts/{id}/delete(id=${account.id})}"
@@ -29,7 +54,7 @@
             </div>
         </article>
     </div>
-    <p class="hint">Current balance = opening balance + recorded income − expenses. Currencies are not combined.</p>
+    <p class="hint" style="margin-top: 1.25rem;">Current balance = opening balance + recorded income − expenses ± transfers. Currencies are not combined.</p>
 </main>
 </body>
 </html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Budgets')}"></head>
+<body>
+<main class="workspace" aria-labelledby="page-title">
+    <p class="brand">Personal Finance Tracker</p>
+    <nav th:replace="~{fragments/navigation :: navigation('budgets')}"></nav>
+    <header class="page-header">
+        <div>
+            <h1 id="page-title">Monthly budgets</h1>
+            <p class="hint">Set spending limits for your expense categories and monitor monthly utilization.</p>
+        </div>
+        <div class="page-header-actions">
+            <a class="button-link" th:href="@{/budgets/new}">+ Create budget</a>
+        </div>
+    </header>
+
+    <p class="notice" role="status" th:if="${successMessage != null}" th:text="${successMessage}"></p>
+
+    <div class="alert" role="alert" th:if="${overBudgetCount != null and overBudgetCount > 0}">
+        <strong>Over-budget alert:</strong>
+        <span th:text="${overBudgetCount}">1</span>
+        <span th:text="${overBudgetCount == 1 ? 'category has exceeded its monthly limit.' : 'categories have exceeded their monthly limits.'}"></span>
+    </div>
+    <div class="warning-banner" role="status" th:if="${nearLimitCount != null and nearLimitCount > 0}">
+        <strong>Heads up:</strong>
+        <span th:text="${nearLimitCount}">1</span>
+        <span th:text="${nearLimitCount == 1 ? 'budget has reached at least 80% of its limit.' : 'budgets have reached at least 80% of their limits.'}"></span>
+    </div>
+
+    <!-- Month filter bar -->
+    <form class="filter-bar" th:action="@{/budgets}" method="get" aria-label="Filter budgets by month">
+        <div class="filter-grid">
+            <div class="field">
+                <label for="month">Filter by month (YYYY-MM)</label>
+                <input id="month" name="month" type="month" th:value="${selectedMonth}">
+            </div>
+        </div>
+        <div class="filter-actions">
+            <button type="submit">Filter month</button>
+            <a class="button-outline" th:href="@{/budgets(month=${currentMonth})}">Current month (<span th:text="${currentMonth}">2026-10</span>)</a>
+            <a class="button-outline" th:if="${!#strings.isEmpty(selectedMonth)}" th:href="@{/budgets}">Show all months</a>
+        </div>
+    </form>
+
+    <div class="empty-state" th:if="${#lists.isEmpty(budgets)}">
+        <p>No budgets yet. Create a monthly spending limit for an expense category to get started.</p>
+    </div>
+
+    <div class="budget-grid" th:if="${!#lists.isEmpty(budgets)}">
+        <article class="budget-card" th:each="budget : ${budgets}">
+            <div>
+                <div class="card-top">
+                    <h2 th:text="${budget.categoryName}">Category</h2>
+                    <span class="badge"
+                          th:classappend="${budget.overBudget ? 'badge-expense' : (budget.nearLimit ? 'badge-warning' : 'badge-income')}"
+                          th:text="${budget.overBudget ? 'Over budget' : (budget.nearLimit ? 'Near limit' : 'On track')}">On track</span>
+                </div>
+                <p class="hint" style="margin:0;">Month: <strong th:text="${budget.budgetMonth}">2026-10</strong> · Currency: <strong th:text="${budget.currency}">EUR</strong></p>
+
+                <div class="flow-row" style="margin-top: 0.85rem;">
+                    <div class="flow-label">
+                        <span>Spent vs Limit</span>
+                        <strong class="money">
+                            <span th:text="${budget.currency}">EUR</span>
+                            <span th:text="${budget.spentAmount.toPlainString()}">0.00</span> /
+                            <span th:text="${budget.limitAmount.toPlainString()}">0.00</span>
+                            (<span th:text="${budget.usagePercent}">0</span>%)
+                        </strong>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill"
+                             th:classappend="${budget.overBudget ? 'danger' : (budget.nearLimit ? 'warning' : '')}"
+                             th:style="${'width:' + budget.progressBarWidth + '%'}"></div>
+                    </div>
+                </div>
+
+                <dl style="margin-top: 0.75rem;">
+                    <div>
+                        <dt>Limit</dt>
+                        <dd class="money"><span th:text="${budget.currency}">EUR</span> <span th:text="${budget.limitAmount.toPlainString()}">0.00</span></dd>
+                    </div>
+                    <div>
+                        <dt>Remaining</dt>
+                        <dd class="money" th:classappend="${budget.overBudget ? 'money-expense' : 'money-income'}">
+                            <span th:text="${budget.currency}">EUR</span> <span th:text="${budget.remainingAmount.toPlainString()}">0.00</span>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+            <div class="actions">
+                <a th:href="@{/budgets/{id}/edit(id=${budget.id})}"
+                   th:attr="aria-label=${'Edit budget ' + budget.id}">Edit</a>
+                <a th:href="@{/budgets/{id}/delete(id=${budget.id})}"
+                   th:attr="aria-label=${'Delete budget ' + budget.id}">Delete</a>
+            </div>
+        </article>
+    </div>
+</main>
+</body>
+</html>

@@ -86,7 +86,7 @@ class PersonalFinanceApplicationTests {
 
 	@Test
 	void flywayAppliesInitialMigrationAndRecordsHistory() throws SQLException {
-		assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("4");
+		assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("5");
 		assertThat(flyway.info().pending()).isEmpty();
 		try (Connection connection = dataSource.getConnection();
 			 var statement = connection.createStatement();
@@ -110,8 +110,8 @@ class PersonalFinanceApplicationTests {
 					VALUES ('Existing User', 'existing@example.test', 'synthetic-unused-hash')
 					""");
 			Flyway upgrade = flywayForSchema("upgrade_test", "classpath:db/migration");
-			assertThat(upgrade.migrate().migrationsExecuted).isEqualTo(3);
-			assertThat(upgrade.info().current().getVersion().getVersion()).isEqualTo("4");
+			assertThat(upgrade.migrate().migrationsExecuted).isEqualTo(4);
+			assertThat(upgrade.info().current().getVersion().getVersion()).isEqualTo("5");
 			try (var result = statement.executeQuery("SELECT count(*) FROM upgrade_test.users")) {
 				assertThat(result.next()).isTrue();
 				assertThat(result.getInt(1)).isEqualTo(1);
@@ -139,7 +139,7 @@ class PersonalFinanceApplicationTests {
 					SELECT id, 'Preserved account', 'CASH', 'EUR', -12.34 FROM categories_upgrade_test.users
 					""");
 			Flyway upgrade = flywayForSchema("categories_upgrade_test", "classpath:db/migration");
-			assertThat(upgrade.migrate().migrationsExecuted).isEqualTo(2);
+			assertThat(upgrade.migrate().migrationsExecuted).isEqualTo(3);
 			try (var result = statement.executeQuery("SELECT name, initial_balance FROM categories_upgrade_test.accounts")) {
 				assertThat(result.next()).isTrue();
 				assertThat(result.getString("name")).isEqualTo("Preserved account");
@@ -173,7 +173,7 @@ class PersonalFinanceApplicationTests {
 					SELECT id, 'Preserved category', 'EXPENSE' FROM ledger_upgrade_test.users
 					""");
 			Flyway upgrade = flywayForSchema("ledger_upgrade_test", "classpath:db/migration");
-			assertThat(upgrade.migrate().migrationsExecuted).isEqualTo(1);
+			assertThat(upgrade.migrate().migrationsExecuted).isEqualTo(2);
 			statement.executeUpdate("""
 					INSERT INTO ledger_upgrade_test.transactions
 					(user_id, account_id, category_id, transaction_type, amount, currency, transaction_date)

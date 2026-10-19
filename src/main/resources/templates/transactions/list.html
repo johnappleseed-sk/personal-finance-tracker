@@ -5,23 +5,117 @@
 <main class="workspace" aria-labelledby="page-title">
     <p class="brand">Personal Finance Tracker</p>
     <nav th:replace="~{fragments/navigation :: navigation('transactions')}"></nav>
-    <h1 id="page-title">Your transactions</h1>
+    <header class="page-header">
+        <div>
+            <h1 id="page-title">Your transactions</h1>
+            <p class="hint">Record, filter, search, and export your income and expense ledger.</p>
+        </div>
+        <div class="page-header-actions">
+            <a class="button-outline"
+               th:href="@{/transactions/export.csv(accountId=${filter != null ? filter.accountId : null},categoryId=${filter != null ? filter.categoryId : null},type=${filter != null ? filter.type : null},startDate=${filter != null ? filter.startDate : null},endDate=${filter != null ? filter.endDate : null},q=${filter != null ? filter.q : null})}">
+                ⇩ Export CSV
+            </a>
+            <a class="button-link" th:href="@{/transactions/new}">+ Create transaction</a>
+        </div>
+    </header>
+
     <p class="notice" role="status" th:if="${successMessage != null}" th:text="${successMessage}"></p>
-    <a class="button-link" th:href="@{/transactions/new}">Create transaction</a>
-    <p th:if="${#lists.isEmpty(transactions)}">No transactions yet. Record an income or expense to get started.</p>
-    <div class="transaction-grid">
+
+    <!-- Filter & Search Bar -->
+    <form class="filter-bar" th:action="@{/transactions}" method="get" aria-label="Filter transactions">
+        <div class="filter-grid">
+            <div class="field">
+                <label for="filter-q">Search</label>
+                <input id="filter-q" name="q" type="search" placeholder="Description, category, account..."
+                       th:value="${filter != null ? filter.q : ''}">
+            </div>
+            <div class="field">
+                <label for="filter-account">Account</label>
+                <select id="filter-account" name="accountId">
+                    <option value="">All accounts</option>
+                    <option th:each="acc : ${accounts}" th:value="${acc.id}"
+                            th:selected="${filter != null and filter.accountId != null and filter.accountId == acc.id}"
+                            th:text="${acc.name + ' (' + acc.currency + ')'}"></option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="filter-category">Category</label>
+                <select id="filter-category" name="categoryId">
+                    <option value="">All categories</option>
+                    <option th:each="cat : ${categories}" th:value="${cat.id}"
+                            th:selected="${filter != null and filter.categoryId != null and filter.categoryId == cat.id}"
+                            th:text="${cat.name + ' (' + cat.categoryType.label + ')'}"></option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="filter-type">Type</label>
+                <select id="filter-type" name="type">
+                    <option value="">All types</option>
+                    <option th:each="t : ${transactionTypes}" th:value="${t}"
+                            th:selected="${filter != null and filter.type == t}"
+                            th:text="${t.label}"></option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="filter-start">From date</label>
+                <input id="filter-start" name="startDate" type="date"
+                       th:value="${filter != null ? filter.startDate : ''}">
+            </div>
+            <div class="field">
+                <label for="filter-end">To date</label>
+                <input id="filter-end" name="endDate" type="date"
+                       th:value="${filter != null ? filter.endDate : ''}">
+            </div>
+        </div>
+        <div class="filter-actions">
+            <button type="submit">Apply filters</button>
+            <a class="button-outline" th:if="${filter != null and filter.hasActiveFilters()}" th:href="@{/transactions}">Clear filters</a>
+        </div>
+    </form>
+
+    <div class="empty-state" th:if="${#lists.isEmpty(transactions)}">
+        <p>No transactions yet. Record an income or expense to get started.</p>
+    </div>
+
+    <div class="transaction-grid" th:if="${!#lists.isEmpty(transactions)}">
         <article class="transaction-card" th:each="transaction : ${transactions}">
-            <h2><span th:text="${transaction.transactionType.label}">Expense</span> —
-                <span th:text="${transaction.categoryName}">Category</span></h2>
-            <dl>
-                <dt>Amount</dt><dd class="money"><span th:text="${transaction.currency}">EUR</span>
-                    <span th:text="${transaction.amount.toPlainString()}">0.00</span></dd>
-                <dt>Account</dt><dd th:text="${transaction.accountName}">Account</dd>
-                <dt>Date</dt><dd><time th:datetime="${transaction.transactionDate}" th:text="${transaction.transactionDate}"></time></dd>
-                <th:block th:if="${!#strings.isEmpty(transaction.description)}">
-                    <dt>Description</dt><dd th:text="${transaction.description}">Description</dd>
-                </th:block>
-            </dl>
+            <div>
+                <div class="card-top">
+                    <h2>
+                        <span th:text="${transaction.transactionType.label}">Expense</span> —
+                        <span th:text="${transaction.categoryName}">Category</span>
+                    </h2>
+                    <span class="badge"
+                          th:classappend="${transaction.transactionType.name() == 'INCOME' ? 'badge-income' : 'badge-expense'}"
+                          th:text="${transaction.transactionType.label}">Expense</span>
+                </div>
+                <p class="money-lg"
+                   th:classappend="${transaction.transactionType.name() == 'INCOME' ? 'money-income' : 'money-expense'}">
+                    <span th:text="${transaction.currency}">EUR</span>
+                    <span th:text="${transaction.amount.toPlainString()}">0.00</span>
+                </p>
+                <dl>
+                    <div>
+                        <dt>Amount</dt>
+                        <dd class="money">
+                            <span th:text="${transaction.currency}">EUR</span>
+                            <span th:text="${transaction.amount.toPlainString()}">0.00</span>
+                        </dd>
+                    </div>
+                    <div>
+                        <dt>Account</dt>
+                        <dd th:text="${transaction.accountName}">Account</dd>
+                    </div>
+                    <div>
+                        <dt>Date</dt>
+                        <dd><time th:datetime="${transaction.transactionDate}" th:text="${transaction.transactionDate}"></time></dd>
+                    </div>
+                    <div th:if="${!#strings.isEmpty(transaction.description)}">
+                        <dt>Description</dt>
+                        <dd th:text="${transaction.description}">Description</dd>
+                    </div>
+                </dl>
+            </div>
             <div class="actions">
                 <a th:href="@{/transactions/{id}/edit(id=${transaction.id})}"
                    th:attr="aria-label=${'Edit transaction ' + transaction.id}">Edit</a>
@@ -30,7 +124,7 @@
             </div>
         </article>
     </div>
-    <p class="hint">Newest dates first. Amounts use their account's currency; no conversion or transfers are supported.</p>
+    <p class="hint" style="margin-top: 1.25rem;">Newest dates first. Amounts use their account's currency.</p>
 </main>
 </body>
 </html>

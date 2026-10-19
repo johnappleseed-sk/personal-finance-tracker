@@ -5,17 +5,38 @@
 <main class="workspace" aria-labelledby="page-title">
     <p class="brand">Personal Finance Tracker</p>
     <nav th:replace="~{fragments/navigation :: navigation('categories')}"></nav>
-    <h1 id="page-title">Your categories</h1>
+    <header class="page-header">
+        <div>
+            <h1 id="page-title">Your categories</h1>
+            <p class="hint">Organize income and expense classifications for your transactions and budgets.</p>
+        </div>
+        <div class="page-header-actions">
+            <a class="button-outline" th:href="@{/budgets/new}">◎ Set budget</a>
+            <a class="button-link" th:href="@{/categories/new}">+ Create category</a>
+        </div>
+    </header>
     <p class="notice" role="status" th:if="${successMessage != null}" th:text="${successMessage}"></p>
-    <a class="button-link" th:href="@{/categories/new}">Create category</a>
-    <p th:if="${#lists.isEmpty(categories)}">No categories yet. Create an income or expense category to get started.</p>
-    <div class="category-grid">
+    <div class="empty-state" th:if="${#lists.isEmpty(categories)}">
+        <p>No categories yet. Create an income or expense category to get started.</p>
+    </div>
+    <div class="category-grid" th:if="${!#lists.isEmpty(categories)}">
         <article class="category-card" th:each="category : ${categories}">
-            <h2 th:text="${category.name}">Category name</h2>
-            <dl>
-                <dt>Type</dt><dd th:text="${category.categoryType.label}">Expense</dd>
-            </dl>
+            <div>
+                <div class="card-top">
+                    <h2 th:text="${category.name}">Category name</h2>
+                    <span class="badge"
+                          th:classappend="${category.categoryType.name() == 'INCOME' ? 'badge-income' : 'badge-expense'}"
+                          th:text="${category.categoryType.label}">Expense</span>
+                </div>
+                <dl>
+                    <div>
+                        <dt>Type</dt>
+                        <dd th:text="${category.categoryType.label}">Expense</dd>
+                    </div>
+                </dl>
+            </div>
             <div class="actions">
+                <a th:href="@{/transactions(categoryId=${category.id})}">Transactions</a>
                 <a th:href="@{/categories/{id}/edit(id=${category.id})}"
                    th:attr="aria-label=${'Edit ' + category.name}">Edit</a>
                 <a th:href="@{/categories/{id}/delete(id=${category.id})}"
@@ -23,7 +44,7 @@
             </div>
         </article>
     </div>
-    <p class="hint">Categories are private to you. Categories used by transactions cannot change type or be deleted. Category totals are not available yet.</p>
+    <p class="hint" style="margin-top: 1.25rem;">Categories are private to you. Categories used by transactions cannot change type or be deleted.</p>
 </main>
 </body>
 </html>

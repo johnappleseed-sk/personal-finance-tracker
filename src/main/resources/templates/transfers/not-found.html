@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Transfer not found')}"></head>
+<body>
+<main class="auth-card" aria-labelledby="page-title">
+    <p class="brand">Personal Finance Tracker</p>
+    <nav th:replace="~{fragments/navigation :: navigation('transfers')}"></nav>
+    <h1 id="page-title">Transfer not found</h1>
+    <p>The requested transfer could not be found.</p>
+    <a class="button-link" th:href="@{/transfers}">Return to transfers</a>
+</main>
+</body>
+</html>

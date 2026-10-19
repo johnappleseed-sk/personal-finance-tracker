@@ -1,12 +1,13 @@
 package com.personalfinance.account;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import com.personalfinance.transaction.HistoryConflictException;
 import com.personalfinance.transaction.TransactionRepository;
+import com.personalfinance.transfer.TransferRepository;
 import com.personalfinance.user.User;
 import com.personalfinance.user.UserNotFoundException;
 import com.personalfinance.user.UserRepository;
@@ -29,12 +30,14 @@ public class AccountService {
 	private final AccountRepository accountRepository;
 	private final UserRepository userRepository;
 	private final TransactionRepository transactionRepository;
+	private final TransferRepository transferRepository;
 
 	public AccountService(AccountRepository accountRepository, UserRepository userRepository,
-			TransactionRepository transactionRepository) {
+			TransactionRepository transactionRepository, TransferRepository transferRepository) {
 		this.accountRepository = accountRepository;
 		this.userRepository = userRepository;
 		this.transactionRepository = transactionRepository;
+		this.transferRepository = transferRepository;
 	}
 
 	/**
@@ -88,7 +91,9 @@ public class AccountService {
 	public void updateAccount(@NotNull @Positive Long userId, @NotNull @Positive Long accountId,
 			@NotNull @Valid AccountForm form) {
 		Account account = accountRepository.findOwnedForUpdate(accountId, userId).orElseThrow(AccountNotFoundException::new);
-		if (account.getCurrency() != form.getCurrency() && transactionRepository.existsByAccountIdAndUserId(accountId, userId)) {
+		if (account.getCurrency() != form.getCurrency()
+				&& (transactionRepository.existsByAccountIdAndUserId(accountId, userId)
+						|| transferRepository.existsByAccountIdAndUserId(accountId, userId))) {
 			throw new HistoryConflictException("An account with transactions cannot change currency.");
 		}
 		account.updateDetails(form.getName(), form.getAccountType(), form.getInitialBalance(), form.getCurrency());
@@ -105,7 +110,8 @@ public class AccountService {
 	@Transactional
 	public void deleteAccount(@NotNull @Positive Long userId, @NotNull @Positive Long accountId) {
 		Account account = accountRepository.findOwnedForUpdate(accountId, userId).orElseThrow(AccountNotFoundException::new);
-		if (transactionRepository.existsByAccountIdAndUserId(accountId, userId)) {
+		if (transactionRepository.existsByAccountIdAndUserId(accountId, userId)
+				|| transferRepository.existsByAccountIdAndUserId(accountId, userId)) {
 			throw new HistoryConflictException("An account with transactions cannot be deleted. Keep it to preserve your history.");
 		}
 		accountRepository.delete(account);
@@ -117,8 +123,17 @@ public class AccountService {
 	}
 
 	private Map<Long, BigDecimal> findDeltas(Long userId) {
-		return transactionRepository.findAccountDeltas(userId).stream().collect(Collectors.toMap(
-				TransactionRepository.AccountDelta::getAccountId, TransactionRepository.AccountDelta::getNetAmount));
+		Map<Long, BigDecimal> deltas = new HashMap<>();
+		for (TransactionRepository.AccountDelta delta : transactionRepository.findAccountDeltas(userId)) {
+			deltas.merge(delta.getAccountId(), delta.getNetAmount(), BigDecimal::add);
+		}
+		for (TransferRepository.AccountTransferTotal out : transferRepository.findOutgoingTotals(userId)) {
+			deltas.merge(out.getAccountId(), out.getTotalAmount().negate(), BigDecimal::add);
+		}
+		for (TransferRepository.AccountTransferTotal in : transferRepository.findIncomingTotals(userId)) {
+			deltas.merge(in.getAccountId(), in.getTotalAmount(), BigDecimal::add);
+		}
+		return deltas;
 	}
 
 	private AccountView toView(Account account, BigDecimal delta) {
