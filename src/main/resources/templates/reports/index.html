@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('MIS Reports & Decision Support')}"></head>
+<body>
+<main class="workspace" aria-labelledby="page-title">
+    <p class="brand">Personal Finance Tracker</p>
+    <nav th:replace="~{fragments/navigation :: navigation('reports')}"></nav>
+
+    <header class="page-header">
+        <div>
+            <h1 id="page-title">MIS Reports &amp; Decision Support (DSS)</h1>
+            <p class="hint">6-month trend analysis, category performance, and data-driven management decisions.</p>
+        </div>
+        <div class="page-header-actions">
+            <form th:action="@{/reports}" method="get" class="currency-switcher">
+                <label for="currency" class="sr-only">Currency</label>
+                <select id="currency" name="currency" onchange="this.form.submit()">
+                    <option th:each="code : ${report.availableCurrencies}"
+                            th:value="${code}"
+                            th:selected="${code == report.selectedCurrency}"
+                            th:text="${'Currency: ' + code}">Currency: EUR</option>
+                </select>
+                <noscript><button type="submit">Switch</button></noscript>
+            </form>
+            <a class="button-outline"
+               th:href="@{/reports/export-monthly.csv(currency=${report.selectedCurrency})}">
+                ⇩ Export Excel Summary (.csv)
+            </a>
+            <a class="button-link"
+               th:href="@{/transactions/export.csv}">
+                ⇩ Export Raw TPS Ledger (.csv)
+            </a>
+        </div>
+    </header>
+
+    <!-- 1. Executive MIS KPI Summary -->
+    <section aria-labelledby="kpi-section-title">
+        <div class="card-top">
+            <h2 id="kpi-section-title">Executive MIS Overview (<span th:text="${report.selectedCurrency}">EUR</span>)</h2>
+            <span class="badge" th:classappend="${report.dssSummary.healthBadgeClass}"
+                  th:text="${report.dssSummary.healthStatus}">Balanced</span>
+        </div>
+        <div class="kpi-grid">
+            <article class="kpi-card">
+                <p class="hint" style="margin:0;">6-Month Total Income</p>
+                <p class="money-lg money-income">
+                    +<span th:text="${report.selectedCurrency}">EUR</span>
+                    <span th:text="${report.dssSummary.sixMonthIncome.toPlainString()}">0.00</span>
+                </p>
+                <p class="hint">Aggregated from TPS income entries</p>
+            </article>
+            <article class="kpi-card">
+                <p class="hint" style="margin:0;">6-Month Total Expenses</p>
+                <p class="money-lg money-expense">
+                    -<span th:text="${report.selectedCurrency}">EUR</span>
+                    <span th:text="${report.dssSummary.sixMonthExpense.toPlainString()}">0.00</span>
+                </p>
+                <p class="hint">Avg <span th:text="${report.selectedCurrency + ' ' + report.dssSummary.avgMonthlyExpense.toPlainString()}">EUR 0.00</span> / month</p>
+            </article>
+            <article class="kpi-card">
+                <p class="hint" style="margin:0;">6-Month Net Savings &amp; Rate</p>
+                <p class="money-lg"
+                   th:classappend="${report.dssSummary.sixMonthNetSavings.signum() >= 0 ? 'money-income' : 'money-expense'}">
+                    <span th:text="${report.selectedCurrency}">EUR</span>
+                    <span th:text="${report.dssSummary.sixMonthNetSavings.toPlainString()}">0.00</span>
+                </p>
+                <p class="hint">Savings Rate: <strong th:text="${report.dssSummary.overallSavingsRatePercent + '%'}">0%</strong> · Primary cost driver: <strong th:text="${report.dssSummary.topExpenseCategory}">None</strong></p>
+            </article>
+        </div>
+    </section>
+
+    <!-- 2. Decision Support System (DSS) Recommendations -->
+    <section style="margin-top: 2rem;" aria-labelledby="dss-title">
+        <div class="card-top">
+            <div>
+                <h2 id="dss-title">Decision Support System (DSS) — Actionable Recommendations</h2>
+                <p class="hint">Automated managerial insights generated from your cash-flow velocity, cost concentration, and budget variance.</p>
+            </div>
+        </div>
+        <div class="account-grid">
+            <article class="panel-card" th:each="rec : ${report.dssSummary.recommendations}">
+                <div>
+                    <div class="card-top">
+                        <h3 th:text="${rec.title}">Decision Title</h3>
+                        <span class="badge" th:classappend="${rec.badgeClass}" th:text="${rec.badgeLabel}">Status</span>
+                    </div>
+                    <p class="hint" style="margin-top: 0.4rem;">
+                        <strong>MIS Data Finding:</strong>
+                        <span th:text="${rec.dataFinding}">Finding</span>
+                    </p>
+                </div>
+                <div class="dss-action-box">
+                    <strong>Recommended Decision:</strong>
+                    <p style="margin: 0.25rem 0 0;" th:text="${rec.recommendedDecision}">Action</p>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- 3. 6-Month Visual Trend Chart & Data Table -->
+    <div class="dashboard-columns" style="margin-top: 2rem;">
+        <section class="panel-card" aria-labelledby="trend-chart-title">
+            <div>
+                <div class="card-top">
+                    <h2 id="trend-chart-title">6-Month Cash Flow Trend Visualization</h2>
+                    <span class="badge badge-info" th:text="${report.selectedCurrency}">EUR</span>
+                </div>
+                <div class="trend-chart">
+                    <div class="trend-column" th:each="pt : ${report.monthlyTrends}">
+                        <div class="trend-bars">
+                            <div class="trend-bar income"
+                                 th:style="${'height:' + (pt.incomeBarPercent > 0 ? pt.incomeBarPercent : 3) + '%'}"
+                                 th:attr="title=${'Income: ' + report.selectedCurrency + ' ' + pt.income.toPlainString()}"></div>
+                            <div class="trend-bar expense"
+                                 th:style="${'height:' + (pt.expenseBarPercent > 0 ? pt.expenseBarPercent : 3) + '%'}"
+                                 th:attr="title=${'Expense: ' + report.selectedCurrency + ' ' + pt.expense.toPlainString()}"></div>
+                        </div>
+                        <span class="trend-month" th:text="${pt.month}">2026-10</span>
+                        <span class="trend-net money"
+                              th:classappend="${pt.netCashFlow.signum() >= 0 ? 'money-income' : 'money-expense'}"
+                              th:text="${(pt.netCashFlow.signum() >= 0 ? '+' : '') + pt.netCashFlow.toPlainString()}">+0.00</span>
+                    </div>
+                </div>
+                <div class="chart-legend">
+                    <span><i class="legend-dot income"></i> Income</span>
+                    <span><i class="legend-dot expense"></i> Expense</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Category Analytics Table -->
+        <section class="panel-card" aria-labelledby="category-table-title">
+            <div>
+                <div class="card-top">
+                    <h2 id="category-table-title">Category Performance Breakdown</h2>
+                    <span class="badge badge-neutral" th:text="${#lists.size(report.categoryAnalytics) + ' active'}">0 active</span>
+                </div>
+                <p class="hint" th:if="${#lists.isEmpty(report.categoryAnalytics)}">
+                    No transactions recorded in <span th:text="${report.selectedCurrency}">EUR</span> yet.
+                </p>
+                <div class="table-responsive" th:if="${!#lists.isEmpty(report.categoryAnalytics)}">
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Type</th>
+                            <th>Entries</th>
+                            <th>Total</th>
+                            <th>Average</th>
+                            <th>Share</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="row : ${report.categoryAnalytics}">
+                            <td><strong th:text="${row.categoryName}">Groceries</strong></td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${row.categoryType.name() == 'INCOME' ? 'badge-income' : 'badge-expense'}"
+                                      th:text="${row.categoryType.label}">Expense</span>
+                            </td>
+                            <td th:text="${row.transactionCount}">1</td>
+                            <td class="money" th:text="${report.selectedCurrency + ' ' + row.totalAmount.toPlainString()}">EUR 0.00</td>
+                            <td class="money" th:text="${report.selectedCurrency + ' ' + row.averageAmount.toPlainString()}">EUR 0.00</td>
+                            <td th:text="${row.sharePercent + '%'}">100%</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+</body>
+</html>

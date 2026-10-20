@@ -2,20 +2,24 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('Delete budget')}"></head>
 <body>
-<main class="auth-card" aria-labelledby="page-title">
+<main class="workspace" aria-labelledby="page-title">
     <p class="brand">Personal Finance Tracker</p>
     <nav th:replace="~{fragments/navigation :: navigation('budgets')}"></nav>
-    <h1 id="page-title">Delete budget</h1>
-    <p class="alert" role="alert">Deleting this budget is permanent and cannot be undone. Your recorded transactions will not be affected.</p>
-    <dl>
-        <dt>Category</dt><dd th:text="${budget.categoryName}">Category</dd>
-        <dt>Month</dt><dd th:text="${budget.budgetMonth}">2026-10</dd>
-        <dt>Limit</dt><dd class="money"><span th:text="${budget.currency}">EUR</span> <span th:text="${budget.limitAmount.toPlainString()}">0.00</span></dd>
-    </dl>
-    <form th:action="@{/budgets/{id}/delete(id=${budget.id})}" method="post">
-        <button class="danger" type="submit">Confirm delete</button>
-        <a th:href="@{/budgets}">Cancel</a>
-    </form>
+    <section class="form-panel">
+        <h1 id="page-title">Delete budget</h1>
+        <p class="alert" role="alert">Deleting this budget is permanent and cannot be undone. Your recorded transactions will not be affected.</p>
+        <dl>
+            <div><dt>Category</dt><dd th:text="${budget.categoryName}">Category</dd></div>
+            <div><dt>Month</dt><dd th:text="${budget.budgetMonth}">2026-10</dd></div>
+            <div><dt>Limit</dt><dd class="money"><span th:text="${budget.currency}">EUR</span> <span th:text="${budget.limitAmount.toPlainString()}">0.00</span></dd></div>
+        </dl>
+        <form th:action="@{/budgets/{id}/delete(id=${budget.id})}" method="post">
+            <div class="form-actions">
+                <button class="danger" type="submit">Confirm delete</button>
+                <a th:href="@{/budgets}">Cancel</a>
+            </div>
+        </form>
+    </section>
 </main>
 </body>
 </html>

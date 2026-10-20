@@ -2,10 +2,14 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('Account unavailable')}"></head>
 <body>
-<main class="auth-card" aria-labelledby="page-title">
-    <h1 id="page-title">Account unavailable</h1>
-    <p>The requested account is not available.</p>
-    <a th:href="@{/accounts}">Back to your accounts</a>
+<main class="workspace" aria-labelledby="page-title">
+    <p class="brand">Personal Finance Tracker</p>
+    <nav th:replace="~{fragments/navigation :: navigation('accounts')}"></nav>
+    <section class="form-panel">
+        <h1 id="page-title">Account unavailable</h1>
+        <p class="hint" style="margin-bottom: 1.25rem;">The requested account is not available.</p>
+        <a class="button-link" th:href="@{/accounts}">Back to your accounts</a>
+    </section>
 </main>
 </body>
 </html>

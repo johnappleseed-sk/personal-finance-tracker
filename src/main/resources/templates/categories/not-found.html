@@ -2,10 +2,14 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('Category unavailable')}"></head>
 <body>
-<main class="auth-card" aria-labelledby="page-title">
-    <h1 id="page-title">Category unavailable</h1>
-    <p>The requested category is not available.</p>
-    <a th:href="@{/categories}">Back to your categories</a>
+<main class="workspace" aria-labelledby="page-title">
+    <p class="brand">Personal Finance Tracker</p>
+    <nav th:replace="~{fragments/navigation :: navigation('categories')}"></nav>
+    <section class="form-panel">
+        <h1 id="page-title">Category unavailable</h1>
+        <p class="hint" style="margin-bottom: 1.25rem;">The requested category is not available.</p>
+        <a class="button-link" th:href="@{/categories}">Back to your categories</a>
+    </section>
 </main>
 </body>
 </html>

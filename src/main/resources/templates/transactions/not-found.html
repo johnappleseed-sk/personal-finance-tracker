@@ -2,10 +2,14 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('Transaction unavailable')}"></head>
 <body>
-<main class="auth-card" aria-labelledby="page-title">
-    <h1 id="page-title">Transaction unavailable</h1>
-    <p>The requested transaction is not available.</p>
-    <a th:href="@{/transactions}">Back to your transactions</a>
+<main class="workspace" aria-labelledby="page-title">
+    <p class="brand">Personal Finance Tracker</p>
+    <nav th:replace="~{fragments/navigation :: navigation('transactions')}"></nav>
+    <section class="form-panel">
+        <h1 id="page-title">Transaction unavailable</h1>
+        <p class="hint" style="margin-bottom: 1.25rem;">The requested transaction is not available.</p>
+        <a class="button-link" th:href="@{/transactions}">Back to your transactions</a>
+    </section>
 </main>
 </body>
 </html>

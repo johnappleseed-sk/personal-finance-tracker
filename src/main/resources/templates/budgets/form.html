@@ -2,50 +2,61 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head(${pageTitle})}"></head>
 <body>
-<main class="auth-card" aria-labelledby="page-title">
+<main class="workspace" aria-labelledby="page-title">
     <p class="brand">Personal Finance Tracker</p>
     <nav th:replace="~{fragments/navigation :: navigation('budgets')}"></nav>
-    <h1 id="page-title" th:text="${pageTitle}">Budget</h1>
-    <p th:if="${#lists.isEmpty(expenseCategories)}" class="notice">
-        You need an Expense category first. <a th:href="@{/categories/new}">Create category</a>.
-    </p>
-    <form th:action="@{${formAction}}" th:object="${budgetForm}" method="post">
-        <p class="alert" role="alert" th:if="${#fields.hasAnyErrors()}">Please check the highlighted fields.</p>
-        <div class="field">
-            <label for="categoryId">Expense category</label>
-            <select id="categoryId" th:field="*{categoryId}" required aria-describedby="category-errors"
-                    th:attr="aria-invalid=${#fields.hasErrors('categoryId')}">
-                <option value="">Choose an expense category</option>
-                <option th:each="category : ${expenseCategories}" th:value="${category.id}"
-                        th:text="${category.name}"></option>
-            </select>
-            <p id="category-errors" class="error" th:errors="*{categoryId}"></p>
-        </div>
-        <div class="field">
-            <label for="currency">Currency</label>
-            <select id="currency" th:field="*{currency}" required aria-describedby="currency-errors"
-                    th:attr="aria-invalid=${#fields.hasErrors('currency')}">
-                <option value="">Choose a currency</option>
-                <option th:each="code : ${currencies}" th:value="${code}" th:text="${code}"></option>
-            </select>
-            <p id="currency-errors" class="error" th:errors="*{currency}"></p>
-        </div>
-        <div class="field">
-            <label for="budgetMonth">Month (YYYY-MM)</label>
-            <input id="budgetMonth" type="month" th:field="*{budgetMonth}" required
-                   aria-describedby="month-errors" th:attr="aria-invalid=${#fields.hasErrors('budgetMonth')}">
-            <p id="month-errors" class="error" th:errors="*{budgetMonth}"></p>
-        </div>
-        <div class="field">
-            <label for="limitAmount">Monthly spending limit</label>
-            <input id="limitAmount" type="number" th:field="*{limitAmount}" min="0.01" step="0.01" required
-                   aria-describedby="limit-help limit-errors" th:attr="aria-invalid=${#fields.hasErrors('limitAmount')}">
-            <p id="limit-help" class="hint">Enter a positive monthly limit with at most 2 decimal places.</p>
-            <p id="limit-errors" class="error" th:errors="*{limitAmount}"></p>
-        </div>
-        <button type="submit">Save budget</button>
-        <a th:href="@{/budgets}">Cancel</a>
-    </form>
+    <section class="form-panel">
+        <header class="page-header">
+            <div>
+                <h1 id="page-title" th:text="${pageTitle}">Budget</h1>
+                <p class="hint">Set a monthly spending limit for an expense category and currency.</p>
+            </div>
+        </header>
+        <p th:if="${#lists.isEmpty(expenseCategories)}" class="notice">
+            You need an Expense category first. <a th:href="@{/categories/new}">Create category</a>.
+        </p>
+        <form th:action="@{${formAction}}" th:object="${budgetForm}" method="post">
+            <p class="alert" role="alert" th:if="${#fields.hasAnyErrors()}">Please check the highlighted fields.</p>
+            <div class="form-grid">
+                <div class="field field-full">
+                    <label for="categoryId">Expense category</label>
+                    <select id="categoryId" th:field="*{categoryId}" required aria-describedby="category-errors"
+                            th:attr="aria-invalid=${#fields.hasErrors('categoryId')}">
+                        <option value="">Choose an expense category</option>
+                        <option th:each="category : ${expenseCategories}" th:value="${category.id}"
+                                th:text="${category.name}"></option>
+                    </select>
+                    <p id="category-errors" class="error" th:errors="*{categoryId}"></p>
+                </div>
+                <div class="field">
+                    <label for="currency">Currency</label>
+                    <select id="currency" th:field="*{currency}" required aria-describedby="currency-errors"
+                            th:attr="aria-invalid=${#fields.hasErrors('currency')}">
+                        <option value="">Choose a currency</option>
+                        <option th:each="code : ${currencies}" th:value="${code}" th:text="${code}"></option>
+                    </select>
+                    <p id="currency-errors" class="error" th:errors="*{currency}"></p>
+                </div>
+                <div class="field">
+                    <label for="budgetMonth">Month (YYYY-MM)</label>
+                    <input id="budgetMonth" type="month" th:field="*{budgetMonth}" required
+                           aria-describedby="month-errors" th:attr="aria-invalid=${#fields.hasErrors('budgetMonth')}">
+                    <p id="month-errors" class="error" th:errors="*{budgetMonth}"></p>
+                </div>
+                <div class="field field-full">
+                    <label for="limitAmount">Monthly spending limit</label>
+                    <input id="limitAmount" type="number" th:field="*{limitAmount}" min="0.01" step="0.01" required
+                           aria-describedby="limit-help limit-errors" th:attr="aria-invalid=${#fields.hasErrors('limitAmount')}">
+                    <p id="limit-help" class="hint">Enter a positive monthly limit with at most 2 decimal places.</p>
+                    <p id="limit-errors" class="error" th:errors="*{limitAmount}"></p>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit">Save budget</button>
+                <a th:href="@{/budgets}">Cancel</a>
+            </div>
+        </form>
+    </section>
 </main>
 </body>
 </html>

@@ -2,12 +2,14 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('Budget not found')}"></head>
 <body>
-<main class="auth-card" aria-labelledby="page-title">
+<main class="workspace" aria-labelledby="page-title">
     <p class="brand">Personal Finance Tracker</p>
     <nav th:replace="~{fragments/navigation :: navigation('budgets')}"></nav>
-    <h1 id="page-title">Budget not found</h1>
-    <p>The requested budget could not be found.</p>
-    <a class="button-link" th:href="@{/budgets}">Return to budgets</a>
+    <section class="form-panel">
+        <h1 id="page-title">Budget not found</h1>
+        <p class="hint" style="margin-bottom: 1.25rem;">The requested budget could not be found.</p>
+        <a class="button-link" th:href="@{/budgets}">Return to budgets</a>
+    </section>
 </main>
 </body>
 </html>

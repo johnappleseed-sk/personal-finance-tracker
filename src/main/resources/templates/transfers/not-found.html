@@ -2,12 +2,14 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('Transfer not found')}"></head>
 <body>
-<main class="auth-card" aria-labelledby="page-title">
+<main class="workspace" aria-labelledby="page-title">
     <p class="brand">Personal Finance Tracker</p>
     <nav th:replace="~{fragments/navigation :: navigation('transfers')}"></nav>
-    <h1 id="page-title">Transfer not found</h1>
-    <p>The requested transfer could not be found.</p>
-    <a class="button-link" th:href="@{/transfers}">Return to transfers</a>
+    <section class="form-panel">
+        <h1 id="page-title">Transfer not found</h1>
+        <p class="hint" style="margin-bottom: 1.25rem;">The requested transfer could not be found.</p>
+        <a class="button-link" th:href="@{/transfers}">Return to transfers</a>
+    </section>
 </main>
 </body>
 </html>

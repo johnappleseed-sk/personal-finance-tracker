@@ -2,48 +2,57 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('Create your account')}"></head>
 <body>
-<main class="auth-card" aria-labelledby="page-title">
-    <p class="brand">Personal Finance Tracker</p>
+<main class="auth-card" style="max-width: 38rem;" aria-labelledby="page-title">
+    <div class="card-top" style="align-items: center;">
+        <p class="brand" style="margin: 0;">Personal Finance Tracker</p>
+        <button id="theme-toggle" type="button" class="btn-theme" aria-label="Switch theme">☾ Dark</button>
+    </div>
     <h1 id="page-title">Create your account</h1>
-    <p>Start with your details. Your financial data will belong only to you.</p>
+    <p class="hint" style="margin-bottom: 1.25rem;">Start with your details. Your financial data will belong only to you.</p>
     <form th:action="@{/register}" th:object="${registrationForm}" method="post">
         <div class="alert" role="alert" th:if="${#fields.hasAnyErrors()}">
             Please check the highlighted fields and re-enter both passwords.
         </div>
-        <div class="field">
-            <label for="name">Name</label>
-            <input id="name" type="text" th:field="*{name}" autocomplete="name" required maxlength="100"
-                   aria-describedby="name-errors" th:attr="aria-invalid=${#fields.hasErrors('name')}">
-            <p id="name-errors" class="error" th:errors="*{name}"></p>
+        <div class="form-grid">
+            <div class="field">
+                <label for="name">Name</label>
+                <input id="name" type="text" th:field="*{name}" autocomplete="name" required maxlength="100"
+                       aria-describedby="name-errors" th:attr="aria-invalid=${#fields.hasErrors('name')}">
+                <p id="name-errors" class="error" th:errors="*{name}"></p>
+            </div>
+            <div class="field">
+                <label for="email">Email address</label>
+                <input id="email" type="email" th:field="*{email}" autocomplete="email" inputmode="email"
+                       required maxlength="254" aria-describedby="email-errors"
+                       th:attr="aria-invalid=${#fields.hasErrors('email')}">
+                <p id="email-errors" class="error" th:errors="*{email}"></p>
+            </div>
+            <div class="field field-full">
+                <label for="password">Password</label>
+                <!-- Deliberately omit th:field and value so submitted passwords are never rendered. -->
+                <input id="password" name="password" type="password" autocomplete="new-password" required
+                       minlength="12" maxlength="72" aria-describedby="password-help password-errors byte-errors"
+                       th:attr="aria-invalid=${#fields.hasErrors('password') or #fields.hasErrors('passwordWithinByteLimit')}">
+                <p id="password-help" class="hint">Use 12–72 characters (at most 72 UTF-8 bytes). A long, unique passphrase is best.</p>
+                <p id="password-errors" class="error" th:errors="*{password}"></p>
+                <p id="byte-errors" class="error" th:errors="*{passwordWithinByteLimit}"></p>
+            </div>
+            <div class="field field-full">
+                <label for="confirmPassword">Confirm password</label>
+                <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password"
+                       required maxlength="72" aria-describedby="confirmation-errors matching-errors"
+                       th:attr="aria-invalid=${#fields.hasErrors('confirmPassword') or #fields.hasErrors('passwordsMatching')}">
+                <p id="confirmation-errors" class="error" th:errors="*{confirmPassword}"></p>
+                <p id="matching-errors" class="error" th:errors="*{passwordsMatching}"></p>
+            </div>
         </div>
-        <div class="field">
-            <label for="email">Email address</label>
-            <input id="email" type="email" th:field="*{email}" autocomplete="email" inputmode="email"
-                   required maxlength="254" aria-describedby="email-errors"
-                   th:attr="aria-invalid=${#fields.hasErrors('email')}">
-            <p id="email-errors" class="error" th:errors="*{email}"></p>
+        <div style="margin-top: 1.5rem;">
+            <button type="submit">Create account</button>
         </div>
-        <div class="field">
-            <label for="password">Password</label>
-            <!-- Deliberately omit th:field and value so submitted passwords are never rendered. -->
-            <input id="password" name="password" type="password" autocomplete="new-password" required
-                   minlength="12" maxlength="72" aria-describedby="password-help password-errors byte-errors"
-                   th:attr="aria-invalid=${#fields.hasErrors('password') or #fields.hasErrors('passwordWithinByteLimit')}">
-            <p id="password-help" class="hint">Use 12–72 characters (at most 72 UTF-8 bytes). A long, unique passphrase is best.</p>
-            <p id="password-errors" class="error" th:errors="*{password}"></p>
-            <p id="byte-errors" class="error" th:errors="*{passwordWithinByteLimit}"></p>
-        </div>
-        <div class="field">
-            <label for="confirmPassword">Confirm password</label>
-            <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password"
-                   required maxlength="72" aria-describedby="confirmation-errors matching-errors"
-                   th:attr="aria-invalid=${#fields.hasErrors('confirmPassword') or #fields.hasErrors('passwordsMatching')}">
-            <p id="confirmation-errors" class="error" th:errors="*{confirmPassword}"></p>
-            <p id="matching-errors" class="error" th:errors="*{passwordsMatching}"></p>
-        </div>
-        <button type="submit">Create account</button>
     </form>
-    <p>Already registered? <a th:href="@{/login}">Sign in</a></p>
+    <p class="hint" style="margin-top: 1.25rem; text-align: center;">
+        Already registered? <a th:href="@{/login}">Sign in</a>
+    </p>
 </main>
 </body>
 </html>

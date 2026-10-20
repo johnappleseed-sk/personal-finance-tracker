@@ -208,6 +208,18 @@ class NewFeaturesIntegrationTests {
 				.andExpect(content().string(containsString("Net Balance &amp; Monthly Cash Flow")))
 				.andExpect(content().string(containsString("3420.00")))
 				.andExpect(content().string(containsString("Weekly food")));
+
+		mvc.perform(get("/reports").with(user(alicePrincipal)).param("currency", "EUR"))
+				.andExpect(status().isOk())
+				.andExpect(content().string(containsString("MIS Reports &amp; Decision Support (DSS)")))
+				.andExpect(content().string(containsString("Capital Allocation &amp; Investment Opportunity")))
+				.andExpect(content().string(containsString("Primary Cost Driver: Groceries")));
+
+		mvc.perform(get("/reports/export-monthly.csv").with(user(alicePrincipal)).param("currency", "EUR"))
+				.andExpect(status().isOk())
+				.andExpect(header().string("Content-Disposition", "attachment; filename=\"mis-financial-report.csv\""))
+				.andExpect(content().string(containsString("Monthly Trend")))
+				.andExpect(content().string(containsString("Category Analysis,Groceries,Expense,EUR,80.00")));
 	}
 
 	private AccountForm accountForm(String name, String balance, AccountCurrency currency) {
