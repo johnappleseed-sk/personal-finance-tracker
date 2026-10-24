@@ -1209,6 +1209,80 @@ dd {
 }
 
 /* ==========================================================================
+   Executive Dashboard Insights & Multi-Segment Stacked Charts
+   ========================================================================== */
+
+.insight-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 0.85rem;
+}
+
+.insight-card {
+    padding: 1.1rem 1.25rem;
+    background: linear-gradient(180deg, var(--bg-elevated) 0%, var(--bg-surface) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-xs);
+    transition: border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.insight-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+}
+
+.stacked-bar {
+    display: flex;
+    width: 100%;
+    height: 18px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: var(--bg-subtle);
+    gap: 2px;
+    margin-top: 0.5rem;
+}
+
+.stacked-segment {
+    height: 100%;
+    transition: width 300ms ease, opacity 150ms ease;
+}
+
+.stacked-segment:hover {
+    opacity: 0.85;
+}
+
+.seg-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    margin-right: 0.4rem;
+    vertical-align: middle;
+}
+
+.seg-1 { background: #e11d48; }
+.seg-2 { background: #f59e0b; }
+.seg-3 { background: #0d9488; }
+.seg-4 { background: #2563eb; }
+.seg-5 { background: #7c3aed; }
+.seg-6 { background: #64748b; }
+
+@media (max-width: 67.5rem) {
+    .insight-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 40rem) {
+    .insight-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================================================
    Responsive Breakpoints (Desktop → Tablet → Mobile)
    ========================================================================== */
 

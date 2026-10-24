@@ -199,6 +199,22 @@ The application provides two dedicated CSV export endpoints designed for direct 
 
 ---
 
+### 4.3 In-App Executive Dashboard Analytics (`/home`)
+
+The application computes the same Part 4 analysis live from the ledger:
+
+| Dashboard Component | Statistical Method | Example Output (USD, Oct 2026) |
+| :--- | :--- | :--- |
+| 6-Month Savings Efficiency | (Σ Income − Σ Expense) ÷ Σ Income vs. 20% benchmark | 42% saved (+$4,672.00 net) |
+| Emergency Liquidity Runway | Current Balance ÷ AVERAGE(monthly expense) | ≈ 9.0 months vs. 3-month benchmark ($3,239.01) |
+| Primary Cost Driver | MAX(SUM by category) with COUNT and AVERAGE | Housing & Rent — 42%, 6 entries, $450.00 avg |
+| Budget Variance Signal | COUNT(budgets where spent > limit) | 1 over limit (Food & Dining 111.8%) |
+| 6-Month Trend Chart | Monthly SUM income vs. expense | Side-by-side bars May–Oct with net & savings % |
+| Expense Composition Chart | Category share % stacked bar + COUNT/AVERAGE/SUM table | Housing 42% · Food 33% · Transport 10% · Utilities 9% · Education 6% |
+| Account Liquidity Split | Account balance ÷ total positive balance | Checking vs. Emergency Reserve |
+
+> Screenshot placeholder: insert a capture of `http://localhost:8080/home` (demo@mis.edu.kh), USD and KHR tabs.
+
 ## 5. Business Process Mapping ("As-Is" vs. "To-Be")
 
 ### 5.1 "As-Is" Process (Legacy Manual / Disconnected Spreadsheet Process)

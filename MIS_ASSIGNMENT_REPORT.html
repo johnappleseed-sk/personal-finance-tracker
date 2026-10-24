@@ -795,6 +795,62 @@
         <li><strong>Pareto Cost Concentration:</strong> Just two categories—<em>Housing &amp; Rent</em> (42%) and <em>Food &amp; Dining</em> (33%)—account for <strong>75% of all USD expenditure</strong> across <code>COUNT = 30</code> expense transactions.</li>
         <li><strong>Income Volatility vs. Expense Creep:</strong> Consulting income peaked in August ($520, driving a 49% savings rate), whereas <em>Food &amp; Dining</em> rose steadily from $310 in May to $425 in October (+37% increase), triggering the October budget overrun alert.</li>
       </ul>
+
+      <h3>4.4 In-App Executive Dashboard Analytics (<code>/home</code>)</h3>
+      <p>
+        The same analysis runs automatically inside the application. Its dashboard computes these indicators live from the ledger
+        whenever the page loads, so no manual Excel work is needed:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Dashboard Component</th>
+            <th>Statistical Method</th>
+            <th>Example Output (USD, Oct 2026)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>6-Month Savings Efficiency</strong></td>
+            <td>(Σ Income − Σ Expense) ÷ Σ Income, compared with the 20% benchmark</td>
+            <td>42% saved (+$4,672.00 net)</td>
+          </tr>
+          <tr>
+            <td><strong>Emergency Liquidity Runway</strong></td>
+            <td>Current Balance ÷ AVERAGE(monthly expense)</td>
+            <td>≈ 9.0 months vs. 3-month benchmark ($3,239.01)</td>
+          </tr>
+          <tr>
+            <td><strong>Primary Cost Driver</strong></td>
+            <td>MAX(SUM by category), with COUNT and AVERAGE per entry</td>
+            <td>Housing &amp; Rent — 42% of spend, 6 entries, $450.00 avg</td>
+          </tr>
+          <tr>
+            <td><strong>Budget Variance Signal</strong></td>
+            <td>COUNT(budgets where spent &gt; limit)</td>
+            <td>1 over limit (Food &amp; Dining at 111.8%)</td>
+          </tr>
+          <tr>
+            <td><strong>6-Month Trend Chart</strong></td>
+            <td>Monthly SUM of income vs. expense, scaled to peak month</td>
+            <td>Side-by-side bars May–Oct with monthly net and savings %</td>
+          </tr>
+          <tr>
+            <td><strong>Expense Composition Chart</strong></td>
+            <td>Category share % (SUM ÷ total) as a stacked bar, plus a COUNT/AVERAGE/SUM table</td>
+            <td>Housing 42% · Food 33% · Transport 10% · Utilities 9% · Education 6%</td>
+          </tr>
+          <tr>
+            <td><strong>Account Liquidity Split</strong></td>
+            <td>Account balance ÷ total positive balance per currency</td>
+            <td>Checking vs. Emergency Reserve allocation</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout">
+        <strong>Screenshot placeholder:</strong> Insert a screenshot of <code>http://localhost:8080/home</code>
+        (sign in as <code>demo@mis.edu.kh</code>) here. Switch between the <em>USD Analytics</em> and <em>KHR Analytics</em> tabs to capture both currencies.
+      </div>
     </section>
 
     <!-- ===================================================================== -->

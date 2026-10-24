@@ -9,7 +9,7 @@
     <header class="page-header">
         <div>
             <h1 id="page-title">Welcome, <span th:text="${displayName}">User</span></h1>
-            <p class="hint">Financial overview for <strong th:text="${dashboard.currentMonth}">2026-10</strong></p>
+            <p class="hint">Executive financial dashboard &amp; data analysis for <strong th:text="${dashboard.currentMonth}">2026-10</strong></p>
         </div>
         <div class="page-header-actions">
             <a class="button-outline" th:href="@{/reports}">📊 MIS Reports &amp; DSS</a>
@@ -30,20 +30,45 @@
         </div>
     </section>
 
-    <!-- Currency Summary KPI Cards & Cash Flow Visual Bars -->
+    <!-- 1. Executive Data Analysis & Insights Strip -->
+    <section th:if="${!#lists.isEmpty(dashboard.insights)}" aria-labelledby="insights-title" style="margin-bottom: 1.75rem;">
+        <div class="card-top">
+            <div>
+                <h2 id="insights-title">Automated Data Analysis &amp; Financial Health Signals</h2>
+                <p class="hint">Real-time statistical indicators computed from your 6-month ledger history, emergency reserve benchmarks, and budget utilization.</p>
+            </div>
+            <span class="badge badge-info" th:text="${dashboard.totalTransactions + ' Ledger Entries Analyzed'}">0 Entries</span>
+        </div>
+        <div class="insight-grid">
+            <article class="insight-card" th:each="insight : ${dashboard.insights}">
+                <div class="card-top" style="margin-bottom: 0.4rem;">
+                    <span class="hint" style="margin: 0; font-weight: 700;" th:text="${insight.title}">Metric</span>
+                    <span class="badge" th:classappend="${insight.badgeClass}" th:text="${insight.badgeLabel}">Status</span>
+                </div>
+                <p class="money-lg" style="margin: 0.15rem 0 0.35rem; font-size: 1.4rem;" th:text="${insight.metricValue}">0%</p>
+                <p class="hint" style="margin: 0; line-height: 1.45;" th:text="${insight.description}">Insight description</p>
+            </article>
+        </div>
+    </section>
+
+    <!-- 2. Currency Summary KPI Cards & Cash Flow Visual Bars -->
     <section th:if="${!#lists.isEmpty(dashboard.currencySummaries)}" aria-labelledby="summary-title">
         <div class="card-top">
             <h2 id="summary-title">Net Balance &amp; Monthly Cash Flow</h2>
-            <a th:href="@{/reports}">Open 6-Month MIS &amp; DSS Analytics →</a>
+            <a th:href="@{/reports}">Open Full 6-Month MIS &amp; DSS Report →</a>
         </div>
         <div class="kpi-grid">
             <article class="kpi-card kpi-accent-brand" th:each="summary : ${dashboard.currencySummaries}">
                 <div>
                     <div class="card-top">
                         <span class="badge badge-info" th:text="${summary.currency}">EUR</span>
-                        <span class="hint" th:text="${summary.accountCount + (summary.accountCount == 1 ? ' account' : ' accounts')}">1 account</span>
+                        <span class="badge"
+                              th:classappend="${summary.monthlySavingsRatePercent >= 20 ? 'badge-income' : (summary.monthlySavingsRatePercent >= 0 ? 'badge-neutral' : 'badge-expense')}"
+                              th:text="${'Savings rate: ' + summary.monthlySavingsRatePercent + '%'}">Savings rate: 0%</span>
                     </div>
-                    <p class="hint" style="margin: 0;">Total Current Balance</p>
+                    <p class="hint" style="margin: 0;">
+                        Total Current Balance (<span th:text="${summary.accountCount + (summary.accountCount == 1 ? ' account' : ' accounts')}">1 account</span>)
+                    </p>
                     <p class="money-lg">
                         <span th:text="${summary.currency}">EUR</span>
                         <span th:text="${summary.totalBalance.toPlainString()}">0.00</span>
@@ -56,6 +81,14 @@
                         <div>
                             <dt>Month Expense</dt>
                             <dd class="money money-expense">-<span th:text="${summary.monthlyExpense.toPlainString()}">0.00</span></dd>
+                        </div>
+                        <div>
+                            <dt>6-Mo Avg Expense</dt>
+                            <dd class="money"><span th:text="${summary.currency + ' ' + summary.avgMonthlyExpense.toPlainString()}">EUR 0.00</span></dd>
+                        </div>
+                        <div>
+                            <dt>Liquidity Runway</dt>
+                            <dd class="money" th:text="${summary.runwayMonthsLabel}">N/A</dd>
                         </div>
                     </dl>
                 </div>
@@ -89,6 +122,148 @@
                     </div>
                 </div>
             </article>
+        </div>
+    </section>
+
+    <!-- 3. Interactive Visual Charts & Multi-Currency Data Analysis Section -->
+    <section th:if="${!#lists.isEmpty(dashboard.currencySummaries)}" style="margin-top: 1.75rem;" aria-labelledby="charts-title">
+        <div class="card-top">
+            <div>
+                <h2 id="charts-title">Interactive Cash-Flow &amp; Distribution Charts</h2>
+                <p class="hint">Switch currency tabs to inspect 6-month income/expense velocity, category share concentration, and account liquidity split.</p>
+            </div>
+            <div class="shortcut-pills" role="tablist" aria-label="Dashboard chart currency">
+                <button type="button"
+                        th:each="summary, stat : ${dashboard.currencySummaries}"
+                        class="pill-btn"
+                        th:classappend="${stat.first ? 'active' : ''}"
+                        data-dash-currency-btn="true"
+                        th:attr="data-currency-code=${summary.currency.name()}"
+                        th:text="${summary.currency.name() + ' Analytics'}">USD Analytics</button>
+            </div>
+        </div>
+
+        <div th:each="summary, stat : ${dashboard.currencySummaries}"
+             class="dash-currency-pane"
+             th:classappend="${!stat.first ? 'hidden-view' : ''}"
+             th:attr="data-currency-pane=${summary.currency.name()}">
+
+            <div class="dashboard-columns" style="margin-top: 0.85rem;">
+                <!-- Chart A: 6-Month Cash Flow Trend Bar Chart -->
+                <div class="panel-card">
+                    <div>
+                        <div class="card-top">
+                            <div>
+                                <h3 th:text="${'6-Month Cash Flow Trend (' + summary.currency + ')'}">6-Month Cash Flow Trend</h3>
+                                <p class="hint">
+                                    6-Mo Income: <strong class="money money-income" th:text="${'+' + summary.currency + ' ' + summary.sixMonthIncome.toPlainString()}">+0.00</strong>
+                                    · 6-Mo Expense: <strong class="money money-expense" th:text="${'-' + summary.currency + ' ' + summary.sixMonthExpense.toPlainString()}">-0.00</strong>
+                                </p>
+                            </div>
+                            <span class="badge badge-income" th:text="${summary.sixMonthSavingsRatePercent + '% 6-Mo Saved'}">0% Saved</span>
+                        </div>
+
+                        <div class="trend-chart">
+                            <div class="trend-column" th:each="pt : ${summary.monthlyTrends}">
+                                <div class="trend-bars">
+                                    <div class="trend-bar income"
+                                         th:style="${'height:' + (pt.incomeBarPercent > 0 ? pt.incomeBarPercent : 4) + '%'}"
+                                         th:attr="title=${'Income (' + pt.month + '): ' + summary.currency + ' ' + pt.income.toPlainString()}"></div>
+                                    <div class="trend-bar expense"
+                                         th:style="${'height:' + (pt.expenseBarPercent > 0 ? pt.expenseBarPercent : 4) + '%'}"
+                                         th:attr="title=${'Expense (' + pt.month + '): ' + summary.currency + ' ' + pt.expense.toPlainString()}"></div>
+                                </div>
+                                <span class="trend-month" th:text="${pt.shortMonth}">Oct</span>
+                                <span class="trend-net money"
+                                      th:classappend="${pt.net.signum() >= 0 ? 'money-income' : 'money-expense'}"
+                                      th:text="${(pt.net.signum() >= 0 ? '+' : '') + pt.net.toPlainString()}">+0.00</span>
+                                <span class="hint" style="font-size: 0.68rem; margin: 0;" th:text="${pt.savingsRatePercent + '%'}">0%</span>
+                            </div>
+                        </div>
+
+                        <div class="chart-legend">
+                            <span><i class="legend-dot income"></i> Monthly Income</span>
+                            <span><i class="legend-dot expense"></i> Monthly Expense</span>
+                            <span class="hint" style="margin: 0 0 0 auto;">
+                                6-Mo Net: <strong class="money" th:text="${summary.currency + ' ' + summary.sixMonthNet.toPlainString()}">0.00</strong>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart B: Expense Composition Stacked Chart & Account Liquidity Split -->
+                <div class="panel-card">
+                    <div>
+                        <div class="card-top">
+                            <div>
+                                <h3 th:text="${'Expense Share &amp; Statistical Breakdown (' + summary.currency + ')'}">Expense Composition</h3>
+                                <p class="hint">Proportional category distribution (SUM, AVG, COUNT) &amp; account allocation.</p>
+                            </div>
+                            <span class="badge badge-neutral" th:text="${#lists.size(summary.categoryBreakdown) + ' categories'}">0 categories</span>
+                        </div>
+
+                        <p class="hint" th:if="${#lists.isEmpty(summary.categoryBreakdown)}">
+                            No expenses recorded in <span th:text="${summary.currency}">EUR</span> yet.
+                        </p>
+
+                        <!-- Multi-Segment Stacked Composition Bar -->
+                        <div th:if="${!#lists.isEmpty(summary.categoryBreakdown)}">
+                            <div class="stacked-bar" role="img" th:attr="aria-label=${'Expense composition in ' + summary.currency}">
+                                <div th:each="cat : ${summary.categoryBreakdown}"
+                                     class="stacked-segment"
+                                     th:classappend="${cat.colorClass}"
+                                     th:style="${'width:' + (cat.sharePercent > 2 ? cat.sharePercent : 3) + '%'}"
+                                     th:attr="title=${cat.categoryName + ': ' + summary.currency + ' ' + cat.totalAmount.toPlainString() + ' (' + cat.sharePercent + '%)'}"></div>
+                            </div>
+
+                            <div class="table-responsive" style="margin-top: 0.75rem;">
+                                <table class="data-table">
+                                    <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Count</th>
+                                        <th>Average</th>
+                                        <th>Total (SUM)</th>
+                                        <th>Share</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="cat : ${summary.categoryBreakdown}">
+                                        <td>
+                                            <span class="seg-dot" th:classappend="${cat.colorClass}"></span>
+                                            <strong th:text="${cat.categoryName}">Category</strong>
+                                        </td>
+                                        <td th:text="${cat.transactionCount}">1</td>
+                                        <td class="money" th:text="${summary.currency + ' ' + cat.averageAmount.toPlainString()}">0.00</td>
+                                        <td class="money" th:text="${summary.currency + ' ' + cat.totalAmount.toPlainString()}">0.00</td>
+                                        <td><span class="badge badge-neutral" th:text="${cat.sharePercent + '%'}">0%</span></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Account Liquidity Split within this currency -->
+                        <div style="margin-top: 1rem; padding-top: 0.85rem; border-top: 1px solid var(--border-subtle);">
+                            <p class="hint" style="margin: 0 0 0.45rem; font-weight: 700;">
+                                Account Liquidity Split (<span th:text="${summary.currency}">EUR</span>)
+                            </p>
+                            <div th:each="acct : ${summary.accountShares}" class="flow-row" style="margin-top: 0.45rem;">
+                                <div class="flow-label">
+                                    <span>
+                                        <strong th:text="${acct.accountName}">Account</strong>
+                                        <span class="hint" th:text="${'(' + acct.accountTypeLabel + ')'}">(Checking)</span>
+                                    </span>
+                                    <span class="money" th:text="${acct.currency + ' ' + acct.balance.toPlainString() + ' (' + acct.sharePercent + '%)'}">0.00</span>
+                                </div>
+                                <div class="progress-track" style="height: 6px; margin: 0.25rem 0;">
+                                    <div class="progress-fill" th:style="${'width:' + acct.sharePercent + '%'}"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 

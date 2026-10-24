@@ -252,7 +252,25 @@
         initTransactionsPage();
         initSmartForms();
         initGenericCardFilters();
+        initDashboardChartTabs();
     });
+
+    function initDashboardChartTabs() {
+        const tabBtns = document.querySelectorAll('[data-dash-currency-btn]');
+        const panes = document.querySelectorAll('[data-currency-pane]');
+        if (tabBtns.length === 0 || panes.length === 0) return;
+
+        tabBtns.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const code = btn.getAttribute('data-currency-code');
+                tabBtns.forEach(function (b) { b.classList.toggle('active', b === btn); });
+                panes.forEach(function (pane) {
+                    const match = pane.getAttribute('data-currency-pane') === code;
+                    pane.classList.toggle('hidden-view', !match);
+                });
+            });
+        });
+    }
 
     function initGenericCardFilters() {
         const activeTagByGroup = {};
