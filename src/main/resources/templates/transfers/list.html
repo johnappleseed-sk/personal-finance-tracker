@@ -11,25 +11,42 @@
             <p class="hint">Move funds between your accounts using the same currency.</p>
         </div>
         <div class="page-header-actions">
+            <a class="button-outline" th:href="@{/accounts}">View accounts</a>
             <a class="button-link" th:href="@{/transfers/new}">+ Transfer funds</a>
         </div>
     </header>
 
     <p class="notice" role="status" th:if="${successMessage != null}" th:text="${successMessage}"></p>
 
+    <!-- Instant Currency & Search Filter Strip -->
+    <div class="quick-filter-strip" th:if="${!#lists.isEmpty(transfers)}">
+        <div class="shortcut-pills" role="group" aria-label="Filter transfers by currency">
+            <span class="hint" style="margin: 0 0.25rem 0 0;">Currency:</span>
+            <button type="button" class="pill-btn active" data-card-filter-group="transfers" data-filter-val="all">All (<span th:text="${#lists.size(transfers)}">0</span>)</button>
+            <button type="button" class="pill-btn" data-card-filter-group="transfers" data-filter-val="usd">USD</button>
+            <button type="button" class="pill-btn" data-card-filter-group="transfers" data-filter-val="khr">KHR</button>
+            <button type="button" class="pill-btn" data-card-filter-group="transfers" data-filter-val="eur">EUR</button>
+        </div>
+        <input type="search" class="quick-search-input" placeholder="Search transfers by account or description..."
+               data-card-search-target="transfers" aria-label="Search transfers">
+    </div>
+
     <div class="empty-state" th:if="${#lists.isEmpty(transfers)}">
         <p>No transfers yet. Record a transfer between two same-currency accounts to get started.</p>
     </div>
 
     <div class="transfer-grid" th:if="${!#lists.isEmpty(transfers)}">
-        <article class="transfer-card" th:each="transfer : ${transfers}">
+        <article class="transfer-card kpi-accent-brand" th:each="transfer : ${transfers}"
+                 data-filter-item="transfers"
+                 th:attr="data-filter-tag=${transfer.currency.name().toLowerCase()},
+                          data-filter-text=${(transfer.sourceAccountName + ' ' + transfer.targetAccountName + ' ' + transfer.description + ' ' + transfer.currency).toLowerCase()}">
             <div>
                 <div class="card-top">
                     <h2>
                         <span th:text="${transfer.sourceAccountName}">Source</span> →
                         <span th:text="${transfer.targetAccountName}">Target</span>
                     </h2>
-                    <span class="badge badge-info">Transfer</span>
+                    <span class="badge badge-info" th:text="${'Transfer · ' + transfer.currency}">Transfer</span>
                 </div>
                 <p class="money-lg">
                     <span th:text="${transfer.currency}">EUR</span>

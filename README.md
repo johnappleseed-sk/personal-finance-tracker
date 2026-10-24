@@ -9,6 +9,7 @@ User registration, login/logout, an executive multi-currency financial dashboard
 - **5-Part MIS Assignment Report (Print-Ready HTML / PDF)**: [`MIS_ASSIGNMENT_REPORT.html`](MIS_ASSIGNMENT_REPORT.html) (Business Case Study, System Flowchart & Database ERD, Decision Support Scenario, Excel/Data Analysis, and "As-Is" vs. "To-Be" Business Process Mapping)
 - **Interactive 8-Slide Classroom Presentation Deck**: [`MIS_PRESENTATION_DECK.html`](MIS_PRESENTATION_DECK.html) (includes live What-If DSS Savings Simulator, charts, and speaker notes)
 - **Excel / Data Analysis Datasets (Part 4)**:
+  - [`MIS_Financial_Analysis.xlsx`](MIS_Financial_Analysis.xlsx) — Native 3-sheet Microsoft Excel workbook (`1_6Month_Trend_DSS`, `2_Category_Breakdown`, `3_TPS_Ledger_66_Rows`) with live `=SUM(...)`, `=AVERAGE(...)`, and `=COUNT(...)` formulas
   - [`mis_6month_summary.csv`](mis_6month_summary.csv) — 6-month trend and category analytics (`SUM`, `AVERAGE`, `COUNT`, Savings Rate %, Share %)
   - [`mis_transactions_6months.csv`](mis_transactions_6months.csv) — 66-transaction multi-currency ledger (`USD` & `KHR`)
 

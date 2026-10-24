@@ -9,12 +9,12 @@
     <header class="page-header">
         <div>
             <h1 id="page-title">MIS Reports &amp; Decision Support (DSS)</h1>
-            <p class="hint">6-month trend analysis, category performance, and data-driven management decisions.</p>
+            <p class="hint">6-month trend analysis, category performance, interactive What-If simulation, and data-driven management decisions.</p>
         </div>
         <div class="page-header-actions">
             <form th:action="@{/reports}" method="get" class="currency-switcher">
                 <label for="currency" class="sr-only">Currency</label>
-                <select id="currency" name="currency" onchange="this.form.submit()">
+                <select id="currency" name="currency" data-auto-submit="true">
                     <option th:each="code : ${report.availableCurrencies}"
                             th:value="${code}"
                             th:selected="${code == report.selectedCurrency}"
@@ -41,15 +41,15 @@
                   th:text="${report.dssSummary.healthStatus}">Balanced</span>
         </div>
         <div class="kpi-grid">
-            <article class="kpi-card">
+            <article class="kpi-card kpi-accent-income">
                 <p class="hint" style="margin:0;">6-Month Total Income</p>
                 <p class="money-lg money-income">
                     +<span th:text="${report.selectedCurrency}">EUR</span>
                     <span th:text="${report.dssSummary.sixMonthIncome.toPlainString()}">0.00</span>
                 </p>
-                <p class="hint">Aggregated from TPS income entries</p>
+                <p class="hint">Current Liquid Balance: <strong class="money" th:text="${report.selectedCurrency + ' ' + report.dssSummary.currentLiquidity.toPlainString()}">EUR 0.00</strong></p>
             </article>
-            <article class="kpi-card">
+            <article class="kpi-card kpi-accent-expense">
                 <p class="hint" style="margin:0;">6-Month Total Expenses</p>
                 <p class="money-lg money-expense">
                     -<span th:text="${report.selectedCurrency}">EUR</span>
@@ -57,7 +57,7 @@
                 </p>
                 <p class="hint">Avg <span th:text="${report.selectedCurrency + ' ' + report.dssSummary.avgMonthlyExpense.toPlainString()}">EUR 0.00</span> / month</p>
             </article>
-            <article class="kpi-card">
+            <article class="kpi-card kpi-accent-brand">
                 <p class="hint" style="margin:0;">6-Month Net Savings &amp; Rate</p>
                 <p class="money-lg"
                    th:classappend="${report.dssSummary.sixMonthNetSavings.signum() >= 0 ? 'money-income' : 'money-expense'}">
@@ -97,7 +97,70 @@
         </div>
     </section>
 
-    <!-- 3. 6-Month Visual Trend Chart & Data Table -->
+    <!-- 3. Interactive What-If DSS Simulator -->
+    <section style="margin-top: 2rem;" class="panel-card simulator-panel" aria-labelledby="sim-title"
+             id="dss-simulator"
+             th:attr="data-currency=${report.selectedCurrency},
+                      data-income=${report.dssSummary.sixMonthIncome.toPlainString()},
+                      data-expense=${report.dssSummary.sixMonthExpense.toPlainString()},
+                      data-top-cat=${report.dssSummary.topExpenseCategory},
+                      data-top-amt=${report.dssSummary.topExpenseAmount.toPlainString()},
+                      data-liquidity=${report.dssSummary.currentLiquidity.toPlainString()}">
+        <div class="card-top">
+            <div>
+                <h2 id="sim-title">Interactive What-If Decision Simulator</h2>
+                <p class="hint">Adjust the sliders to model how reducing your top cost driver (<strong th:text="${report.dssSummary.topExpenseCategory}">Category</strong>) affects 6-month savings and investment capacity.</p>
+            </div>
+            <span class="badge badge-info">Live DSS Model</span>
+        </div>
+
+        <div class="dashboard-columns" style="margin-top: 0.75rem;">
+            <div class="simulator-controls">
+                <div class="sim-field">
+                    <div class="flow-label">
+                        <label for="sim-cut-slider" style="margin:0;">
+                            Reduce <span th:text="${report.dssSummary.topExpenseCategory}">Top Expense</span> Spending
+                        </label>
+                        <strong id="sim-cut-label" class="badge badge-income">15% Cut</strong>
+                    </div>
+                    <input type="range" id="sim-cut-slider" class="range-slider" min="0" max="40" value="15" step="5">
+                    <p class="hint">Baseline 6-month spend: <strong th:text="${report.selectedCurrency + ' ' + report.dssSummary.topExpenseAmount.toPlainString()}">EUR 0.00</strong></p>
+                </div>
+
+                <div class="sim-field" style="margin-top: 1rem;">
+                    <div class="flow-label">
+                        <label for="sim-alloc-slider" style="margin:0;">
+                            Allocate Net Surplus to High-Yield Deposit (5.5% APY)
+                        </label>
+                        <strong id="sim-alloc-label" class="badge badge-info">50% Allocation</strong>
+                    </div>
+                    <input type="range" id="sim-alloc-slider" class="range-slider" min="10" max="80" value="50" step="5">
+                    <p class="hint">Remaining surplus stays in liquid checking/cash reserves.</p>
+                </div>
+            </div>
+
+            <div class="sim-results-grid">
+                <div class="sim-metric-box">
+                    <span class="hint">Additional 6-Mo Savings</span>
+                    <p class="money-lg money-income" id="sim-saved-val">+0.00</p>
+                </div>
+                <div class="sim-metric-box">
+                    <span class="hint">Projected 6-Mo Net Flow</span>
+                    <p class="money-lg" id="sim-net-val">0.00</p>
+                </div>
+                <div class="sim-metric-box">
+                    <span class="hint">Projected Savings Rate</span>
+                    <p class="money-lg" id="sim-rate-val" th:text="${report.dssSummary.overallSavingsRatePercent + '%'}">0%</p>
+                </div>
+                <div class="sim-metric-box">
+                    <span class="hint">Recommended Term Deposit</span>
+                    <p class="money-lg money-income" id="sim-invest-val">0.00</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. 6-Month Visual Trend Chart & Data Table -->
     <div class="dashboard-columns" style="margin-top: 2rem;">
         <section class="panel-card" aria-labelledby="trend-chart-title">
             <div>
@@ -109,21 +172,23 @@
                     <div class="trend-column" th:each="pt : ${report.monthlyTrends}">
                         <div class="trend-bars">
                             <div class="trend-bar income"
-                                 th:style="${'height:' + (pt.incomeBarPercent > 0 ? pt.incomeBarPercent : 3) + '%'}"
-                                 th:attr="title=${'Income: ' + report.selectedCurrency + ' ' + pt.income.toPlainString()}"></div>
+                                 th:style="${'height:' + (pt.incomeBarPercent > 0 ? pt.incomeBarPercent : 4) + '%'}"
+                                 th:attr="title=${'Income (' + pt.month + '): ' + report.selectedCurrency + ' ' + pt.income.toPlainString()}"></div>
                             <div class="trend-bar expense"
-                                 th:style="${'height:' + (pt.expenseBarPercent > 0 ? pt.expenseBarPercent : 3) + '%'}"
-                                 th:attr="title=${'Expense: ' + report.selectedCurrency + ' ' + pt.expense.toPlainString()}"></div>
+                                 th:style="${'height:' + (pt.expenseBarPercent > 0 ? pt.expenseBarPercent : 4) + '%'}"
+                                 th:attr="title=${'Expense (' + pt.month + '): ' + report.selectedCurrency + ' ' + pt.expense.toPlainString()}"></div>
                         </div>
                         <span class="trend-month" th:text="${pt.month}">2026-10</span>
                         <span class="trend-net money"
                               th:classappend="${pt.netCashFlow.signum() >= 0 ? 'money-income' : 'money-expense'}"
                               th:text="${(pt.netCashFlow.signum() >= 0 ? '+' : '') + pt.netCashFlow.toPlainString()}">+0.00</span>
+                        <span class="hint" style="font-size: 0.68rem; margin: 0;" th:text="${pt.savingsRatePercent + '% saved'}">0% saved</span>
                     </div>
                 </div>
                 <div class="chart-legend">
                     <span><i class="legend-dot income"></i> Income</span>
                     <span><i class="legend-dot expense"></i> Expense</span>
+                    <span class="hint" style="margin: 0 0 0 auto;">Hover bars for exact monthly totals</span>
                 </div>
             </div>
         </section>
@@ -161,7 +226,16 @@
                             <td th:text="${row.transactionCount}">1</td>
                             <td class="money" th:text="${report.selectedCurrency + ' ' + row.totalAmount.toPlainString()}">EUR 0.00</td>
                             <td class="money" th:text="${report.selectedCurrency + ' ' + row.averageAmount.toPlainString()}">EUR 0.00</td>
-                            <td th:text="${row.sharePercent + '%'}">100%</td>
+                            <td style="min-width: 110px;">
+                                <div class="flow-label" style="margin-bottom: 2px;">
+                                    <span th:text="${row.sharePercent + '%'}">100%</span>
+                                </div>
+                                <div class="progress-track" style="height: 6px; margin: 0;">
+                                    <div class="progress-fill"
+                                         th:classappend="${row.categoryType.name() == 'INCOME' ? 'income' : 'expense'}"
+                                         th:style="${'width:' + row.sharePercent + '%'}"></div>
+                                </div>
+                            </td>
                         </tr>
                         </tbody>
                     </table>

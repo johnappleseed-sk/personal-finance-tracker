@@ -11,6 +11,10 @@
             <p class="hint">Record, filter, search, and export your income and expense ledger.</p>
         </div>
         <div class="page-header-actions">
+            <div class="view-toggle-group" role="group" aria-label="Transaction layout view" th:if="${!#lists.isEmpty(transactions)}">
+                <button type="button" id="view-btn-grid" class="btn-view-toggle active" data-view-mode="grid">⊞ Cards</button>
+                <button type="button" id="view-btn-table" class="btn-view-toggle" data-view-mode="table">☰ Compact Table</button>
+            </div>
             <a class="button-outline"
                th:href="@{/transactions/export.csv(accountId=${filter != null ? filter.accountId : null},categoryId=${filter != null ? filter.categoryId : null},type=${filter != null ? filter.type : null},startDate=${filter != null ? filter.startDate : null},endDate=${filter != null ? filter.endDate : null},q=${filter != null ? filter.q : null})}">
                 ⇩ Export CSV
@@ -22,11 +26,11 @@
     <p class="notice" role="status" th:if="${successMessage != null}" th:text="${successMessage}"></p>
 
     <!-- Filter & Search Bar -->
-    <form class="filter-bar" th:action="@{/transactions}" method="get" aria-label="Filter transactions">
+    <form class="filter-bar" id="tx-filter-form" th:action="@{/transactions}" method="get" aria-label="Filter transactions">
         <div class="filter-grid">
             <div class="field">
                 <label for="filter-q">Search</label>
-                <input id="filter-q" name="q" type="search" placeholder="Description, category, account..."
+                <input id="filter-q" name="q" type="search" placeholder="Instant search description, category, account..."
                        th:value="${filter != null ? filter.q : ''}">
             </div>
             <div class="field">
@@ -70,6 +74,15 @@
         <div class="filter-actions">
             <button type="submit">Apply filters</button>
             <a class="button-outline" th:if="${filter != null and filter.hasActiveFilters()}" th:href="@{/transactions}">Clear filters</a>
+            <div class="date-preset-pills">
+                <span class="hint" style="margin: 0 0.25rem 0 0;">Quick range:</span>
+                <button type="button" class="pill-btn" data-date-preset="month">This month</button>
+                <button type="button" class="pill-btn" data-date-preset="30d">Last 30 days</button>
+                <button type="button" class="pill-btn" data-date-preset="6m">Last 6 months</button>
+            </div>
+            <span class="hint" id="tx-live-count" style="margin: 0 0 0 auto;"
+                  th:if="${!#lists.isEmpty(transactions)}"
+                  th:text="${#lists.size(transactions) + ' entries shown'}">0 entries shown</span>
         </div>
     </form>
 
@@ -77,8 +90,10 @@
         <p>No transactions yet. Record an income or expense to get started.</p>
     </div>
 
-    <div class="transaction-grid" th:if="${!#lists.isEmpty(transactions)}">
-        <article class="transaction-card" th:each="transaction : ${transactions}">
+    <!-- 1. Card Grid View -->
+    <div class="transaction-grid" id="tx-grid-view" th:if="${!#lists.isEmpty(transactions)}">
+        <article class="transaction-card tx-filterable-item" th:each="transaction : ${transactions}"
+                 th:attr="data-search=${(transaction.categoryName + ' ' + transaction.accountName + ' ' + transaction.description + ' ' + transaction.currency + ' ' + transaction.amount.toPlainString()).toLowerCase()}">
             <div>
                 <div class="card-top">
                     <h2>
@@ -124,6 +139,51 @@
             </div>
         </article>
     </div>
+
+    <!-- 2. Compact Ledger Table View (Toggled via View Switcher) -->
+    <div class="panel-card hidden-view" id="tx-table-view" th:if="${!#lists.isEmpty(transactions)}" style="margin-top: 1.25rem; padding: 0.5rem 1rem;">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Account</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr class="tx-filterable-row" th:each="transaction : ${transactions}"
+                    th:attr="data-search=${(transaction.categoryName + ' ' + transaction.accountName + ' ' + transaction.description + ' ' + transaction.currency + ' ' + transaction.amount.toPlainString()).toLowerCase()}">
+                    <td><time th:datetime="${transaction.transactionDate}" th:text="${transaction.transactionDate}">2026-10-01</time></td>
+                    <td><strong th:text="${transaction.categoryName}">Category</strong></td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${transaction.transactionType.name() == 'INCOME' ? 'badge-income' : 'badge-expense'}"
+                              th:text="${transaction.transactionType.label}">Expense</span>
+                    </td>
+                    <td th:text="${transaction.accountName}">Account</td>
+                    <td class="hint" style="margin:0;" th:text="${!#strings.isEmpty(transaction.description) ? transaction.description : '—'}">—</td>
+                    <td class="money"
+                        th:classappend="${transaction.transactionType.name() == 'INCOME' ? 'money-income' : 'money-expense'}">
+                        <span th:text="${transaction.transactionType.name() == 'INCOME' ? '+' : '-'}">-</span><span th:text="${transaction.currency}">EUR</span>
+                        <span th:text="${transaction.amount.toPlainString()}">0.00</span>
+                    </td>
+                    <td>
+                        <div class="table-row-actions">
+                            <a th:href="@{/transactions/{id}/edit(id=${transaction.id})}">Edit</a>
+                            <a th:href="@{/transactions/{id}/delete(id=${transaction.id})}">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <p class="hint" style="margin-top: 1.25rem;">Newest dates first. Amounts use their account's currency.</p>
 </main>
 </body>

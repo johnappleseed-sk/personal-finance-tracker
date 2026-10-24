@@ -16,11 +16,29 @@
         </div>
     </header>
     <p class="notice" role="status" th:if="${successMessage != null}" th:text="${successMessage}"></p>
+
+    <!-- Instant Currency & Search Filter Bar -->
+    <div class="quick-filter-strip" th:if="${!#lists.isEmpty(accounts)}">
+        <div class="shortcut-pills" role="group" aria-label="Filter accounts by currency">
+            <span class="hint" style="margin: 0 0.25rem 0 0;">Currency:</span>
+            <button type="button" class="pill-btn active" data-card-filter-group="accounts" data-filter-val="all">All (<span th:text="${#lists.size(accounts)}">0</span>)</button>
+            <button type="button" class="pill-btn" data-card-filter-group="accounts" data-filter-val="usd">USD</button>
+            <button type="button" class="pill-btn" data-card-filter-group="accounts" data-filter-val="khr">KHR</button>
+            <button type="button" class="pill-btn" data-card-filter-group="accounts" data-filter-val="eur">EUR</button>
+            <button type="button" class="pill-btn" data-card-filter-group="accounts" data-filter-val="gbp">GBP</button>
+        </div>
+        <input type="search" class="quick-search-input" placeholder="Filter accounts by name or type..."
+               data-card-search-target="accounts" aria-label="Search accounts">
+    </div>
+
     <div class="empty-state" th:if="${#lists.isEmpty(accounts)}">
         <p>No accounts yet. Create your first account to get started.</p>
     </div>
     <div class="account-grid" th:if="${!#lists.isEmpty(accounts)}">
-        <article class="account-card" th:each="account : ${accounts}">
+        <article class="account-card kpi-accent-brand" th:each="account : ${accounts}"
+                 data-filter-item="accounts"
+                 th:attr="data-filter-tag=${account.currency.name().toLowerCase()},
+                          data-filter-text=${(account.name + ' ' + account.accountType.label + ' ' + account.currency).toLowerCase()}">
             <div>
                 <div class="card-top">
                     <h2 th:text="${account.name}">Account name</h2>
@@ -47,6 +65,7 @@
             </div>
             <div class="actions">
                 <a th:href="@{/transactions(accountId=${account.id})}">View ledger</a>
+                <a th:href="@{/reports(currency=${account.currency})}">DSS Report</a>
                 <a th:href="@{/accounts/{id}/edit(id=${account.id})}"
                    th:attr="aria-label=${'Edit ' + account.name}">Edit</a>
                 <a th:href="@{/accounts/{id}/delete(id=${account.id})}"

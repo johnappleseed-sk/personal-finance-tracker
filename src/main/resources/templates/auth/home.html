@@ -12,9 +12,10 @@
             <p class="hint">Financial overview for <strong th:text="${dashboard.currentMonth}">2026-10</strong></p>
         </div>
         <div class="page-header-actions">
-            <a class="button-link" th:href="@{/transactions/new}">+ New Transaction</a>
+            <a class="button-outline" th:href="@{/reports}">📊 MIS Reports &amp; DSS</a>
             <a class="button-outline" th:href="@{/transfers/new}">⇄ Transfer Funds</a>
             <a class="button-outline" th:href="@{/budgets/new}">◎ Set Budget</a>
+            <a class="button-link" th:href="@{/transactions/new}">+ New Transaction</a>
         </div>
     </header>
 
@@ -31,9 +32,12 @@
 
     <!-- Currency Summary KPI Cards & Cash Flow Visual Bars -->
     <section th:if="${!#lists.isEmpty(dashboard.currencySummaries)}" aria-labelledby="summary-title">
-        <h2 id="summary-title">Net Balance &amp; Monthly Cash Flow</h2>
+        <div class="card-top">
+            <h2 id="summary-title">Net Balance &amp; Monthly Cash Flow</h2>
+            <a th:href="@{/reports}">Open 6-Month MIS &amp; DSS Analytics →</a>
+        </div>
         <div class="kpi-grid">
-            <article class="kpi-card" th:each="summary : ${dashboard.currencySummaries}">
+            <article class="kpi-card kpi-accent-brand" th:each="summary : ${dashboard.currencySummaries}">
                 <div>
                     <div class="card-top">
                         <span class="badge badge-info" th:text="${summary.currency}">EUR</span>
@@ -74,10 +78,15 @@
                             <div class="progress-fill expense" th:style="${'width:' + summary.expenseBarPercent + '%'}"></div>
                         </div>
                     </div>
-                    <p class="hint" style="margin-top: 0.65rem;">
-                        Monthly Net:
-                        <strong class="money" th:text="${summary.currency + ' ' + summary.monthlyNet.toPlainString()}">EUR 0.00</strong>
-                    </p>
+                    <div class="actions" style="justify-content: space-between;">
+                        <span class="hint" style="margin: 0;">
+                            Monthly Net:
+                            <strong class="money"
+                                    th:classappend="${summary.monthlyNet.signum() >= 0 ? 'money-income' : 'money-expense'}"
+                                    th:text="${summary.currency + ' ' + summary.monthlyNet.toPlainString()}">EUR 0.00</strong>
+                        </span>
+                        <a th:href="@{/reports(currency=${summary.currency})}">DSS Report →</a>
+                    </div>
                 </div>
             </article>
         </div>
@@ -146,7 +155,9 @@
         </div>
         <p class="hint" th:if="${#lists.isEmpty(dashboard.recentTransactions)}">No transactions recorded yet.</p>
         <div class="transaction-grid" th:if="${!#lists.isEmpty(dashboard.recentTransactions)}">
-            <article class="transaction-card" th:each="tx : ${dashboard.recentTransactions}">
+            <article class="transaction-card"
+                     th:classappend="${tx.transactionType.name() == 'INCOME' ? 'kpi-accent-income' : 'kpi-accent-expense'}"
+                     th:each="tx : ${dashboard.recentTransactions}">
                 <div class="card-top">
                     <h3 style="margin:0; font-size:1.05rem;" th:text="${tx.categoryName}">Category</h3>
                     <span class="badge"
@@ -181,6 +192,7 @@
             <a class="button-outline" th:href="@{/transactions}">Manage your transactions (<span th:text="${dashboard.totalTransactions}">0</span>)</a>
             <a class="button-outline" th:href="@{/transfers}">Account transfers</a>
             <a class="button-outline" th:href="@{/budgets}">Monthly budgets</a>
+            <a class="button-outline" th:href="@{/reports}">MIS Reports &amp; DSS</a>
         </div>
     </section>
 </main>

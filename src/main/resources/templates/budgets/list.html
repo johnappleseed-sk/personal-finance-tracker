@@ -11,6 +11,7 @@
             <p class="hint">Set spending limits for your expense categories and monitor monthly utilization.</p>
         </div>
         <div class="page-header-actions">
+            <a class="button-outline" th:href="@{/reports}">📊 View DSS Variance</a>
             <a class="button-link" th:href="@{/budgets/new}">+ Create budget</a>
         </div>
     </header>
@@ -40,6 +41,13 @@
             <button type="submit">Filter month</button>
             <a class="button-outline" th:href="@{/budgets(month=${currentMonth})}">Current month (<span th:text="${currentMonth}">2026-10</span>)</a>
             <a class="button-outline" th:if="${!#strings.isEmpty(selectedMonth)}" th:href="@{/budgets}">Show all months</a>
+            <div class="shortcut-pills" style="margin-left: auto;" th:if="${!#lists.isEmpty(budgets)}">
+                <span class="hint" style="margin: 0 0.25rem 0 0;">Quick filter:</span>
+                <button type="button" class="pill-btn active" data-card-filter-group="budgets" data-filter-val="all">All (<span th:text="${#lists.size(budgets)}">0</span>)</button>
+                <button type="button" class="pill-btn" data-card-filter-group="budgets" data-filter-val="over">Over budget</button>
+                <button type="button" class="pill-btn" data-card-filter-group="budgets" data-filter-val="usd">USD</button>
+                <button type="button" class="pill-btn" data-card-filter-group="budgets" data-filter-val="khr">KHR</button>
+            </div>
         </div>
     </form>
 
@@ -48,7 +56,12 @@
     </div>
 
     <div class="budget-grid" th:if="${!#lists.isEmpty(budgets)}">
-        <article class="budget-card" th:each="budget : ${budgets}">
+        <article class="budget-card"
+                 th:classappend="${budget.overBudget ? 'kpi-accent-expense' : 'kpi-accent-income'}"
+                 th:each="budget : ${budgets}"
+                 data-filter-item="budgets"
+                 th:attr="data-filter-tag=${budget.currency.name().toLowerCase() + (budget.overBudget ? ' over' : ' track')},
+                          data-filter-text=${(budget.categoryName + ' ' + budget.currency + ' ' + budget.budgetMonth).toLowerCase()}">
             <div>
                 <div class="card-top">
                     <h2 th:text="${budget.categoryName}">Category</h2>
@@ -89,6 +102,7 @@
                 </dl>
             </div>
             <div class="actions">
+                <a th:href="@{/transactions(categoryId=${budget.categoryId})}">Transactions</a>
                 <a th:href="@{/budgets/{id}/edit(id=${budget.id})}"
                    th:attr="aria-label=${'Edit budget ' + budget.id}">Edit</a>
                 <a th:href="@{/budgets/{id}/delete(id=${budget.id})}"

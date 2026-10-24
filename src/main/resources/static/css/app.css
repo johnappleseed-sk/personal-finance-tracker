@@ -1034,6 +1034,181 @@ dd {
 }
 
 /* ==========================================================================
+   Interactive DSS Simulator, View Switcher & Smart Form Controls
+   ========================================================================== */
+
+.kpi-accent-income {
+    border-top: 3px solid var(--income-color);
+}
+
+.kpi-accent-expense {
+    border-top: 3px solid var(--expense-color);
+}
+
+.kpi-accent-brand {
+    border-top: 3px solid var(--brand-primary);
+}
+
+.simulator-panel {
+    background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-surface) 100%);
+    border: 1px solid var(--border-hover);
+}
+
+.range-slider {
+    width: 100%;
+    min-height: 28px;
+    padding: 0;
+    margin: 0.45rem 0 0.25rem;
+    accent-color: var(--brand-primary);
+    cursor: pointer;
+    box-shadow: none;
+    border: none;
+    background: transparent;
+}
+
+.sim-results-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+}
+
+.sim-metric-box {
+    padding: 0.95rem 1.1rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-xs);
+}
+
+.sim-metric-box .money-lg {
+    font-size: 1.35rem;
+    margin: 0.25rem 0 0;
+}
+
+.view-toggle-group {
+    display: inline-flex;
+    align-items: center;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 0.2rem;
+    gap: 0.2rem;
+}
+
+.btn-view-toggle {
+    width: auto;
+    min-height: 34px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.825rem;
+    font-weight: 600;
+    border-radius: 0.35rem;
+    background: transparent;
+    color: var(--text-muted);
+    box-shadow: none;
+}
+
+.btn-view-toggle:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    box-shadow: none;
+}
+
+.btn-view-toggle.active {
+    background: var(--brand-primary);
+    color: #ffffff;
+    box-shadow: var(--shadow-xs);
+}
+
+.hidden-view {
+    display: none !important;
+}
+
+.table-row-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.table-row-actions a {
+    padding: 0.2rem 0.55rem;
+    font-size: 0.8rem;
+    border-radius: 0.35rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    text-decoration: none;
+    color: var(--text-secondary);
+}
+
+.table-row-actions a:hover {
+    border-color: var(--brand-primary);
+    color: var(--brand-primary);
+}
+
+.date-preset-pills,
+.shortcut-pills {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.label-with-shortcuts {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+}
+
+.pill-btn {
+    width: auto;
+    min-height: 28px;
+    padding: 0.2rem 0.65rem;
+    font-size: 0.775rem;
+    font-weight: 600;
+    border-radius: 999px;
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    box-shadow: none;
+}
+
+.pill-btn:hover {
+    background: var(--brand-soft);
+    color: var(--brand-text);
+    border-color: var(--brand-primary);
+    box-shadow: none;
+}
+
+.pill-btn.active {
+    background: var(--brand-primary);
+    color: #ffffff;
+    border-color: var(--brand-primary);
+    box-shadow: var(--shadow-xs);
+}
+
+.quick-filter-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.85rem;
+    padding: 0.85rem 1.15rem;
+    margin: 0.75rem 0 1.25rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+}
+
+.quick-search-input {
+    width: auto;
+    min-width: 240px;
+    min-height: 36px;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.85rem;
+}
+
+/* ==========================================================================
    Responsive Breakpoints (Desktop → Tablet → Mobile)
    ========================================================================== */
 
