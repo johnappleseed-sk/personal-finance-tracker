@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MIS Assignment Report — Personal Finance & Multi-Currency Decision Support System</title>
+  <style>
+    :root {
+      --ink: #0f172a;
+      --muted: #475569;
+      --border: #cbd5e1;
+      --border-soft: #e2e8f0;
+      --surface: #ffffff;
+      --subtle: #f8fafc;
+      --primary: #1d4ed8;
+      --primary-soft: #eff6ff;
+      --emerald: #047857;
+      --emerald-soft: #ecfdf5;
+      --rose: #be123c;
+      --rose-soft: #fff1f2;
+      --amber: #b45309;
+      --amber-soft: #fffbeb;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Georgia, sans-serif;
+      color: var(--ink);
+      background: #e2e8f0;
+      line-height: 1.62;
+      font-size: 10.5pt;
+    }
+
+    /* Screen-only toolbar */
+    .report-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 12px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .toolbar-links {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-links a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
+
+    .toolbar-links a:hover {
+      color: #ffffff;
+    }
+
+    .btn-print {
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .btn-print:hover {
+      background: #1d4ed8;
+    }
+
+    /* Document Page Container */
+    .report-document {
+      max-width: 940px;
+      margin: 28px auto 60px;
+      background: var(--surface);
+      padding: 56px 64px;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.18);
+    }
+
+    /* Cover Header */
+    .report-cover {
+      border-bottom: 3px solid var(--primary);
+      padding-bottom: 26px;
+      margin-bottom: 32px;
+    }
+
+    .report-course-tag {
+      display: inline-block;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+
+    .report-cover h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 10px;
+      color: var(--ink);
+    }
+
+    .report-cover p.lead {
+      font-size: 1.02rem;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      background: var(--subtle);
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 0.85rem;
+    }
+
+    .meta-grid strong {
+      display: block;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    /* Sections */
+    .part-section {
+      margin-bottom: 42px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .part-header {
+      margin-bottom: 18px;
+    }
+
+    .part-badge {
+      display: inline-block;
+      background: #0f172a;
+      color: #ffffff;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 3px 10px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+    }
+
+    h2 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -0.015em;
+    }
+
+    h3 {
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 20px 0 8px;
+    }
+
+    p {
+      margin-bottom: 10px;
+      color: #1e293b;
+    }
+
+    ul, ol {
+      padding-left: 22px;
+      margin-bottom: 12px;
+    }
+
+    li {
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+
+    /* Callout & Grid Cards */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      margin: 14px 0;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 14px 0;
+    }
+
+    .box {
+      background: var(--subtle);
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      padding: 16px 18px;
+    }
+
+    .box h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--ink);
+    }
+
+    .callout {
+      border-left: 4px solid var(--primary);
+      background: var(--primary-soft);
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 14px 0;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 18px;
+      font-size: 0.88rem;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #1e293b;
+      text-align: left;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      font-weight: 700;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    td {
+      padding: 8px 12px;
+      border: 1px solid var(--border-soft);
+      vertical-align: top;
+      font-variant-numeric: tabular-nums;
+    }
+
+    tr.total-row {
+      background: #f8fafc;
+      font-weight: 700;
+    }
+
+    /* Visual Flowchart & ERD Diagrams */
+    .diagram-box {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 16px 0;
+    }
+
+    .diagram-caption {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .flow-chain {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+
+    .flow-node {
+      background: var(--subtle);
+      border: 1.5px solid #94a3b8;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.82rem;
+    }
+
+    .flow-node strong {
+      display: block;
+      color: var(--primary);
+      margin-bottom: 4px;
+      font-size: 0.85rem;
+    }
+
+    .erd-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .erd-table {
+      border: 1.5px solid #64748b;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+      font-size: 0.8rem;
+    }
+
+    .erd-table-head {
+      background: #1e293b;
+      color: #fff;
+      padding: 6px 10px;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .erd-table-body {
+      padding: 8px 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      line-height: 1.45;
+    }
+
+    /* Horizontal Bar Chart for Part 4 */
+    .chart-row {
+      display: grid;
+      grid-template-columns: 150px 1fr 90px;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+    }
+
+    .chart-bar-bg {
+      height: 14px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .chart-bar-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 999px;
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+        font-size: 10pt;
+      }
+      .report-toolbar {
+        display: none !important;
+      }
+      .report-document {
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+        max-width: 100%;
+      }
+      .page-break {
+        page-break-before: always;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Screen Toolbar (Hidden when printing to PDF) -->
+  <nav class="report-toolbar">
+    <div class="toolbar-links">
+      <strong style="color:#fff;">MIS 5-Part Written Report</strong>
+      <a href="#part1">Part 1: Case Study</a>
+      <a href="#part2">Part 2: Flowchart &amp; ERD</a>
+      <a href="#part3">Part 3: DSS Scenario</a>
+      <a href="#part4">Part 4: Data Analysis</a>
+      <a href="#part5">Part 5: As-Is vs. To-Be</a>
+      <a href="MIS_PRESENTATION_DECK.html">Open Slide Deck ↗</a>
+    </div>
+    <button class="btn-print" onclick="window.print()">Print / Save as PDF (Cmd+P)</button>
+  </nav>
+
+  <article class="report-document">
+
+    <!-- COVER HEADER -->
+    <header class="report-cover">
+      <span class="report-course-tag">Management Information Systems (MIS) — Complete Assignment Report</span>
+      <h1>Personal Finance &amp; Multi-Currency Decision Support System (USD &amp; KHR)</h1>
+      <p class="lead">
+        An Integrated Transaction Processing System (TPS), Management Information System (MIS), and Decision Support System (DSS)
+        for Dual-Currency Household &amp; Micro-Enterprise Financial Management in Cambodia.
+      </p>
+
+      <div class="meta-grid">
+        <div>
+          <strong>Lecturer</strong>
+          Pay Laten
+        </div>
+        <div>
+          <strong>System Stack</strong>
+          Spring Boot 4.1 • Java 27 • PostgreSQL 18
+        </div>
+        <div>
+          <strong>Supported Currencies</strong>
+          USD ($), KHR (៛), EUR (€), GBP (£)
+        </div>
+        <div>
+          <strong>Live Analytics Endpoint</strong>
+          <code>http://localhost:8080/reports</code>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===================================================================== -->
+    <!-- PART 1: BUSINESS CASE STUDY ANALYSIS -->
+    <!-- ===================================================================== -->
+    <section class="part-section" id="part1">
+      <div class="part-header">
+        <span class="part-badge">Part 1 • Individual / Group</span>
+        <h2>1. Business Case Study Analysis</h2>
+      </div>
+
+      <h3>1.1 Business Context &amp; Problem Identification</h3>
+      <p>
+        In Cambodia's dual-currency economy, salaried professionals, university students, and micro-enterprise owners
+        routinely receive income and pay expenses across two parallel currencies: <strong>United States Dollars (USD)</strong>
+        for payroll, rent, and formal invoices (via ABA Bank), and <strong>Cambodian Riel (KHR)</strong> for daily meals,
+        local market purchases, and city transport (via Wing Digital Wallet and physical cash).
+      </p>
+      <p>
+        Before adopting a structured Management Information System, users relied on fragmented mobile banking histories,
+        paper receipts, and ad-hoc spreadsheets. This created four severe operational problems:
+      </p>
+      <ul>
+        <li><strong>Multi-Account &amp; Dual-Currency Blindness:</strong> Mixing USD and KHR numbers in a single unvalidated spreadsheet column distorts net cash flow by a factor of ~4,000×.</li>
+        <li><strong>Reactive Budget Overruns:</strong> Without real-time category budget tracking, users only discover overspending in variable categories (such as <em>Food &amp; Dining</em>) at the end of the month after cash reserves are depleted.</li>
+        <li><strong>Unrecorded Internal Transfers:</strong> Moving cash from an ABA Checking account to an Emergency Savings account or withdrawing KHR cash is frequently misclassified as an expense.</li>
+        <li><strong>Spreadsheet Formula Fragility:</strong> Manual row insertions or deletions corrupt `SUMIF` formulas (`#REF!`) and cause cached account balances to drift from actual bank balances.</li>
+      </ul>
+
+      <h3>1.2 Classification of Information Systems Used</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>IS Tier</th>
+            <th>Organizational Level</th>
+            <th>Implementation in Personal Finance Application</th>
+            <th>Primary Value Delivered</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Transaction Processing System (TPS)</strong></td>
+            <td>Operational (Daily)</td>
+            <td><code>AccountService</code>, <code>CategoryService</code>, <code>TransactionService</code>, <code>TransferService</code></td>
+            <td>Captures daily income, expenses, and same-currency transfers with strict ACID row locks and PostgreSQL composite foreign keys.</td>
+          </tr>
+          <tr>
+            <td><strong>2. Management Information System (MIS)</strong></td>
+            <td>Tactical (Monthly)</td>
+            <td><code>DashboardService</code> (<code>/home</code>), <code>BudgetService</code> (<code>/budgets</code>), <code>ReportService</code> (<code>/reports</code>)</td>
+            <td>Aggregates TPS ledger rows into 6-month trend charts, category expense shares, budget utilization progress bars, and CSV exports.</td>
+          </tr>
+          <tr>
+            <td><strong>3. Decision Support System (DSS)</strong></td>
+            <td>Strategic (Planning)</td>
+            <td><code>ReportService.buildDssSummary()</code> on <code>/reports</code></td>
+            <td>Evaluates the 20% savings rate benchmark, isolates the #1 cost driver, models 15% spending cuts, and verifies 3-month emergency liquidity reserves.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>1.3 How the System Improves Efficiency &amp; Decision-Making</h3>
+      <div class="grid-2">
+        <div class="box">
+          <h4>Operational Efficiency Gains</h4>
+          <ul>
+            <li><strong>85% Reduction in Reconciliation Time:</strong> Monthly closing drops from 45–60 minutes of manual Excel work to <strong>under 10 seconds</strong>.</li>
+            <li><strong>Zero Balance Drift:</strong> Account balances are derived dynamically (`initial_balance + Σ income - Σ expense ± Σ transfers`), eliminating stale counters.</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>Strategic Decision-Making Gains</h4>
+          <ul>
+            <li><strong>Proactive Variance Control:</strong> Visual progress bars turn amber at 80% budget usage and red above 100%, enabling mid-month spending corrections.</li>
+            <li><strong>Quantified Reserve Benchmarks:</strong> Automatically calculates the exact 3-month emergency reserve required per currency.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- PART 2: SYSTEM DESIGN PROJECT (FLOWCHART & ERD) -->
+    <!-- ===================================================================== -->
+    <section class="part-section page-break" id="part2">
+      <div class="part-header">
+        <span class="part-badge">Part 2 • System Design Project</span>
+        <h2>2. System Architecture, Flowchart &amp; Database Design</h2>
+      </div>
+
+      <h3>2.1 System Inputs, Processes, and Outputs (IPO Model)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>System Inputs (User / TPS)</th>
+            <th>Core Processing Logic (Spring Boot Services &amp; PostgreSQL)</th>
+            <th>System Outputs (MIS &amp; DSS Views)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              • User Registration &amp; Login credentials<br />
+              • Financial Accounts (Name, Type, Opening Balance, Currency)<br />
+              • Income &amp; Expense Categories<br />
+              • Daily Transactions (Account, Category, Amount, Date)<br />
+              • Monthly Category Budgets (`YYYY-MM`)<br />
+              • Same-Currency Account Transfers
+            </td>
+            <td>
+              • <strong>Security:</strong> BCrypt work-factor 12 hashing, session fixation protection, and CSRF tokens.<br />
+              • <strong>Validation:</strong> Rejects negative/zero transaction amounts, >2 decimal places, future dates, or mismatched category types.<br />
+              • <strong>Concurrency:</strong> Locks parent account/category rows (`FOR UPDATE`) during ledger writes.<br />
+              • <strong>Analytics:</strong> Groups 6-month trends, computes `SUM`/`AVG`/`COUNT`, and evaluates DSS rules.
+            </td>
+            <td>
+              • Multi-Currency Executive Dashboard (<code>/home</code>)<br />
+              • 6-Month Cash Flow Trend Bar Charts (<code>/reports</code>)<br />
+              • Category Share Breakdown Table<br />
+              • Automated DSS Action Recommendations<br />
+              • Budget Utilization Alerts (<code>/budgets</code>)<br />
+              • Excel-ready RFC-4180 CSV Exports
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>2.2 End-to-End System Flowchart</h3>
+      <div class="diagram-box">
+        <div class="diagram-caption">Figure 2.1 — End-to-End Information Flow (TPS Capture → ACID Ledger → MIS Aggregation → DSS Output)</div>
+        <div class="flow-chain">
+          <div class="flow-node">
+            <strong>1. Authentication</strong>
+            User signs in via <code>POST /login</code>. Spring Security verifies BCrypt hash, rotates session ID, and attaches <code>userId</code>.
+          </div>
+          <div class="flow-node">
+            <strong>2. Input Validation</strong>
+            Controller &amp; Service validate DTO fields, 2-decimal precision, ownership of Account/Category, and matching type.
+          </div>
+          <div class="flow-node">
+            <strong>3. ACID Persistence</strong>
+            PostgreSQL 18 acquires row locks and commits ledger entry; composite FKs enforce owner &amp; currency integrity.
+          </div>
+          <div class="flow-node">
+            <strong>4. MIS Aggregation</strong>
+            <code>ReportService</code> &amp; <code>BudgetService</code> aggregate 6-month cash flows, category shares, and budget usage.
+          </div>
+          <div class="flow-node">
+            <strong>5. DSS &amp; Export</strong>
+            Renders <code>/reports</code> charts, DSS recommendations, and downloads Excel CSV files.
+          </div>
+        </div>
+      </div>
+
+      <h3>2.3 Database Entity-Relationship Diagram (ERD — 6 Normalized Tables)</h3>
+      <div class="diagram-box">
+        <div class="diagram-caption">Figure 2.2 — Relational Database Schema (Flyway Migrations V1–V5 in PostgreSQL 18)</div>
+        <div class="erd-grid">
+          <div class="erd-table">
+            <div class="erd-table-head"><span>USERS</span><span>PK: id</span></div>
+            <div class="erd-table-body">
+              id BIGINT PK<br />
+              name VARCHAR(100)<br />
+              email VARCHAR(254) UK<br />
+              password_hash VARCHAR(255)<br />
+              created_at TIMESTAMPTZ<br />
+              updated_at TIMESTAMPTZ
+            </div>
+          </div>
+          <div class="erd-table">
+            <div class="erd-table-head"><span>ACCOUNTS</span><span>PK: id</span></div>
+            <div class="erd-table-body">
+              id BIGINT PK<br />
+              user_id BIGINT FK → users<br />
+              name VARCHAR(100)<br />
+              account_type VARCHAR(20)<br />
+              initial_balance NUMERIC(19,2)<br />
+              currency VARCHAR(3) [USD,KHR..]
+            </div>
+          </div>
+          <div class="erd-table">
+            <div class="erd-table-head"><span>CATEGORIES</span><span>PK: id</span></div>
+            <div class="erd-table-body">
+              id BIGINT PK<br />
+              user_id BIGINT FK → users<br />
+              name VARCHAR(100)<br />
+              category_type VARCHAR(10)<br />
+              created_at TIMESTAMPTZ<br />
+              updated_at TIMESTAMPTZ
+            </div>
+          </div>
+          <div class="erd-table">
+            <div class="erd-table-head"><span>TRANSACTIONS</span><span>PK: id</span></div>
+            <div class="erd-table-body">
+              id BIGINT PK<br />
+              user_id BIGINT FK → users<br />
+              account_id BIGINT FK → accounts<br />
+              category_id BIGINT FK → categories<br />
+              transaction_type VARCHAR(10)<br />
+              amount NUMERIC(19,2)<br />
+              currency VARCHAR(3)<br />
+              transaction_date DATE
+            </div>
+          </div>
+          <div class="erd-table">
+            <div class="erd-table-head"><span>BUDGETS</span><span>PK: id</span></div>
+            <div class="erd-table-body">
+              id BIGINT PK<br />
+              user_id BIGINT FK → users<br />
+              category_id BIGINT FK → categories<br />
+              currency VARCHAR(3)<br />
+              budget_month VARCHAR(7)<br />
+              limit_amount NUMERIC(19,2)
+            </div>
+          </div>
+          <div class="erd-table">
+            <div class="erd-table-head"><span>TRANSFERS</span><span>PK: id</span></div>
+            <div class="erd-table-body">
+              id BIGINT PK<br />
+              user_id BIGINT FK → users<br />
+              source_account_id BIGINT FK<br />
+              target_account_id BIGINT FK<br />
+              amount NUMERIC(19,2)<br />
+              currency VARCHAR(3)<br />
+              transfer_date DATE
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- PART 3: DECISION SUPPORT SCENARIO -->
+    <!-- ===================================================================== -->
+    <section class="part-section page-break" id="part3">
+      <div class="part-header">
+        <span class="part-badge">Part 3 • Decision Support Scenario</span>
+        <h2>3. Decision Support System (DSS) Scenario Analysis</h2>
+      </div>
+
+      <h3>3.1 The Financial Decision Scenario</h3>
+      <p>
+        <strong>Decision Maker:</strong> Sokha Chan, a software consultant in Phnom Penh managing both USD accounts
+        (<em>ABA Bank Checking</em> and <em>Emergency Reserve Savings</em>) and KHR wallets (<em>Wing Digital Wallet</em> and <em>Daily Cash</em>).
+      </p>
+      <p>
+        <strong>Strategic Problem:</strong> At the end of October 2026, Sokha wants to determine:
+      </p>
+      <ol>
+        <li>Why October discretionary spending exceeded the monthly budget despite stable fixed housing costs.</li>
+        <li>How much capital can be safely locked into a <strong>5.5% APY 12-Month Fixed Term Deposit</strong> without compromising a mandatory <strong>3-Month Emergency Liquidity Reserve</strong>.</li>
+      </ol>
+
+      <h3>3.2 Data Inputs Evaluated by the DSS Engine (<code>/reports</code>)</h3>
+      <ul>
+        <li><strong>6-Month USD Cash Flow (May – Oct 2026):</strong> Total Income = <strong>$11,150.00</strong> ($1,858.33/mo avg); Total Expenses = <strong>$6,478.00</strong> ($1,079.67/mo avg); Net Cash Flow = <strong>+$4,672.00</strong> (<strong>42% Savings Rate</strong>).</li>
+        <li><strong>Current Liquid Balance (USD):</strong> <strong>$9,722.00</strong> across ABA Checking ($6,122.00) and Emergency Reserve ($3,600.00).</li>
+        <li><strong>October Budget Variance:</strong> <em>Food &amp; Dining</em> reached <strong>$425.00</strong> against a <strong>$380.00</strong> monthly limit (<strong>111.8% utilization — Over Budget</strong>).</li>
+      </ul>
+
+      <h3>3.3 DSS Decision Rules &amp; Final Action Plan</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>DSS Rule Module</th>
+            <th>Quantitative Condition Evaluated</th>
+            <th>System Output &amp; Recommended Managerial Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Rule 1: Capital Allocation &amp; Surplus Rule</strong></td>
+            <td>6-Month Savings Rate = <strong>42%</strong> (exceeds 20% target benchmark; net surplus = <strong>+$4,672.00</strong>).</td>
+            <td><strong>Action:</strong> Allocate 50% of the 6-month net surplus (<strong>$2,336.00</strong>) into a 5.5% APY fixed-term deposit while retaining 50% in liquid accounts.</td>
+          </tr>
+          <tr>
+            <td><strong>Rule 2: Primary Cost Driver &amp; 15% Sensitivity</strong></td>
+            <td><em>Housing &amp; Rent</em> ($2,700 / 42%) is fixed; <em>Food &amp; Dining</em> ($2,165 / 33%) is the #1 controllable expense.</td>
+            <td><strong>Action:</strong> Reducing <em>Food &amp; Dining</em> by <strong>15%</strong> saves <strong>$324.75</strong> per 6 months ($54.13/mo), bringing monthly food spend back below the $380 budget cap.</td>
+          </tr>
+          <tr>
+            <td><strong>Rule 3: 3-Month Emergency Reserve Benchmark</strong></td>
+            <td>Required Reserve = 3 × $1,079.67 = <strong>$3,239.01</strong>. Current USD Liquidity = <strong>$9,722.00</strong> (3.0× covered).</td>
+            <td><strong>Action:</strong> Emergency reserve is healthy; automating a $400/month transfer to Savings maintains full protection against income disruption.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- PART 4: EXCEL / DATA ANALYSIS & VISUALIZATION TASK -->
+    <!-- ===================================================================== -->
+    <section class="part-section page-break" id="part4">
+      <div class="part-header">
+        <span class="part-badge">Part 4 • Data Analysis &amp; Visualization</span>
+        <h2>4. Excel / Data Analysis &amp; Visualization (May – Oct 2026)</h2>
+      </div>
+
+      <p>
+        The dataset below is exported directly from the application's MIS endpoint (<code>/reports/export-monthly.csv</code>
+        and saved in the project root as <code>mis_6month_summary.csv</code> and <code>mis_transactions_6months.csv</code>).
+      </p>
+
+      <h3>4.1 Six-Month Cash Flow Summary Table (Excel Formulas: SUM, AVERAGE, Savings Rate)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th>USD Income ($)</th>
+            <th>USD Expense ($)</th>
+            <th>USD Net Flow ($)</th>
+            <th>USD Savings Rate</th>
+            <th>KHR Income (៛)</th>
+            <th>KHR Expense (៛)</th>
+            <th>KHR Net Flow (៛)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>2026-05</td><td>1,750.00</td><td>1,005.00</td><td>+745.00</td><td>43%</td><td>1,600,000</td><td>1,100,000</td><td>+500,000</td></tr>
+          <tr><td>2026-06</td><td>1,900.00</td><td>1,062.00</td><td>+838.00</td><td>44%</td><td>1,600,000</td><td>1,100,000</td><td>+500,000</td></tr>
+          <tr><td>2026-07</td><td>1,680.00</td><td>1,128.00</td><td>+552.00</td><td>33%</td><td>1,600,000</td><td>1,100,000</td><td>+500,000</td></tr>
+          <tr><td>2026-08</td><td>2,020.00</td><td>1,038.00</td><td>+982.00</td><td>49%</td><td>1,600,000</td><td>1,100,000</td><td>+500,000</td></tr>
+          <tr><td>2026-09</td><td>1,850.00</td><td>1,089.00</td><td>+761.00</td><td>41%</td><td>1,600,000</td><td>1,100,000</td><td>+500,000</td></tr>
+          <tr><td>2026-10</td><td>1,950.00</td><td>1,156.00</td><td>+794.00</td><td>41%</td><td>1,600,000</td><td>1,100,000</td><td>+500,000</td></tr>
+          <tr class="total-row">
+            <td>=SUM(B2:B7)</td><td>$11,150.00</td><td>$6,478.00</td><td>+$4,672.00</td><td>42%</td><td>9,600,000 ៛</td><td>6,600,000 ៛</td><td>+3,000,000 ៛</td>
+          </tr>
+          <tr class="total-row">
+            <td>=AVERAGE(B2:B7)</td><td>$1,858.33</td><td>$1,079.67</td><td>+$778.67</td><td>42%</td><td>1,600,000 ៛</td><td>1,100,000 ៛</td><td>+500,000 ៛</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>4.2 Category Expense Breakdown (COUNT, SUM, AVERAGE &amp; Visual Share Chart)</h3>
+      <div class="diagram-box">
+        <div class="diagram-caption">Figure 4.1 — 6-Month USD Expense Distribution Across 30 Transactions (Total = $6,478.00)</div>
+
+        <div class="chart-row">
+          <strong>Housing &amp; Rent</strong>
+          <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 42%;"></div></div>
+          <span>$2,700 (42%)</span>
+        </div>
+        <div class="chart-row">
+          <strong>Food &amp; Dining</strong>
+          <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 33%; background:#e11d48;"></div></div>
+          <span>$2,165 (33%)</span>
+        </div>
+        <div class="chart-row">
+          <strong>Transport &amp; Fuel</strong>
+          <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 10%; background:#059669;"></div></div>
+          <span>$670 (10%)</span>
+        </div>
+        <div class="chart-row">
+          <strong>Utilities &amp; Internet</strong>
+          <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 9%; background:#d97706;"></div></div>
+          <span>$553 (9%)</span>
+        </div>
+        <div class="chart-row">
+          <strong>Education &amp; Books</strong>
+          <div class="chart-bar-bg"><div class="chart-bar-fill" style="width: 6%; background:#6366f1;"></div></div>
+          <span>$390 (6%)</span>
+        </div>
+      </div>
+
+      <h3>4.3 Key Analytical Insights</h3>
+      <ul>
+        <li><strong>Pareto Cost Concentration:</strong> Just two categories—<em>Housing &amp; Rent</em> (42%) and <em>Food &amp; Dining</em> (33%)—account for <strong>75% of all USD expenditure</strong> across <code>COUNT = 30</code> expense transactions.</li>
+        <li><strong>Income Volatility vs. Expense Creep:</strong> Consulting income peaked in August ($520, driving a 49% savings rate), whereas <em>Food &amp; Dining</em> rose steadily from $310 in May to $425 in October (+37% increase), triggering the October budget overrun alert.</li>
+      </ul>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- PART 5: BUSINESS PROCESS MAPPING ("AS-IS" VS "TO-BE") -->
+    <!-- ===================================================================== -->
+    <section class="part-section" id="part5" style="border-bottom: none; margin-bottom: 0;">
+      <div class="part-header">
+        <span class="part-badge">Part 5 • Business Process Mapping</span>
+        <h2>5. Business Process Re-Engineering ("As-Is" vs. "To-Be")</h2>
+      </div>
+
+      <div class="grid-2">
+        <div class="box" style="border-top: 4px solid var(--rose);">
+          <h4>"As-Is" Process (Manual Notebooks &amp; Spreadsheets)</h4>
+          <ol>
+            <li>Collect paper receipts, ABA SMS alerts, and Wing screenshots at month-end.</li>
+            <li>Open Excel workbook and manually type dates, descriptions, and amounts.</li>
+            <li>Manually separate or convert USD and KHR rows (frequent currency mix-ups).</li>
+            <li>Copy-paste <code>SUMIF</code> formulas across category tabs (high risk of <code>#REF!</code> errors).</li>
+            <li>Manually compare bank app balances against spreadsheet totals; spend 45+ minutes hunting missing entries.</li>
+            <li>Discover category overspending weeks after the money was already spent.</li>
+          </ol>
+          <p style="margin-top:8px; font-weight:700; color:var(--rose);">Cycle Time: 45–60 Minutes / Month • Error Rate: High</p>
+        </div>
+
+        <div class="box" style="border-top: 4px solid var(--emerald);">
+          <h4>"To-Be" Process (Automated MIS &amp; DSS Web System)</h4>
+          <ol>
+            <li>User logs transaction or transfer in 5 seconds via responsive desktop/mobile form.</li>
+            <li><code>TransactionService</code> automatically infers currency from the authorized account and validates rules.</li>
+            <li>PostgreSQL atomically commits the entry under row lock; derived balances update instantaneously.</li>
+            <li><code>BudgetService</code> recalculates monthly category utilization and triggers visual progress bar alerts.</li>
+            <li><code>ReportService</code> updates 6-month trend charts, DSS recommendations, and 1-click Excel CSV exports.</li>
+          </ol>
+          <p style="margin-top:8px; font-weight:700; color:var(--emerald);">Cycle Time: &lt; 10 Seconds (Real-Time) • Formula Drift: 0%</p>
+        </div>
+      </div>
+
+      <h3>5.2 Process Improvement Summary Matrix</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Performance Dimension</th>
+            <th>"As-Is" Manual Spreadsheet Workflow</th>
+            <th>"To-Be" Personal Finance MIS / DSS</th>
+            <th>Measurable Improvement</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Data Entry &amp; Validation</strong></td>
+            <td>Unvalidated free-text cells; typos &amp; negative signs go unnoticed</td>
+            <td>Strict DTO + PostgreSQL <code>CHECK</code> constraints &amp; composite FKs</td>
+            <td>100% prevention of invalid currency/category mismatches</td>
+          </tr>
+          <tr>
+            <td><strong>Balance Reconciliation</strong></td>
+            <td>45–60 minutes at month-end comparing bank apps vs. Excel</td>
+            <td>Derived in real time from opening balance + ledger deltas</td>
+            <td><strong>&gt; 85% time saved</strong>; zero cached balance drift</td>
+          </tr>
+          <tr>
+            <td><strong>Budget Monitoring</strong></td>
+            <td>Retrospective (2–3 weeks after overspending)</td>
+            <td>Real-time progress bars (Warning at 80%, Alert at &gt;100%)</td>
+            <td>Immediate mid-month corrective action</td>
+          </tr>
+          <tr>
+            <td><strong>Executive Reporting</strong></td>
+            <td>Manual chart rebuilding every month</td>
+            <td>Live <code>/reports</code> DSS engine + 1-click RFC-4180 CSV export</td>
+            <td>Instant strategic insights for savings &amp; reserve planning</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </article>
+
+</body>
+</html>

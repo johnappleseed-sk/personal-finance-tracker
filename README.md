@@ -5,7 +5,8 @@ User registration, login/logout, an executive multi-currency financial dashboard
 
 ## MIS Assignment Deliverables (Lecturer: Pay Laten)
 
-- **5-Part MIS Assignment Report**: [`MIS_ASSIGNMENT_REPORT.md`](MIS_ASSIGNMENT_REPORT.md) (Business Case Study, System Flowchart & Database ERD, Decision Support Scenario, Excel/Data Analysis, and "As-Is" vs. "To-Be" Business Process Mapping)
+- **5-Part MIS Assignment Report (Markdown)**: [`MIS_ASSIGNMENT_REPORT.md`](MIS_ASSIGNMENT_REPORT.md)
+- **5-Part MIS Assignment Report (Print-Ready HTML / PDF)**: [`MIS_ASSIGNMENT_REPORT.html`](MIS_ASSIGNMENT_REPORT.html) (Business Case Study, System Flowchart & Database ERD, Decision Support Scenario, Excel/Data Analysis, and "As-Is" vs. "To-Be" Business Process Mapping)
 - **Interactive 8-Slide Classroom Presentation Deck**: [`MIS_PRESENTATION_DECK.html`](MIS_PRESENTATION_DECK.html) (includes live What-If DSS Savings Simulator, charts, and speaker notes)
 - **Excel / Data Analysis Datasets (Part 4)**:
   - [`mis_6month_summary.csv`](mis_6month_summary.csv) — 6-month trend and category analytics (`SUM`, `AVERAGE`, `COUNT`, Savings Rate %, Share %)
