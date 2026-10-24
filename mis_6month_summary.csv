@@ -1,0 +1,26 @@
+Section,Period_Or_Category,Type,Currency,Income_Or_Total,Expense_Or_Average,Net_Or_Count,Rate_Or_Share_Percent
+Monthly Trend,2026-05,Cash Flow,USD,1750.00,1005.00,745.00,43%
+Monthly Trend,2026-06,Cash Flow,USD,1900.00,1062.00,838.00,44%
+Monthly Trend,2026-07,Cash Flow,USD,1680.00,1128.00,552.00,33%
+Monthly Trend,2026-08,Cash Flow,USD,2020.00,1038.00,982.00,49%
+Monthly Trend,2026-09,Cash Flow,USD,1850.00,1089.00,761.00,41%
+Monthly Trend,2026-10,Cash Flow,USD,1950.00,1156.00,794.00,41%
+Monthly Summary (SUM),6-Month Total (2026-05 to 2026-10),Cash Flow,USD,11150.00,6478.00,4672.00,42%
+Monthly Summary (AVERAGE),6-Month Monthly Average,Cash Flow,USD,1858.33,1079.67,778.67,42%
+Category Analysis,Monthly Salary,Income,USD,9000.00,1500.00,6,81%
+Category Analysis,Freelance & Consulting,Income,USD,2150.00,358.33,6,19%
+Category Analysis,Housing & Rent,Expense,USD,2700.00,450.00,6,42%
+Category Analysis,Food & Dining,Expense,USD,2165.00,360.83,6,33%
+Category Analysis,Transport & Fuel,Expense,USD,670.00,111.67,6,10%
+Category Analysis,Utilities & Internet,Expense,USD,553.00,92.17,6,9%
+Category Analysis,Education & Books,Expense,USD,390.00,65.00,6,6%
+Monthly Trend,2026-05,Cash Flow,KHR,1600000.00,1100000.00,500000.00,31%
+Monthly Trend,2026-06,Cash Flow,KHR,1600000.00,1100000.00,500000.00,31%
+Monthly Trend,2026-07,Cash Flow,KHR,1600000.00,1100000.00,500000.00,31%
+Monthly Trend,2026-08,Cash Flow,KHR,1600000.00,1100000.00,500000.00,31%
+Monthly Trend,2026-09,Cash Flow,KHR,1600000.00,1100000.00,500000.00,31%
+Monthly Trend,2026-10,Cash Flow,KHR,1600000.00,1100000.00,500000.00,31%
+Category Analysis,Freelance & Consulting,Income,KHR,9600000.00,1600000.00,6,100%
+Category Analysis,Food & Dining,Expense,KHR,4080000.00,680000.00,6,62%
+Category Analysis,Transport & Fuel,Expense,KHR,1440000.00,240000.00,6,22%
+Category Analysis,Utilities & Internet,Expense,KHR,1080000.00,180000.00,6,16%

@@ -1,9 +1,15 @@
 # Personal Finance Tracker
 
-A student-friendly, production-style personal finance application built incrementally.
-User registration, login/logout, an authenticated welcome page, and user-owned
-account/category management and income/expense transactions are implemented.
-Budgets, financial dashboards, and reports are planned; they are **not implemented yet**.
+A student-friendly, production-style personal finance and Management Information System (MIS) application built with Spring Boot 4.1.1, Java 27, and PostgreSQL 18.
+User registration, login/logout, an executive multi-currency financial dashboard (`/home`), user-owned account/category management (`USD`, `KHR`, `EUR`, `GBP`), income/expense transactions with search and CSV export, monthly category budgets (`/budgets`), same-currency account transfers (`/transfers`), and a 6-month **MIS Reports & Decision Support System (`/reports`)** are implemented.
+
+## MIS Assignment Deliverables (Lecturer: Pay Laten)
+
+- **5-Part MIS Assignment Report**: [`MIS_ASSIGNMENT_REPORT.md`](MIS_ASSIGNMENT_REPORT.md) (Business Case Study, System Flowchart & Database ERD, Decision Support Scenario, Excel/Data Analysis, and "As-Is" vs. "To-Be" Business Process Mapping)
+- **Interactive 8-Slide Classroom Presentation Deck**: [`MIS_PRESENTATION_DECK.html`](MIS_PRESENTATION_DECK.html) (includes live What-If DSS Savings Simulator, charts, and speaker notes)
+- **Excel / Data Analysis Datasets (Part 4)**:
+  - [`mis_6month_summary.csv`](mis_6month_summary.csv) — 6-month trend and category analytics (`SUM`, `AVERAGE`, `COUNT`, Savings Rate %, Share %)
+  - [`mis_transactions_6months.csv`](mis_transactions_6months.csv) — 66-transaction multi-currency ledger (`USD` & `KHR`)
 
 ## Current foundation
 

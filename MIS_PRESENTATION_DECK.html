@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MIS Assignment Presentation — Personal Finance & Decision Support System</title>
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --bg-card: #1e293b;
+      --bg-surface: #ffffff;
+      --bg-subtle: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-soft: #eff6ff;
+      --emerald: #059669;
+      --emerald-soft: #ecfdf5;
+      --rose: #e11d48;
+      --rose-soft: #fff1f2;
+      --amber: #d97706;
+      --amber-soft: #fffbeb;
+      --radius: 16px;
+      --shadow: 0 20px 45px -15px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+      background: #0f172a;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Top Presenter Bar */
+    .deck-topbar {
+      height: 58px;
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(10px);
+    }
+
+    .deck-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: -0.01em;
+    }
+
+    .deck-badge {
+      background: linear-gradient(135deg, #2563eb, #4f46e5);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .deck-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .deck-btn {
+      background: rgba(255, 255, 255, 0.1);
+      color: #f8fafc;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .deck-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .deck-btn-primary {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .deck-btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .slide-counter {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      font-variant-numeric: tabular-nums;
+      min-width: 70px;
+      text-align: center;
+    }
+
+    /* Progress Bar */
+    .progress-track {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      width: 100%;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #10b981);
+      width: 12.5%;
+      transition: width 0.25s ease;
+    }
+
+    /* Slide Viewport */
+    .deck-stage {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px 32px;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      max-width: 1240px;
+      min-height: 680px;
+      background: var(--bg-surface);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 44px 52px;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      animation: slideFade 0.22s ease-out;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    @keyframes slideFade {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Typography & Layout inside slides */
+    .slide-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--primary);
+      background: var(--primary-soft);
+      padding: 5px 12px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+      width: fit-content;
+    }
+
+    .slide-title {
+      font-size: 2.15rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: var(--text-main);
+      line-height: 1.18;
+      margin-bottom: 10px;
+    }
+
+    .slide-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      max-width: 880px;
+      margin-bottom: 26px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 22px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+    }
+
+    .card-highlight {
+      background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+      border-color: #bfdbfe;
+    }
+
+    .card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card p, .card li {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    .card ul {
+      padding-left: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+
+    .pill-blue { background: #dbeafe; color: #1d4ed8; }
+    .pill-green { background: #d1fae5; color: #047857; }
+    .pill-red { background: #ffe4e6; color: #be123c; }
+    .pill-amber { background: #fef3c7; color: #b45309; }
+
+    /* KPI Stat Boxes */
+    .kpi-val {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 6px 0 4px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Flowchart steps */
+    .flow-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .flow-step {
+      background: #fff;
+      border: 2px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 16px;
+      position: relative;
+      transition: border-color 0.2s;
+    }
+
+    .flow-step:hover {
+      border-color: var(--primary);
+    }
+
+    .flow-step-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+
+    /* Tables */
+    table.mis-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    table.mis-table th {
+      background: #f1f5f9;
+      color: #334155;
+      text-align: left;
+      padding: 11px 14px;
+      font-weight: 700;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    table.mis-table td {
+      padding: 10px 14px;
+      border-top: 1px solid var(--border);
+      color: var(--text-main);
+      font-variant-numeric: tabular-nums;
+    }
+
+    table.mis-table tr.summary-row {
+      background: #f8fafc;
+      font-weight: 700;
+    }
+
+    /* Visual Bar Chart in Slide 6 */
+    .bar-chart-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 14px;
+      align-items: end;
+      height: 180px;
+      padding: 18px 14px 8px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .bar-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .bar-pair {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 130px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .bar-inc {
+      width: 22px;
+      background: linear-gradient(180deg, #10b981, #059669);
+      border-radius: 5px 5px 0 0;
+    }
+
+    .bar-exp {
+      width: 22px;
+      background: linear-gradient(180deg, #f43f5e, #e11d48);
+      border-radius: 5px 5px 0 0;
+    }
+
+    .bar-label {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    /* Slide Footer */
+    .slide-footer {
+      margin-top: 24px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+
+    /* Speaker Notes Drawer */
+    .speaker-notes {
+      display: none;
+      margin-top: 14px;
+      padding: 14px 18px;
+      background: #fefce8;
+      border: 1px solid #fde047;
+      border-radius: 10px;
+      color: #713f12;
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    body.show-notes .speaker-notes {
+      display: block;
+    }
+
+    /* Interactive Simulator controls */
+    .sim-slider {
+      width: 100%;
+      accent-color: var(--primary);
+      margin: 8px 0;
+      cursor: pointer;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .deck-topbar, .progress-track { display: none !important; }
+      .deck-stage { display: block; padding: 0; }
+      .slide {
+        display: flex !important;
+        box-shadow: none;
+        border: 1px solid #cbd5e1;
+        margin-bottom: 24px;
+        page-break-after: always;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="deck-topbar">
+    <div class="deck-brand">
+      <span class="deck-badge">MIS Assignment</span>
+      <span>Personal Finance &amp; Multi-Currency DSS — Lecturer Pay Laten</span>
+    </div>
+    <div class="deck-controls">
+      <button class="deck-btn" onclick="toggleNotes()" title="Toggle Speaker Notes (Key: N)">Speaker Notes (N)</button>
+      <button class="deck-btn" onclick="window.print()" title="Print or Save as PDF">Print / PDF</button>
+      <a class="deck-btn" href="http://localhost:8080/reports" target="_blank">Open Live App ↗</a>
+      <button class="deck-btn" onclick="prevSlide()">← Prev</button>
+      <span class="slide-counter" id="slideCounter">1 / 8</span>
+      <button class="deck-btn deck-btn-primary" onclick="nextSlide()">Next →</button>
+    </div>
+  </header>
+
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <main class="deck-stage">
+
+    <!-- SLIDE 1: TITLE & EXECUTIVE OVERVIEW -->
+    <section class="slide active">
+      <div>
+        <div class="slide-eyebrow">Management Information Systems (MIS) • Complete 5-Part Project</div>
+        <h1 class="slide-title" style="font-size: 2.65rem; margin-bottom: 14px;">
+          Personal Finance &amp; Multi-Currency<br />Decision Support System (USD &amp; KHR)
+        </h1>
+        <p class="slide-subtitle">
+          Transforming fragmented daily cash and mobile-banking records into an integrated
+          <strong>Transaction Processing System (TPS)</strong>, <strong>Management Information System (MIS)</strong>,
+          and <strong>Decision Support System (DSS)</strong> for Cambodian households and SMEs.
+        </p>
+
+        <div class="grid-3" style="margin-top: 28px;">
+          <div class="card card-highlight">
+            <h3>1. Transaction Processing (TPS) <span class="pill pill-blue">Operational</span></h3>
+            <p>Captures daily multi-currency income, expenses, and internal transfers across ABA Bank (USD), Wing Wallet (KHR), and Cash with ACID row locking.</p>
+          </div>
+          <div class="card card-highlight">
+            <h3>2. Management Reporting (MIS) <span class="pill pill-green">Tactical</span></h3>
+            <p>Aggregates 6-month cash-flow trends, category expense shares, monthly budget utilization bars, and Excel-ready CSV datasets.</p>
+          </div>
+          <div class="card card-highlight">
+            <h3>3. Decision Support (DSS) <span class="pill pill-amber">Strategic</span></h3>
+            <p>Evaluates savings rate benchmarks (20% rule), identifies top cost drivers, flags budget overruns, and computes 3-month emergency reserves.</p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="speaker-notes">
+          <strong>Speaker Note:</strong> Welcome Lecturer Pay Laten and classmates. Our project addresses a real-world financial challenge in Cambodia: managing dual-currency cash flows (USD and KHR) across bank accounts and cash wallets using a 3-tier MIS architecture.
+        </div>
+        <div class="slide-footer">
+          <span>Course: Management Information Systems (MIS) — Lecturer: Pay Laten</span>
+          <span>Use ← / → Arrow Keys to Navigate</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: PART 1 - BUSINESS CASE STUDY ANALYSIS -->
+    <section class="slide">
+      <div>
+        <div class="slide-eyebrow">Part 1 • Business Case Study Analysis</div>
+        <h2 class="slide-title">Dual-Currency Financial Visibility in Cambodia</h2>
+        <p class="slide-subtitle">
+          Professionals, students, and micro-merchants in Phnom Penh receive income in <strong>USD</strong> (ABA Bank payroll)
+          and <strong>KHR</strong> (Wing / KHQR sales) while paying daily expenses in both currencies.
+        </p>
+
+        <div class="grid-2">
+          <div class="card" style="border-left: 4px solid var(--rose);">
+            <h3>Business Problems Identified <span class="pill pill-red">Before MIS</span></h3>
+            <ul>
+              <li><strong>Fragmented Records:</strong> Transactions scattered across bank SMS logs, paper receipts, and ad-hoc spreadsheets.</li>
+              <li><strong>Currency Mixing Errors:</strong> Combining USD and KHR in one spreadsheet column distorts net worth by 4,000×.</li>
+              <li><strong>Reactive Overspending:</strong> Budget overruns in Food &amp; Dining are discovered only after cash reserves run out.</li>
+              <li><strong>Spreadsheet Formula Fragility:</strong> Manual edits silently break balance formulas (`#REF!`).</li>
+            </ul>
+          </div>
+
+          <div class="card" style="border-left: 4px solid var(--emerald);">
+            <h3>How the System Improves Efficiency &amp; Decisions <span class="pill pill-green">After MIS</span></h3>
+            <ul>
+              <li><strong>85% Faster Reconciliation:</strong> Monthly closing drops from 45–60 minutes of manual Excel work to <strong>&lt; 10 seconds</strong>.</li>
+              <li><strong>100% Balance Accuracy:</strong> Derived balances are computed directly from immutable opening balances + ledger entries.</li>
+              <li><strong>Proactive Budget Alerts:</strong> Color-coded progress bars warn at 80% utilization and flag over-budget categories.</li>
+              <li><strong>Data-Driven Capital Allocation:</strong> Automated DSS rules quantify 15% cost-reduction savings and 3-month liquidity targets.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="speaker-notes">
+          <strong>Speaker Note:</strong> In Part 1, we analyzed why manual notebooks and spreadsheets fail in Cambodia's dual-currency economy. Our web-based MIS eliminates currency mixing and reduces monthly financial review time by over 85%.
+        </div>
+        <div class="slide-footer">
+          <span>Part 1: Business Case Study Analysis</span>
+          <span>Slide 2 of 8</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: PART 2A - SYSTEM DESIGN FLOWCHART -->
+    <section class="slide">
+      <div>
+        <div class="slide-eyebrow">Part 2A • System Design Project (Flowchart)</div>
+        <h2 class="slide-title">End-to-End Information Flow (Input → Process → Output)</h2>
+        <p class="slide-subtitle">
+          How raw financial events flow from authenticated user forms into PostgreSQL and transform into executive DSS insights.
+        </p>
+
+        <div class="flow-row">
+          <div class="flow-step">
+            <div class="flow-step-num">1</div>
+            <h3 style="font-size:0.95rem;">Auth &amp; Security</h3>
+            <p style="font-size:0.83rem;">Spring Security validates BCrypt credentials, session cookie, and CSRF token.</p>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">2</div>
+            <h3 style="font-size:0.95rem;">TPS Validation</h3>
+            <p style="font-size:0.83rem;">Checks account ownership, positive 2-decimal scale, and matching category type.</p>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">3</div>
+            <h3 style="font-size:0.95rem;">ACID Persistence</h3>
+            <p style="font-size:0.83rem;">PostgreSQL 18 stores ledger rows under pessimistic row locks (`FOR UPDATE`).</p>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">4</div>
+            <h3 style="font-size:0.95rem;">MIS Aggregation</h3>
+            <p style="font-size:0.83rem;">`ReportService` computes 6-month trends, category shares, and budget variance.</p>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">5</div>
+            <h3 style="font-size:0.95rem;">DSS &amp; CSV Output</h3>
+            <p style="font-size:0.83rem;">Renders `/reports` charts, DSS action cards, and RFC-4180 Excel CSV exports.</p>
+          </div>
+        </div>
+
+        <div class="grid-3" style="margin-top: 18px;">
+          <div class="card">
+            <h3>Inputs</h3>
+            <p>Accounts (`USD`/`KHR`), Income/Expense Categories, Daily Transactions, Monthly Category Budgets, and Same-Currency Transfers.</p>
+          </div>
+          <div class="card">
+            <h3>Processing Engine</h3>
+            <p>Java 27 + Spring Boot 4.1 Service Layer (`TransactionService`, `BudgetService`, `ReportService`) with Flyway schema governance.</p>
+          </div>
+          <div class="card">
+            <h3>Outputs</h3>
+            <p>Multi-currency KPI Dashboard (`/home`), 6-Month MIS &amp; DSS Analytics (`/reports`), and Excel CSV Exports.</p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="speaker-notes">
+          <strong>Speaker Note:</strong> Here is our system flowchart for Part 2. Every transaction passes through strict ownership and type validation before PostgreSQL persistence, and is immediately reflected in the MIS and DSS views.
+        </div>
+        <div class="slide-footer">
+          <span>Part 2: System Design Project — Process Flowchart</span>
+          <span>Slide 3 of 8</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: PART 2B - DATABASE ERD -->
+    <section class="slide">
+      <div>
+        <div class="slide-eyebrow">Part 2B • Database Entity-Relationship Design (PostgreSQL 18)</div>
+        <h2 class="slide-title">Normalized 6-Table Relational Schema</h2>
+        <p class="slide-subtitle">
+          Enforces multi-tenant isolation (`user_id`), composite foreign keys for currency safety, and zero denormalized balance drift.
+        </p>
+
+        <div class="grid-3">
+          <div class="card">
+            <h3>1. USERS <span class="pill pill-blue">PK: id</span></h3>
+            <ul>
+              <li><code>email</code> VARCHAR(254) UNIQUE</li>
+              <li><code>name</code> VARCHAR(100)</li>
+              <li><code>password_hash</code> VARCHAR(255)</li>
+              <li>Owns all downstream entities (`1:N`)</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>2. ACCOUNTS <span class="pill pill-blue">PK: id</span></h3>
+            <ul>
+              <li><code>user_id</code> FK → <code>users(id)</code></li>
+              <li><code>account_type</code> (CHECKING, SAVINGS, CASH, CREDIT_CARD)</li>
+              <li><code>initial_balance</code> NUMERIC(19,2)</li>
+              <li><code>currency</code> (USD, KHR, EUR, GBP)</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>3. CATEGORIES <span class="pill pill-blue">PK: id</span></h3>
+            <ul>
+              <li><code>user_id</code> FK → <code>users(id)</code></li>
+              <li><code>name</code> VARCHAR(100)</li>
+              <li><code>category_type</code> (INCOME, EXPENSE)</li>
+              <li>Case-insensitive unique per user</li>
+            </ul>
+          </div>
+          <div class="card card-highlight">
+            <h3>4. TRANSACTIONS <span class="pill pill-green">Ledger</span></h3>
+            <ul>
+              <li><code>user_id</code>, <code>account_id</code>, <code>category_id</code></li>
+              <li><code>transaction_type</code> (INCOME / EXPENSE)</li>
+              <li><code>amount</code> NUMERIC(19,2) &gt; 0</li>
+              <li><code>currency</code> &amp; <code>transaction_date</code></li>
+            </ul>
+          </div>
+          <div class="card card-highlight">
+            <h3>5. BUDGETS <span class="pill pill-amber">Planning</span></h3>
+            <ul>
+              <li><code>user_id</code>, <code>category_id</code> FK</li>
+              <li><code>currency</code> VARCHAR(3)</li>
+              <li><code>budget_month</code> VARCHAR(7) (`YYYY-MM`)</li>
+              <li><code>limit_amount</code> NUMERIC(19,2)</li>
+            </ul>
+          </div>
+          <div class="card card-highlight">
+            <h3>6. TRANSFERS <span class="pill pill-blue">Internal</span></h3>
+            <ul>
+              <li><code>source_account_id</code> ≠ <code>target_account_id</code></li>
+              <li>Composite FK enforces identical <code>user_id</code> and <code>currency</code> on both accounts</li>
+              <li><code>amount</code> NUMERIC(19,2)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="speaker-notes">
+          <strong>Speaker Note:</strong> Our ERD uses 6 normalized tables managed by Flyway migrations V1 through V5. Notice how TRANSFERS uses a composite foreign key on (user_id, account_id, currency) so cross-currency corruption is impossible at the database level.
+        </div>
+        <div class="slide-footer">
+          <span>Part 2: System Design Project — Database Schema (ERD)</span>
+          <span>Slide 4 of 8</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: PART 3 - INTERACTIVE DECISION SUPPORT SCENARIO -->
+    <section class="slide">
+      <div>
+        <div class="slide-eyebrow">Part 3 • Decision Support Scenario (Interactive What-If Simulator)</div>
+        <h2 class="slide-title">Financial Optimization &amp; Emergency Reserve Decision</h2>
+        <p class="slide-subtitle">
+          Scenario: Sokha Chan wants to control rising <strong>Food &amp; Dining</strong> expenses (currently <strong>$425/mo</strong> vs. $380 budget)
+          and maintain a <strong>3-Month Emergency Reserve</strong> while allocating surplus to high-yield savings.
+        </p>
+
+        <div class="grid-2">
+          <div class="card card-highlight">
+            <h3>Interactive DSS Policy Simulator <span class="pill pill-blue">Try Dragging</span></h3>
+            <div style="margin-top: 12px;">
+              <label style="font-size:0.88rem; font-weight:700; display:flex; justify-content:space-between;">
+                <span>Cut Top Variable Expense (Food &amp; Dining: $2,165 / 6 mo)</span>
+                <span id="cutLabel" style="color:var(--primary);">15% Reduction</span>
+              </label>
+              <input type="range" min="0" max="35" value="15" class="sim-slider" id="cutSlider" oninput="updateDssSim()" />
+            </div>
+
+            <div style="margin-top: 14px;">
+              <label style="font-size:0.88rem; font-weight:700; display:flex; justify-content:space-between;">
+                <span>Surplus Allocation to Term Deposit (5.5% APY)</span>
+                <span id="allocLabel" style="color:var(--emerald);">50% of Surplus</span>
+              </label>
+              <input type="range" min="10" max="80" value="50" class="sim-slider" id="allocSlider" oninput="updateDssSim()" />
+            </div>
+
+            <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #cbd5e1; font-size:0.88rem; color:var(--text-muted);">
+              <strong>DSS Rule Triggered:</strong> When savings rate ≥ 20% and liquid balance ($9,722) ≥ 3× monthly expense, allocate surplus to investment while capping over-budget categories.
+            </div>
+          </div>
+
+          <div class="grid-2" style="gap: 14px;">
+            <div class="card">
+              <span class="pill pill-green">6-Month Additional Savings</span>
+              <div class="kpi-val" id="simSaved" style="color:var(--emerald);">+$324.75</div>
+              <p>Saved directly from Food &amp; Dining optimization</p>
+            </div>
+            <div class="card">
+              <span class="pill pill-blue">Projected 6-Mo Net Surplus</span>
+              <div class="kpi-val" id="simNet" style="color:var(--primary);">$4,996.75</div>
+              <p>Up from baseline $4,672.00 (+42% → <span id="simRate">45%</span> rate)</p>
+            </div>
+            <div class="card">
+              <span class="pill pill-amber">3-Month Reserve Benchmark</span>
+              <div class="kpi-val" id="simReserve">$3,076.63</div>
+              <p>Covered 3.1× by $9,722.00 liquid USD balance</p>
+            </div>
+            <div class="card">
+              <span class="pill pill-green">Recommended Term Deposit</span>
+              <div class="kpi-val" id="simInvest" style="color:var(--emerald);">$2,498.38</div>
+              <p>Capital safely deployable to 5.5% APY savings</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="speaker-notes">
+          <strong>Speaker Note:</strong> For Part 3, we demonstrate how the DSS supports real decisions. You can drag the sliders live to see how reducing Food & Dining by 15% saves $324.75 over 6 months and increases investable surplus to nearly $2,500.
+        </div>
+        <div class="slide-footer">
+          <span>Part 3: Decision Support Scenario — Live Sensitivity Analysis</span>
+          <span>Slide 5 of 8</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: PART 4 - EXCEL / DATA ANALYSIS & VISUALIZATION -->
+    <section class="slide">
+      <div>
+        <div class="slide-eyebrow">Part 4 • Excel / Data Analysis &amp; Visualization Task</div>
+        <h2 class="slide-title">6-Month Cash Flow &amp; Category Analysis (May – Oct 2026)</h2>
+
+        <div class="grid-2" style="align-items: start;">
+          <div>
+            <table class="mis-table">
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>Income (USD)</th>
+                  <th>Expense (USD)</th>
+                  <th>Net Flow</th>
+                  <th>Savings %</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>2026-05</td><td>$1,750.00</td><td>$1,005.00</td><td>+$745.00</td><td>43%</td></tr>
+                <tr><td>2026-06</td><td>$1,900.00</td><td>$1,062.00</td><td>+$838.00</td><td>44%</td></tr>
+                <tr><td>2026-07</td><td>$1,680.00</td><td>$1,128.00</td><td>+$552.00</td><td>33%</td></tr>
+                <tr><td>2026-08</td><td>$2,020.00</td><td>$1,038.00</td><td>+$982.00</td><td>49%</td></tr>
+                <tr><td>2026-09</td><td>$1,850.00</td><td>$1,089.00</td><td>+$761.00</td><td>41%</td></tr>
+                <tr><td>2026-10</td><td>$1,950.00</td><td>$1,156.00</td><td>+$794.00</td><td>41%</td></tr>
+                <tr class="summary-row">
+                  <td>SUM (6 Mo)</td><td>$11,150.00</td><td>$6,478.00</td><td>+$4,672.00</td><td>42%</td>
+                </tr>
+                <tr class="summary-row">
+                  <td>AVERAGE</td><td>$1,858.33</td><td>$1,079.67</td><td>+$778.67</td><td>42%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div>
+            <div class="bar-chart-grid">
+              <div class="bar-col">
+                <div class="bar-pair"><div class="bar-inc" style="height:86%;" title="Income: $1,750"></div><div class="bar-exp" style="height:50%;" title="Expense: $1,005"></div></div>
+                <span class="bar-label">May</span>
+              </div>
+              <div class="bar-col">
+                <div class="bar-pair"><div class="bar-inc" style="height:94%;" title="Income: $1,900"></div><div class="bar-exp" style="height:53%;" title="Expense: $1,062"></div></div>
+                <span class="bar-label">Jun</span>
+              </div>
+              <div class="bar-col">
+                <div class="bar-pair"><div class="bar-inc" style="height:83%;" title="Income: $1,680"></div><div class="bar-exp" style="height:56%;" title="Expense: $1,128"></div></div>
+                <span class="bar-label">Jul</span>
+              </div>
+              <div class="bar-col">
+                <div class="bar-pair"><div class="bar-inc" style="height:100%;" title="Income: $2,020"></div><div class="bar-exp" style="height:51%;" title="Expense: $1,038"></div></div>
+                <span class="bar-label">Aug</span>
+              </div>
+              <div class="bar-col">
+                <div class="bar-pair"><div class="bar-inc" style="height:92%;" title="Income: $1,850"></div><div class="bar-exp" style="height:54%;" title="Expense: $1,089"></div></div>
+                <span class="bar-label">Sep</span>
+              </div>
+              <div class="bar-col">
+                <div class="bar-pair"><div class="bar-inc" style="height:97%;" title="Income: $1,950"></div><div class="bar-exp" style="height:57%;" title="Expense: $1,156"></div></div>
+                <span class="bar-label">Oct</span>
+              </div>
+            </div>
+
+            <div class="card" style="margin-top: 14px; padding: 16px;">
+              <h3>Key Analytical Findings (SUM / AVERAGE / COUNT)</h3>
+              <ul>
+                <li><strong>Top Cost Drivers:</strong> Housing ($2,700 / 42%) + Food &amp; Dining ($2,165 / 33%) = <strong>75%</strong> of total USD expenses across <code>COUNT = 30</code> expense transactions.</li>
+                <li><strong>Peak Performance:</strong> August achieved the highest savings rate (<strong>49%</strong>, +$982 net) driven by $520 consulting income.</li>
+                <li><strong>Excel Datasets Ready:</strong> <code>mis_6month_summary.csv</code> &amp; <code>mis_transactions_6months.csv</code>.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="speaker-notes">
+          <strong>Speaker Note:</strong> In Part 4, we applied SUM, AVERAGE, and COUNT formulas across 66 transactions over 6 months. Housing and Food represent 75% of all expenses, while Food & Dining is our primary controllable cost driver.
+        </div>
+        <div class="slide-footer">
+          <span>Part 4: Excel / Data Analysis &amp; Visualization Task</span>
+          <span>Slide 6 of 8</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: PART 5 - BUSINESS PROCESS MAPPING (AS-IS VS TO-BE) -->
+    <section class="slide">
+      <div>
+        <div class="slide-eyebrow">Part 5 • Business Process Mapping ("As-Is" vs. "To-Be")</div>
+        <h2 class="slide-title">Re-Engineering Personal Financial Management</h2>
+        <p class="slide-subtitle">
+          Replacing error-prone month-end manual reconciliation with real-time transactional capture and automated MIS/DSS reporting.
+        </p>
+
+        <div class="grid-2">
+          <div class="card" style="border-top: 4px solid var(--rose);">
+            <h3>"As-Is" Process (Manual Notebooks &amp; Excel) <span class="pill pill-red">Inefficient</span></h3>
+            <ul>
+              <li><strong>Step 1:</strong> Collect paper receipts, ABA SMS alerts, and Wing screenshots at month-end.</li>
+              <li><strong>Step 2:</strong> Manually type amounts into separate Excel tabs (high typo risk).</li>
+              <li><strong>Step 3:</strong> Manually convert or mix USD and KHR columns.</li>
+              <li><strong>Step 4:</strong> Copy-paste `SUMIF` formulas for category totals (prone to `#REF!` errors).</li>
+              <li><strong>Step 5:</strong> Discover budget overruns 2–3 weeks after overspending occurred.</li>
+            </ul>
+            <div style="margin-top:14px; font-weight:700; color:var(--rose);">
+              ⏱ Cycle Time: 45–60 min/month • High Error Rate
+            </div>
+          </div>
+
+          <div class="card" style="border-top: 4px solid var(--emerald);">
+            <h3>"To-Be" Process (Automated MIS &amp; DSS Web App) <span class="pill pill-green">Optimized</span></h3>
+            <ul>
+              <li><strong>Step 1:</strong> Log transaction or transfer in 5 seconds via responsive desktop/mobile form.</li>
+              <li><strong>Step 2:</strong> Service layer automatically infers currency from the selected account and validates rules.</li>
+              <li><strong>Step 3:</strong> PostgreSQL atomically commits entry; derived account balances update immediately.</li>
+              <li><strong>Step 4:</strong> Budget progress bars &amp; `/reports` 6-month trend charts refresh in real time.</li>
+              <li><strong>Step 5:</strong> DSS engine surfaces immediate cost-driver &amp; reserve recommendations + 1-click CSV export.</li>
+            </ul>
+            <div style="margin-top:14px; font-weight:700; color:var(--emerald);">
+              ⚡ Cycle Time: &lt; 10 seconds (Instant) • 0% Formula Drift
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="speaker-notes">
+          <strong>Speaker Note:</strong> Part 5 compares the "As-Is" manual workflow against our "To-Be" MIS workflow. By inferring currency from the account and computing balances on the fly, we eliminate manual reconciliation bottlenecks entirely.
+        </div>
+        <div class="slide-footer">
+          <span>Part 5: Business Process Mapping ("As-Is" vs. "To-Be")</span>
+          <span>Slide 7 of 8</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: LIVE SYSTEM WALKTHROUGH & CONCLUSION -->
+    <section class="slide">
+      <div>
+        <div class="slide-eyebrow">Live Demonstration &amp; Deliverables Summary</div>
+        <h2 class="slide-title">Ready for Live Walkthrough</h2>
+        <p class="slide-subtitle">
+          All five MIS assignment deliverables are implemented, tested, seeded with 6 months of USD &amp; KHR data, and pushed to GitHub.
+        </p>
+
+        <div class="grid-3">
+          <div class="card card-highlight">
+            <h3>Live Web Application</h3>
+            <p style="margin-bottom: 12px;">Explore the desktop-first responsive UI, multi-currency dashboard, and DSS engine:</p>
+            <ul>
+              <li><a href="http://localhost:8080/login" target="_blank"><code>/login</code> — Sign In</a></li>
+              <li><a href="http://localhost:8080/home" target="_blank"><code>/home</code> — Executive Dashboard</a></li>
+              <li><a href="http://localhost:8080/reports" target="_blank"><code>/reports</code> — MIS &amp; DSS Analytics</a></li>
+              <li><a href="http://localhost:8080/budgets" target="_blank"><code>/budgets</code> — Monthly Budgets</a></li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>Demo Credentials</h3>
+            <p style="margin-bottom: 10px;">Pre-populated with 4 USD/KHR accounts, 7 categories, 66 transactions, 5 budgets, and 2 transfers:</p>
+            <div style="background:#fff; padding:12px; border-radius:8px; border:1px solid var(--border); font-family:monospace; font-size:0.86rem;">
+              <div><strong>Email:</strong> demo@mis.edu.kh</div>
+              <div style="margin-top:4px;"><strong>Password:</strong> DemoPass123!</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Project Deliverables</h3>
+            <ul>
+              <li><strong>Report:</strong> <code>MIS_ASSIGNMENT_REPORT.md</code></li>
+              <li><strong>Summary CSV:</strong> <code>mis_6month_summary.csv</code></li>
+              <li><strong>Ledger CSV:</strong> <code>mis_transactions_6months.csv</code></li>
+              <li><strong>Slide Deck:</strong> <code>MIS_PRESENTATION_DECK.html</code></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="speaker-notes">
+          <strong>Speaker Note:</strong> Thank you! We can now switch to the live browser tab at localhost:8080/reports to demonstrate currency switching between USD and KHR and live Excel CSV export.
+        </div>
+        <div class="slide-footer">
+          <span>Thank You • Questions &amp; Live Demo</span>
+          <span>Slide 8 of 8</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const counterEl = document.getElementById('slideCounter');
+    const progressEl = document.getElementById('progressFill');
+
+    function showSlide(index) {
+      if (index < 0) index = 0;
+      if (index >= slides.length) index = slides.length - 1;
+      currentSlide = index;
+      slides.forEach((s, i) => s.classList.toggle('active', i === currentSlide));
+      counterEl.textContent = (currentSlide + 1) + ' / ' + slides.length;
+      progressEl.style.width = (((currentSlide + 1) / slides.length) * 100) + '%';
+    }
+
+    function nextSlide() { showSlide(currentSlide + 1); }
+    function prevSlide() { showSlide(currentSlide - 1); }
+    function toggleNotes() { document.body.classList.toggle('show-notes'); }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT') return;
+      if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+      if (e.key === 'n' || e.key === 'N') { toggleNotes(); }
+    });
+
+    function updateDssSim() {
+      const cutPct = parseInt(document.getElementById('cutSlider').value, 10);
+      const allocPct = parseInt(document.getElementById('allocSlider').value, 10);
+
+      document.getElementById('cutLabel').textContent = cutPct + '% Reduction';
+      document.getElementById('allocLabel').textContent = allocPct + '% of Surplus';
+
+      const baseIncome = 11150.00;
+      const baseExpense = 6478.00;
+      const baseFood = 2165.00;
+
+      const saved = baseFood * (cutPct / 100.0);
+      const newExpense = baseExpense - saved;
+      const newNet = baseIncome - newExpense;
+      const newRate = Math.round((newNet / baseIncome) * 100);
+      const newMonthlyAvgExp = newExpense / 6.0;
+      const newReserve = newMonthlyAvgExp * 3.0;
+      const investable = newNet * (allocPct / 100.0);
+
+      document.getElementById('simSaved').textContent = '+$' + saved.toFixed(2);
+      document.getElementById('simNet').textContent = '$' + newNet.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      document.getElementById('simRate').textContent = newRate + '%';
+      document.getElementById('simReserve').textContent = '$' + newReserve.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      document.getElementById('simInvest').textContent = '$' + investable.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+  </script>
+</body>
+</html>

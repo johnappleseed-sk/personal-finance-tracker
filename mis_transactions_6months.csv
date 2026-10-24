@@ -1,0 +1,67 @@
+Date,Type,Category,Account,Amount,Currency,Description
+2026-10-19,Expense,Education & Books,ABA Bank Checking (USD),65.00,USD,University Course Materials & Cloud Lab
+2026-10-17,Expense,Utilities & Internet,ABA Bank Checking (USD),96.00,USD,EDC Electricity & Fiber Internet
+2026-10-16,Expense,Utilities & Internet,Wing Digital Wallet (KHR),180000.00,KHR,Mobile Data & Water Utility (KHR)
+2026-10-15,Income,Freelance & Consulting,ABA Bank Checking (USD),450.00,USD,MIS System Consulting Milestone
+2026-10-13,Expense,Transport & Fuel,ABA Bank Checking (USD),120.00,USD,City Commute & Fuel
+2026-10-12,Expense,Transport & Fuel,Wing Digital Wallet (KHR),240000.00,KHR,PassApp & Fuel Top-up (KHR)
+2026-10-09,Expense,Food & Dining,ABA Bank Checking (USD),425.00,USD,Supermarket Groceries & Dining
+2026-10-08,Expense,Food & Dining,Daily Cash Wallet (KHR),680000.00,KHR,Local Market & Daily Meals (KHR)
+2026-10-06,Income,Freelance & Consulting,Wing Digital Wallet (KHR),1600000.00,KHR,Local Client Retainer (KHR)
+2026-10-04,Expense,Housing & Rent,ABA Bank Checking (USD),450.00,USD,Apartment Rent - Phnom Penh
+2026-10-02,Income,Monthly Salary,ABA Bank Checking (USD),1500.00,USD,Monthly Tech Payroll Deposit
+2026-09-19,Expense,Education & Books,ABA Bank Checking (USD),65.00,USD,University Course Materials & Cloud Lab
+2026-09-17,Expense,Utilities & Internet,ABA Bank Checking (USD),94.00,USD,EDC Electricity & Fiber Internet
+2026-09-16,Expense,Utilities & Internet,Wing Digital Wallet (KHR),180000.00,KHR,Mobile Data & Water Utility (KHR)
+2026-09-15,Income,Freelance & Consulting,ABA Bank Checking (USD),350.00,USD,MIS System Consulting Milestone
+2026-09-13,Expense,Transport & Fuel,ABA Bank Checking (USD),115.00,USD,City Commute & Fuel
+2026-09-12,Expense,Transport & Fuel,Wing Digital Wallet (KHR),240000.00,KHR,PassApp & Fuel Top-up (KHR)
+2026-09-09,Expense,Food & Dining,ABA Bank Checking (USD),365.00,USD,Supermarket Groceries & Dining
+2026-09-08,Expense,Food & Dining,Daily Cash Wallet (KHR),680000.00,KHR,Local Market & Daily Meals (KHR)
+2026-09-06,Income,Freelance & Consulting,Wing Digital Wallet (KHR),1600000.00,KHR,Local Client Retainer (KHR)
+2026-09-04,Expense,Housing & Rent,ABA Bank Checking (USD),450.00,USD,Apartment Rent - Phnom Penh
+2026-09-02,Income,Monthly Salary,ABA Bank Checking (USD),1500.00,USD,Monthly Tech Payroll Deposit
+2026-08-19,Expense,Education & Books,ABA Bank Checking (USD),65.00,USD,University Course Materials & Cloud Lab
+2026-08-17,Expense,Utilities & Internet,ABA Bank Checking (USD),88.00,USD,EDC Electricity & Fiber Internet
+2026-08-16,Expense,Utilities & Internet,Wing Digital Wallet (KHR),180000.00,KHR,Mobile Data & Water Utility (KHR)
+2026-08-15,Income,Freelance & Consulting,ABA Bank Checking (USD),520.00,USD,MIS System Consulting Milestone
+2026-08-13,Expense,Transport & Fuel,ABA Bank Checking (USD),105.00,USD,City Commute & Fuel
+2026-08-12,Expense,Transport & Fuel,Wing Digital Wallet (KHR),240000.00,KHR,PassApp & Fuel Top-up (KHR)
+2026-08-09,Expense,Food & Dining,ABA Bank Checking (USD),330.00,USD,Supermarket Groceries & Dining
+2026-08-08,Expense,Food & Dining,Daily Cash Wallet (KHR),680000.00,KHR,Local Market & Daily Meals (KHR)
+2026-08-06,Income,Freelance & Consulting,Wing Digital Wallet (KHR),1600000.00,KHR,Local Client Retainer (KHR)
+2026-08-04,Expense,Housing & Rent,ABA Bank Checking (USD),450.00,USD,Apartment Rent - Phnom Penh
+2026-08-02,Income,Monthly Salary,ABA Bank Checking (USD),1500.00,USD,Monthly Tech Payroll Deposit
+2026-07-19,Expense,Education & Books,ABA Bank Checking (USD),65.00,USD,University Course Materials & Cloud Lab
+2026-07-17,Expense,Utilities & Internet,ABA Bank Checking (USD),98.00,USD,EDC Electricity & Fiber Internet
+2026-07-16,Expense,Utilities & Internet,Wing Digital Wallet (KHR),180000.00,KHR,Mobile Data & Water Utility (KHR)
+2026-07-15,Income,Freelance & Consulting,ABA Bank Checking (USD),180.00,USD,MIS System Consulting Milestone
+2026-07-13,Expense,Transport & Fuel,ABA Bank Checking (USD),125.00,USD,City Commute & Fuel
+2026-07-12,Expense,Transport & Fuel,Wing Digital Wallet (KHR),240000.00,KHR,PassApp & Fuel Top-up (KHR)
+2026-07-09,Expense,Food & Dining,ABA Bank Checking (USD),390.00,USD,Supermarket Groceries & Dining
+2026-07-08,Expense,Food & Dining,Daily Cash Wallet (KHR),680000.00,KHR,Local Market & Daily Meals (KHR)
+2026-07-06,Income,Freelance & Consulting,Wing Digital Wallet (KHR),1600000.00,KHR,Local Client Retainer (KHR)
+2026-07-04,Expense,Housing & Rent,ABA Bank Checking (USD),450.00,USD,Apartment Rent - Phnom Penh
+2026-07-02,Income,Monthly Salary,ABA Bank Checking (USD),1500.00,USD,Monthly Tech Payroll Deposit
+2026-06-19,Expense,Education & Books,ABA Bank Checking (USD),65.00,USD,University Course Materials & Cloud Lab
+2026-06-17,Expense,Utilities & Internet,ABA Bank Checking (USD),92.00,USD,EDC Electricity & Fiber Internet
+2026-06-16,Expense,Utilities & Internet,Wing Digital Wallet (KHR),180000.00,KHR,Mobile Data & Water Utility (KHR)
+2026-06-15,Income,Freelance & Consulting,ABA Bank Checking (USD),400.00,USD,MIS System Consulting Milestone
+2026-06-13,Expense,Transport & Fuel,ABA Bank Checking (USD),110.00,USD,City Commute & Fuel
+2026-06-12,Expense,Transport & Fuel,Wing Digital Wallet (KHR),240000.00,KHR,PassApp & Fuel Top-up (KHR)
+2026-06-09,Expense,Food & Dining,ABA Bank Checking (USD),345.00,USD,Supermarket Groceries & Dining
+2026-06-08,Expense,Food & Dining,Daily Cash Wallet (KHR),680000.00,KHR,Local Market & Daily Meals (KHR)
+2026-06-06,Income,Freelance & Consulting,Wing Digital Wallet (KHR),1600000.00,KHR,Local Client Retainer (KHR)
+2026-06-04,Expense,Housing & Rent,ABA Bank Checking (USD),450.00,USD,Apartment Rent - Phnom Penh
+2026-06-02,Income,Monthly Salary,ABA Bank Checking (USD),1500.00,USD,Monthly Tech Payroll Deposit
+2026-05-19,Expense,Education & Books,ABA Bank Checking (USD),65.00,USD,University Course Materials & Cloud Lab
+2026-05-17,Expense,Utilities & Internet,ABA Bank Checking (USD),85.00,USD,EDC Electricity & Fiber Internet
+2026-05-16,Expense,Utilities & Internet,Wing Digital Wallet (KHR),180000.00,KHR,Mobile Data & Water Utility (KHR)
+2026-05-15,Income,Freelance & Consulting,ABA Bank Checking (USD),250.00,USD,MIS System Consulting Milestone
+2026-05-13,Expense,Transport & Fuel,ABA Bank Checking (USD),95.00,USD,City Commute & Fuel
+2026-05-12,Expense,Transport & Fuel,Wing Digital Wallet (KHR),240000.00,KHR,PassApp & Fuel Top-up (KHR)
+2026-05-09,Expense,Food & Dining,ABA Bank Checking (USD),310.00,USD,Supermarket Groceries & Dining
+2026-05-08,Expense,Food & Dining,Daily Cash Wallet (KHR),680000.00,KHR,Local Market & Daily Meals (KHR)
+2026-05-06,Income,Freelance & Consulting,Wing Digital Wallet (KHR),1600000.00,KHR,Local Client Retainer (KHR)
+2026-05-04,Expense,Housing & Rent,ABA Bank Checking (USD),450.00,USD,Apartment Rent - Phnom Penh
+2026-05-02,Income,Monthly Salary,ABA Bank Checking (USD),1500.00,USD,Monthly Tech Payroll Deposit
