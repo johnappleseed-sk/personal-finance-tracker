@@ -11,7 +11,8 @@
             <p class="hint">Record, filter, search, and export your income and expense ledger.</p>
         </div>
         <div class="page-header-actions">
-            <div class="view-toggle-group" role="group" aria-label="Transaction layout view" th:if="${!#lists.isEmpty(transactions)}">
+            <div class="view-toggle-group" role="group" aria-label="Transaction layout view"
+                 data-view-toggle-group="transactions" th:if="${!#lists.isEmpty(transactions)}">
                 <button type="button" id="view-btn-grid" class="btn-view-toggle active" data-view-mode="grid">⊞ Cards</button>
                 <button type="button" id="view-btn-table" class="btn-view-toggle" data-view-mode="table">☰ Compact Table</button>
             </div>
@@ -91,7 +92,8 @@
     </div>
 
     <!-- 1. Card Grid View -->
-    <div class="transaction-grid" id="tx-grid-view" th:if="${!#lists.isEmpty(transactions)}">
+    <div class="transaction-grid" id="tx-grid-view" th:if="${!#lists.isEmpty(transactions)}"
+         data-view-group="transactions" data-view-pane="grid">
         <article class="transaction-card tx-filterable-item" th:each="transaction : ${transactions}"
                  th:attr="data-search=${(transaction.categoryName + ' ' + transaction.accountName + ' ' + transaction.description + ' ' + transaction.currency + ' ' + transaction.amount.toPlainString()).toLowerCase()}">
             <div>
@@ -141,7 +143,8 @@
     </div>
 
     <!-- 2. Compact Ledger Table View (Toggled via View Switcher) -->
-    <div class="panel-card hidden-view" id="tx-table-view" th:if="${!#lists.isEmpty(transactions)}" style="margin-top: 1.25rem; padding: 0.5rem 1rem;">
+    <div class="panel-card compact-table-panel hidden-view" id="tx-table-view" th:if="${!#lists.isEmpty(transactions)}"
+         data-view-group="transactions" data-view-pane="table">
         <div class="table-responsive">
             <table class="data-table">
                 <thead>

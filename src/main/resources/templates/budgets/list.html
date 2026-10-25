@@ -11,6 +11,11 @@
             <p class="hint">Set spending limits for your expense categories and monitor monthly utilization.</p>
         </div>
         <div class="page-header-actions">
+            <div class="view-toggle-group" role="group" aria-label="Budget layout view"
+                 data-view-toggle-group="budgets" th:if="${!#lists.isEmpty(budgets)}">
+                <button type="button" class="btn-view-toggle active" data-view-mode="grid">⊞ Cards</button>
+                <button type="button" class="btn-view-toggle" data-view-mode="table">☰ Compact Table</button>
+            </div>
             <a class="button-outline" th:href="@{/reports}">📊 View DSS Variance</a>
             <a class="button-link" th:href="@{/budgets/new}">+ Create budget</a>
         </div>
@@ -55,7 +60,9 @@
         <p>No budgets yet. Create a monthly spending limit for an expense category to get started.</p>
     </div>
 
-    <div class="budget-grid" th:if="${!#lists.isEmpty(budgets)}">
+    <!-- 1. Card Grid View -->
+    <div class="budget-grid" th:if="${!#lists.isEmpty(budgets)}"
+         data-view-group="budgets" data-view-pane="grid">
         <article class="budget-card"
                  th:classappend="${budget.overBudget ? 'kpi-accent-expense' : 'kpi-accent-income'}"
                  th:each="budget : ${budgets}"
@@ -109,6 +116,63 @@
                    th:attr="aria-label=${'Delete budget ' + budget.id}">Delete</a>
             </div>
         </article>
+    </div>
+
+    <!-- 2. Compact Table View -->
+    <div class="panel-card compact-table-panel hidden-view" th:if="${!#lists.isEmpty(budgets)}"
+         data-view-group="budgets" data-view-pane="table">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Month</th>
+                    <th>Currency</th>
+                    <th>Spent</th>
+                    <th>Limit</th>
+                    <th>Remaining</th>
+                    <th>Usage</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="budget : ${budgets}"
+                    data-filter-item="budgets"
+                    th:attr="data-filter-tag=${budget.currency.name().toLowerCase() + (budget.overBudget ? ' over' : ' track')},
+                             data-filter-text=${(budget.categoryName + ' ' + budget.currency + ' ' + budget.budgetMonth).toLowerCase()}">
+                    <td><strong th:text="${budget.categoryName}">Category</strong></td>
+                    <td th:text="${budget.budgetMonth}">2026-10</td>
+                    <td th:text="${budget.currency}">EUR</td>
+                    <td class="money" th:text="${budget.spentAmount.toPlainString()}">0.00</td>
+                    <td class="money" th:text="${budget.limitAmount.toPlainString()}">0.00</td>
+                    <td class="money" th:classappend="${budget.overBudget ? 'money-expense' : 'money-income'}"
+                        th:text="${budget.remainingAmount.toPlainString()}">0.00</td>
+                    <td style="min-width: 110px;">
+                        <div class="flow-label" style="margin-bottom: 2px;">
+                            <span th:text="${budget.usagePercent + '%'}">0%</span>
+                        </div>
+                        <div class="progress-track" style="height: 6px; margin: 0;">
+                            <div class="progress-fill"
+                                 th:classappend="${budget.overBudget ? 'danger' : (budget.nearLimit ? 'warning' : '')}"
+                                 th:style="${'width:' + budget.progressBarWidth + '%'}"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${budget.overBudget ? 'badge-expense' : (budget.nearLimit ? 'badge-warning' : 'badge-income')}"
+                              th:text="${budget.overBudget ? 'Over' : (budget.nearLimit ? 'Near' : 'OK')}">OK</span>
+                    </td>
+                    <td>
+                        <div class="table-row-actions">
+                            <a th:href="@{/budgets/{id}/edit(id=${budget.id})}">Edit</a>
+                            <a th:href="@{/budgets/{id}/delete(id=${budget.id})}">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </main>
 </body>

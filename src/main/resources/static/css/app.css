@@ -1123,6 +1123,21 @@ dd {
     display: none !important;
 }
 
+.compact-table-panel {
+    margin-top: 1.25rem;
+    padding: 0.5rem 1rem;
+}
+
+.compact-table-panel .data-table td {
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.compact-table-panel .data-table td.hint {
+    white-space: normal;
+    max-width: 320px;
+}
+
 .table-row-actions {
     display: inline-flex;
     align-items: center;

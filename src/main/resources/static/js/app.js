@@ -1,6 +1,5 @@
 (function () {
     const STORAGE_KEY = 'pf-theme';
-    const TX_VIEW_KEY = 'pf-tx-view';
     const root = document.documentElement;
 
     function getPreferredTheme() {
@@ -91,31 +90,37 @@
         recalc();
     }
 
-    function initTransactionsPage() {
-        const gridBtn = document.getElementById('view-btn-grid');
-        const tableBtn = document.getElementById('view-btn-table');
-        const gridView = document.getElementById('tx-grid-view');
-        const tableView = document.getElementById('tx-table-view');
+    function initViewToggles() {
+        document.querySelectorAll('[data-view-toggle-group]').forEach(function (group) {
+            const name = group.getAttribute('data-view-toggle-group');
+            const storageKey = 'pf-view-' + name;
+            const buttons = group.querySelectorAll('[data-view-mode]');
+            const panes = document.querySelectorAll('[data-view-group="' + name + '"][data-view-pane]');
+            if (buttons.length === 0 || panes.length === 0) return;
 
-        if (gridBtn && tableBtn && gridView && tableView) {
             function setViewMode(mode) {
-                const isTable = mode === 'table';
-                gridView.classList.toggle('hidden-view', isTable);
-                tableView.classList.toggle('hidden-view', !isTable);
-                gridBtn.classList.toggle('active', !isTable);
-                tableBtn.classList.toggle('active', isTable);
-                localStorage.setItem(TX_VIEW_KEY, mode);
+                panes.forEach(function (pane) {
+                    pane.classList.toggle('hidden-view', pane.getAttribute('data-view-pane') !== mode);
+                });
+                buttons.forEach(function (btn) {
+                    const active = btn.getAttribute('data-view-mode') === mode;
+                    btn.classList.toggle('active', active);
+                    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+                });
+                localStorage.setItem(storageKey, mode);
             }
 
-            const savedMode = localStorage.getItem(TX_VIEW_KEY);
-            if (savedMode === 'table') {
-                setViewMode('table');
-            }
+            buttons.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    setViewMode(btn.getAttribute('data-view-mode'));
+                });
+            });
 
-            gridBtn.addEventListener('click', function () { setViewMode('grid'); });
-            tableBtn.addEventListener('click', function () { setViewMode('table'); });
-        }
+            setViewMode(localStorage.getItem(storageKey) === 'table' ? 'table' : 'grid');
+        });
+    }
 
+    function initTransactionsPage() {
         // Instant client-side filter on #filter-q
         const searchInput = document.getElementById('filter-q');
         const countLabel = document.getElementById('tx-live-count');
@@ -248,6 +253,7 @@
         }
 
         initAutoSubmitSelects();
+        initViewToggles();
         initDssSimulator();
         initTransactionsPage();
         initSmartForms();

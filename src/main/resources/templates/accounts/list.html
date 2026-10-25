@@ -11,6 +11,11 @@
             <p class="hint">Track checking, savings, cash, and credit card balances per currency.</p>
         </div>
         <div class="page-header-actions">
+            <div class="view-toggle-group" role="group" aria-label="Account layout view"
+                 data-view-toggle-group="accounts" th:if="${!#lists.isEmpty(accounts)}">
+                <button type="button" class="btn-view-toggle active" data-view-mode="grid">⊞ Cards</button>
+                <button type="button" class="btn-view-toggle" data-view-mode="table">☰ Compact Table</button>
+            </div>
             <a class="button-outline" th:href="@{/transfers/new}">⇄ Transfer funds</a>
             <a class="button-link" th:href="@{/accounts/new}">+ Create account</a>
         </div>
@@ -34,7 +39,10 @@
     <div class="empty-state" th:if="${#lists.isEmpty(accounts)}">
         <p>No accounts yet. Create your first account to get started.</p>
     </div>
-    <div class="account-grid" th:if="${!#lists.isEmpty(accounts)}">
+
+    <!-- 1. Card Grid View -->
+    <div class="account-grid" th:if="${!#lists.isEmpty(accounts)}"
+         data-view-group="accounts" data-view-pane="grid">
         <article class="account-card kpi-accent-brand" th:each="account : ${accounts}"
                  data-filter-item="accounts"
                  th:attr="data-filter-tag=${account.currency.name().toLowerCase()},
@@ -73,6 +81,47 @@
             </div>
         </article>
     </div>
+
+    <!-- 2. Compact Table View -->
+    <div class="panel-card compact-table-panel hidden-view" th:if="${!#lists.isEmpty(accounts)}"
+         data-view-group="accounts" data-view-pane="table">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>Account</th>
+                    <th>Type</th>
+                    <th>Currency</th>
+                    <th>Opening balance</th>
+                    <th>Current balance</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="account : ${accounts}"
+                    data-filter-item="accounts"
+                    th:attr="data-filter-tag=${account.currency.name().toLowerCase()},
+                             data-filter-text=${(account.name + ' ' + account.accountType.label + ' ' + account.currency).toLowerCase()}">
+                    <td><strong th:text="${account.name}">Account</strong></td>
+                    <td><span class="badge badge-info" th:text="${account.accountType.label}">Checking</span></td>
+                    <td th:text="${account.currency}">EUR</td>
+                    <td class="money" th:text="${account.initialBalance.toPlainString()}">0.00</td>
+                    <td class="money"
+                        th:classappend="${account.currentBalance.signum() >= 0 ? '' : 'money-expense'}"
+                        th:text="${account.currentBalance.toPlainString()}">0.00</td>
+                    <td>
+                        <div class="table-row-actions">
+                            <a th:href="@{/transactions(accountId=${account.id})}">Ledger</a>
+                            <a th:href="@{/accounts/{id}/edit(id=${account.id})}">Edit</a>
+                            <a th:href="@{/accounts/{id}/delete(id=${account.id})}">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <p class="hint" style="margin-top: 1.25rem;">Current balance = opening balance + recorded income − expenses ± transfers. Currencies are not combined.</p>
 </main>
 </body>
