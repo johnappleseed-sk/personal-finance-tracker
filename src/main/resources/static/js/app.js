@@ -1,6 +1,220 @@
 (function () {
     const STORAGE_KEY = 'pf-theme';
+    const LANG_STORAGE_KEY = 'pf-lang';
     const root = document.documentElement;
+
+    const KM_DICT = {
+        // Brand & Navigation
+        'Personal Finance Tracker': 'ប្រព័ន្ធគ្រប់គ្រងហិរញ្ញវត្ថុផ្ទាល់ខ្លួន',
+        'Dashboard': 'ផ្ទាំងគ្រប់គ្រង',
+        'Accounts': 'គណនី',
+        'Categories': 'ប្រភេទចំណូលចំណាយ',
+        'Transactions': 'ប្រតិបត្តិការ',
+        'Transfers': 'ការផ្ទេរប្រាក់',
+        'Budgets': 'ផែនការថវិកា',
+        'Reports & DSS': 'របាយការណ៍ និង DSS',
+        'Sign out': 'ចាកចេញ',
+        'Sign in': 'ចូលប្រើប្រាស់',
+        'Create your account': 'បង្កើតគណនីរបស់អ្នក',
+        'Create an account': 'បង្កើតគណនីថ្មី',
+        'Create account': 'បង្កើតគណនី',
+        'Use the email address and password you registered with.': 'សូមបញ្ចូលអ៊ីមែល និងពាក្យសម្ងាត់ដែលអ្នកបានចុះឈ្មោះ។',
+        'Invalid email or password. Please try again.': 'អ៊ីមែល ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ។ សូមព្យាយាមម្តងទៀត។',
+        'You have been signed out.': 'អ្នកបានចាកចេញពីប្រព័ន្ធដោយជោគជ័យ។',
+        'Email address': 'អាសយដ្ឋានអ៊ីមែល',
+        'Password': 'ពាក្យសម្ងាត់',
+        'Confirm password': 'បញ្ជាក់ពាក្យសម្ងាត់',
+        'Name': 'ឈ្មោះ',
+        'New here?': 'មិនទាន់មានគណនីមែនទេ?',
+        'Already registered?': 'មានគណនីរួចហើយមែនទេ?',
+        'Start with your details. Your financial data will belong only to you.': 'ចាប់ផ្តើមជាមួយព័ត៌មានរបស់អ្នក។ ទិន្នន័យហិរញ្ញវត្ថុជារបស់អ្នកតែម្នាក់គត់។',
+
+        // Common Actions & View Toggles
+        '⊞ Cards': '⊞ ទម្រង់កាត',
+        '☰ Compact Table': '☰ តារាងសង្ខេប',
+        '📊 MIS Reports & DSS': '📊 របាយការណ៍ MIS និង DSS',
+        '⇄ Transfer Funds': '⇄ ផ្ទេរប្រាក់',
+        '◎ Set Budget': '◎ កំណត់ថវិកា',
+        '+ New Transaction': '+ ប្រតិបត្តិការថ្មី',
+        '+ New Account': '+ បង្កើតគណនីថ្មី',
+        '+ New Category': '+ បង្កើតប្រភេទថ្មី',
+        '+ New Transfer': '+ ការផ្ទេរប្រាក់ថ្មី',
+        '+ New Budget': '+ ផែនការថវិកាថ្មី',
+        'Edit': 'កែសម្រួល',
+        'Archive': 'ទុកក្នុងបណ្ណសារ',
+        'Delete': 'លុប',
+        'Save': 'រក្សាទុក',
+        'Save Changes': 'រក្សាទុកការផ្លាស់ប្តូរ',
+        'Cancel': 'បោះបង់',
+        'Filter': 'ចម្រាញ់',
+        'Apply Filter': 'អនុវត្តការចម្រាញ់',
+        'Reset': 'កំណត់ឡើងវិញ',
+        'Clear': 'សម្អាត',
+        'Today': 'ថ្ងៃនេះ',
+        'Yesterday': 'ម្សិលមិញ',
+        'This Month': 'ខែនេះ',
+        'Last 30 Days': '៣០ ថ្ងៃចុងក្រោយ',
+        '6 Months': '៦ ខែ',
+        'All': 'ទាំងអស់',
+        'Active': 'សកម្ម',
+        'Archived': 'ទុកក្នុងបណ្ណសារ',
+        'Income': 'ចំណូល',
+        'Expense': 'ចំណាយ',
+        'INCOME': 'ចំណូល',
+        'EXPENSE': 'ចំណាយ',
+
+        // Dashboard (Home)
+        'Automated Data Analysis & Financial Health Signals': 'ការវិភាគទិន្នន័យស្វ័យប្រវត្តិ និងសញ្ញាសុខភាពហិរញ្ញវត្ថុ',
+        'Real-time statistical indicators computed from your 6-month ledger history, emergency reserve benchmarks, and budget utilization.': 'សូចនាករស្ថិតិគណនាដោយស្វ័យប្រវត្តិពីប្រវត្តិប្រតិបត្តិការ ៦ ខែ ទុនបម្រុងបន្ទាន់ និងការប្រើប្រាស់ថវិកា។',
+        'Net Balance & Monthly Cash Flow': 'សមតុល្យសុទ្ធ និងលំហូរសាច់ប្រាក់ប្រចាំខែ',
+        'Open Full 6-Month MIS & DSS Report →': 'បើករបាយការណ៍ MIS និង DSS ៦ ខែពេញលេញ →',
+        'Visual Analytics & Expense Distribution': 'ក្រាហ្វិកវិភាគទិន្នន័យ និងការបែងចែកចំណាយ',
+        '6-Month Cash Flow Trend, Savings Rate Trajectory & Category Share': 'និន្នាការលំហូរសាច់ប្រាក់ ៦ ខែ អត្រាសន្សំ និងសមាមាត្រតាមប្រភេទចំណាយ',
+        '6-Month Income vs. Expense Trend': 'និន្នាការចំណូលធៀបនឹងចំណាយរយៈពេល ៦ ខែ',
+        'Savings Rate (%) Trajectory': 'និន្នាការអត្រាសន្សំ (%) រយៈពេល ៦ ខែ',
+        'Current Month Expense Distribution': 'ការបែងចែកការចំណាយប្រចាំខែបច្ចុប្បន្ន',
+        'Recent Transactions': 'ប្រតិបត្តិការថ្មីៗ',
+        'Budget Watch': 'តាមដានផែនការថវិកា',
+        'Active Accounts': 'គណនីសកម្ម',
+        'View all →': 'មើលទាំងអស់ →',
+        'Manage →': 'គ្រប់គ្រង →',
+        'All accounts →': 'គណនីទាំងអស់ →',
+        'Month Income': 'ចំណូលប្រចាំខែ',
+        'Month Expense': 'ចំណាយប្រចាំខែ',
+        'Net Cash Flow': 'លំហូរសាច់ប្រាក់សុទ្ធ',
+        'Savings Rate': 'អត្រាសន្សំ',
+        'Month Savings Rate': 'អត្រាសន្សំប្រចាំខែ',
+        'Spending Momentum': 'សន្ទុះនៃការចំណាយ',
+        'Emergency Runway': 'ទុនបម្រុងបន្ទាន់',
+        'Daily Burn & Top Driver': 'ចំណាយប្រចាំថ្ងៃ និងប្រភេទចំណាយធំបំផុត',
+
+        // Table Headers & Common Labels
+        'Date': 'កាលបរិច្ឆេទ',
+        'Description': 'ការពិពណ៌នា',
+        'Category': 'ប្រភេទ',
+        'Account': 'គណនី',
+        'Type': 'ប្រភេទ',
+        'Amount': 'ចំនួនទឹកប្រាក់',
+        'Currency': 'រូបិយប័ណ្ណ',
+        'Balance': 'សមតុល្យ',
+        'Current Balance': 'សមតុល្យបច្ចុប្បន្ន',
+        'Status': 'ស្ថានភាព',
+        'Actions': 'សកម្មភាព',
+        'Spent': 'បានចំណាយ',
+        'Limit': 'កម្រិតថវិកា',
+        'Budget Limit': 'កម្រិតថវិកា',
+        'Remaining': 'នៅសល់',
+        'Usage': 'ការប្រើប្រាស់',
+        'Month': 'ខែ',
+        'From Account': 'ពីគណនី',
+        'To Account': 'ទៅគណនី',
+        'Note': 'កំណត់ចំណាំ',
+        'Share': 'សមាមាត្រ',
+        'Transactions Count': 'ចំនួនប្រតិបត្តិការ',
+
+        // Badges & Statuses
+        'Healthy': 'ល្អប្រសើរ',
+        'Strong': 'រឹងមាំ',
+        'Moderate': 'មធ្យម',
+        'Warning': 'ប្រុងប្រយ័ត្ន',
+        'Alert': 'ប្រកាសអាសន្ន',
+        'Needs Attention': 'ត្រូវការការយកចិត្តទុកដាក់',
+        'On Track': 'តាមផែនការ',
+        'Near Limit': 'ជិតដល់កម្រិត',
+        'Over Budget': 'លើសថវិកា',
+        'Exceeded': 'លើសកម្រិត',
+        'Lowering': 'ថយចុះល្អ',
+        'Stable': 'មានស្ថិរភាព',
+        'Rising': 'កំពុងកើនឡើង',
+        'Tracked': 'បានតាមដាន',
+
+        // Pages & Sections
+        'Your accounts': 'គណនីរបស់អ្នក',
+        'Track checking, savings, cash, and credit card balances per currency.': 'តាមដានសមតុល្យគណនីចរន្ត គណនីសន្សំ សាច់ប្រាក់ និងកាតឥណទានតាមរូបិយប័ណ្ណ។',
+        '+ Create account': '+ បង្កើតគណនីថ្មី',
+        '⇄ Transfer funds': '⇄ ផ្ទេរប្រាក់',
+        'Current balance': 'សមតុល្យបច្ចុប្បន្ន',
+        'Checking': 'គណនីចរន្ត',
+        'Savings': 'គណនីសន្សំ',
+        'Cash': 'សាច់ប្រាក់',
+        'Credit Card': 'កាតឥណទាន',
+        'Your categories': 'ប្រភេទចំណូលចំណាយរបស់អ្នក',
+        'Organize income and expense classifications for your transactions and budgets.': 'រៀបចំចំណាត់ថ្នាក់ចំណូល និងចំណាយសម្រាប់ប្រតិបត្តិការ និងផែនការថវិការបស់អ្នក។',
+        '+ Create category': '+ បង្កើតប្រភេទថ្មី',
+        '◎ Set budget': '◎ កំណត់ថវិកា',
+        'Your transactions': 'ប្រតិបត្តិការរបស់អ្នក',
+        'Record, filter, search, and export your income and expense ledger.': 'កត់ត្រា ចម្រាញ់ ស្វែងរក និងនាំចេញសៀវភៅកត់ត្រាចំណូល និងចំណាយរបស់អ្នក។',
+        '+ Create transaction': '+ បង្កើតប្រតិបត្តិការថ្មី',
+        '⇩ Export CSV': '⇩ នាំចេញ CSV',
+        'Search': 'ស្វែងរក',
+        'All accounts': 'គណនីទាំងអស់',
+        'All categories': 'ប្រភេទទាំងអស់',
+        'Account transfers': 'ការផ្ទេរប្រាក់រវាងគណនី',
+        'Move funds between your accounts using the same currency.': 'ផ្ទេរប្រាក់រវាងគណនីរបស់អ្នកដែលប្រើរូបិយប័ណ្ណដូចគ្នា។',
+        'View accounts': 'មើលគណនី',
+        '+ Transfer funds': '+ ផ្ទេរប្រាក់',
+        'Monthly budgets': 'ផែនការថវិកាប្រចាំខែ',
+        'Set spending limits for your expense categories and monitor monthly utilization.': 'កំណត់កម្រិតចំណាយសម្រាប់ប្រភេទចំណាយ និងតាមដានការប្រើប្រាស់ប្រចាំខែ។',
+        '📊 View DSS Variance': '📊 មើលរបាយការណ៍ DSS',
+        '+ Create budget': '+ បង្កើតថវិកាថ្មី',
+        'Filter by month (YYYY-MM)': 'ចម្រាញ់តាមខែ (YYYY-MM)',
+        'Filter month': 'ចម្រាញ់តាមខែ',
+        'Show all months': 'បង្ហាញគ្រប់ខែទាំងអស់',
+        'Over budget': 'លើសថវិកា',
+        'Quick filter:': 'ចម្រាញ់រហ័ស៖',
+        'Currency:': 'រូបិយប័ណ្ណ៖',
+        'Type:': 'ប្រភេទ៖',
+        'MIS Reports & Decision Support (DSS)': 'របាយការណ៍ MIS និងប្រព័ន្ធគាំទ្រការសម្រេចចិត្ត (DSS)',
+        '6-month trend analysis, category performance, interactive What-If simulation, and data-driven management decisions.': 'ការវិភាគនិន្នាការ ៦ ខែ ប្រសិទ្ធភាពតាមប្រភេទចំណាយ ការសាកល្បង What-If និងការសម្រេចចិត្តផ្អែកលើទិន្នន័យ។',
+        '⇩ Export Excel Summary (.csv)': '⇩ នាំចេញសង្ខេប Excel (.csv)',
+        '⇩ Export Raw TPS Ledger (.csv)': '⇩ នាំចេញទិន្នន័យ TPS (.csv)',
+        '6-Month Total Income': 'ចំណូលសរុបរយៈពេល ៦ ខែ',
+        '6-Month Total Expenses': 'ចំណាយសរុបរយៈពេល ៦ ខែ',
+        '6-Month Net Savings & Rate': 'ប្រាក់សន្សំសុទ្ធ និងអត្រាសន្សំ ៦ ខែ',
+        'Decision Support System (DSS) — Actionable Recommendations': 'ប្រព័ន្ធគាំទ្រការសម្រេចចិត្ត (DSS) — អនុសាសន៍សម្រាប់ការគ្រប់គ្រង',
+        'Automated managerial insights generated from your cash-flow velocity, cost concentration, and budget variance.': 'ការវិភាគស្វ័យប្រវត្តិផ្អែកលើល្បឿនលំហូរសាច់ប្រាក់ ការប្រមូលផ្តុំចំណាយ និងគម្លាតថវិកា។',
+        'MIS Data Finding:': 'លទ្ធផលទិន្នន័យ MIS៖',
+        'Recommended Decision:': 'ការសម្រេចចិត្តដែលណែនាំ៖',
+        'Decision Area': 'ផ្នែកសម្រេចចិត្ត',
+        'Signal': 'សញ្ញាណ',
+        'MIS Data Finding': 'លទ្ធផលទិន្នន័យ MIS',
+        'Recommended Managerial Action': 'សកម្មភាពគ្រប់គ្រងដែលណែនាំ',
+        'Live DSS Model': 'គំរូ DSS ផ្ទាល់',
+        'Allocate Net Surplus to High-Yield Deposit (5.5% APY)': 'បែងចែកប្រាក់សន្សំសុទ្ធទៅគណនីបញ្ញើការប្រាក់ខ្ពស់ (5.5% APY)',
+        'Financial Accounts': 'គណនីហិរញ្ញវត្ថុ',
+        'Transaction Categories': 'ប្រភេទចំណូល និងចំណាយ',
+        'Transaction Ledger': 'សៀវភៅកត់ត្រាប្រតិបត្តិការ',
+        'Account Transfers': 'ការផ្ទេរប្រាក់រវាងគណនី',
+        'Monthly Budgets': 'ផែនការថវិកាប្រចាំខែ',
+        'MIS Reports & Decision Support System (DSS)': 'របាយការណ៍ MIS និងប្រព័ន្ធគាំទ្រការសម្រេចចិត្ត (DSS)',
+        'Decision Support System (DSS) Recommendations': 'អនុសាសន៍ពីប្រព័ន្ធគាំទ្រការសម្រេចចិត្ត (DSS)',
+        'Interactive What-If Decision Simulator': 'កម្មវិធីសាកល្បងការសម្រេចចិត្ត (What-If Simulator)',
+        '6-Month Cash Flow Trend (MIS Summary)': 'និន្នាការលំហូរសាច់ប្រាក់ ៦ ខែ (សង្ខេប MIS)',
+        'Expense Breakdown by Category (Current Month)': 'ការបែងចែកការចំណាយតាមប្រភេទ (ខែបច្ចុប្បន្ន)'
+    };
+
+    const KM_PATTERNS = [
+        {
+            re: /^Welcome,\s+(.+)$/,
+            toKm: function (m) { return 'សូមស្វាគមន៍, ' + m[1]; }
+        },
+        {
+            re: /^(\d+)\s+Ledger Entries Analyzed$/,
+            toKm: function (m) { return m[1] + ' ប្រតិបត្តិការត្រូវបានវិភាគ'; }
+        },
+        {
+            re: /^(\d+)\s+entries shown$/,
+            toKm: function (m) { return 'បង្ហាញ ' + m[1] + ' ប្រតិបត្តិការ'; }
+        },
+        {
+            re: /^Total Net Balance\s*\((.+)\)$/,
+            toKm: function (m) { return 'សមតុល្យសុទ្ធសរុប (' + m[1] + ')'; }
+        },
+        {
+            re: /^(\d+)\s+active account\(s\)$/,
+            toKm: function (m) { return 'គណនីសកម្មចំនួន ' + m[1]; }
+        }
+    ];
 
     function getPreferredTheme() {
         const saved = localStorage.getItem(STORAGE_KEY);
@@ -17,9 +231,103 @@
         const btn = document.getElementById('theme-toggle');
         if (btn) {
             const isDark = theme === 'dark';
+            const isKm = (root.getAttribute('lang') || 'en') === 'km';
             btn.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
-            btn.textContent = isDark ? '☀ Light' : '☾ Dark';
+            if (isKm) {
+                btn.textContent = isDark ? '☀ ភ្លឺ' : '☾ ងងឹត';
+            } else {
+                btn.textContent = isDark ? '☀ Light' : '☾ Dark';
+            }
         }
+    }
+
+    function getPreferredLang() {
+        const params = new URLSearchParams(window.location.search);
+        const qLang = params.get('lang');
+        if (qLang === 'km' || qLang === 'en') {
+            localStorage.setItem(LANG_STORAGE_KEY, qLang);
+            return qLang;
+        }
+        const saved = localStorage.getItem(LANG_STORAGE_KEY);
+        return saved === 'km' ? 'km' : 'en';
+    }
+
+    function translateNodeText(rawText, targetLang) {
+        const trimmed = rawText.trim();
+        if (!trimmed) return null;
+        if (targetLang === 'km') {
+            if (KM_DICT[trimmed]) {
+                return rawText.replace(trimmed, KM_DICT[trimmed]);
+            }
+            for (let i = 0; i < KM_PATTERNS.length; i++) {
+                const match = trimmed.match(KM_PATTERNS[i].re);
+                if (match) {
+                    return rawText.replace(trimmed, KM_PATTERNS[i].toKm(match));
+                }
+            }
+        }
+        return null;
+    }
+
+    const originalTextMap = new WeakMap();
+    const originalPlaceholderMap = new WeakMap();
+
+    function applyLanguage(lang) {
+        root.setAttribute('lang', lang);
+        const langBtn = document.getElementById('lang-toggle');
+        if (langBtn) {
+            langBtn.textContent = lang === 'km' ? '🇺🇸 EN' : '🇰🇭 ខ្មែរ';
+            langBtn.setAttribute('aria-label', lang === 'km' ? 'Switch to English' : 'ប្តូរទៅភាសាខ្មែរ');
+        }
+
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+        const textNodes = [];
+        while (walker.nextNode()) {
+            const node = walker.currentNode;
+            const parentTag = node.parentElement ? node.parentElement.tagName : '';
+            if (parentTag === 'SCRIPT' || parentTag === 'STYLE') continue;
+            if (node.parentElement && (node.parentElement.id === 'lang-toggle' || node.parentElement.id === 'theme-toggle')) continue;
+            textNodes.push(node);
+        }
+
+        textNodes.forEach(function (node) {
+            if (!originalTextMap.has(node)) {
+                originalTextMap.set(node, node.nodeValue);
+            }
+            const baseText = originalTextMap.get(node);
+            if (lang === 'en') {
+                node.nodeValue = baseText;
+            } else {
+                const translated = translateNodeText(baseText, 'km');
+                if (translated !== null) {
+                    node.nodeValue = translated;
+                }
+            }
+        });
+
+        document.querySelectorAll('input[placeholder], textarea[placeholder]').forEach(function (el) {
+            if (!originalPlaceholderMap.has(el)) {
+                originalPlaceholderMap.set(el, el.getAttribute('placeholder'));
+            }
+            const basePh = originalPlaceholderMap.get(el);
+            if (lang === 'en') {
+                el.setAttribute('placeholder', basePh);
+            } else if (basePh) {
+                const phMap = {
+                    'Enter your password': 'បញ្ចូលពាក្យសម្ងាត់របស់អ្នក',
+                    'Search description, category, account...': 'ស្វែងរកការពិពណ៌នា ប្រភេទ គណនី...',
+                    'Search accounts...': 'ស្វែងរកគណនី...',
+                    'Search categories...': 'ស្វែងរកប្រភេទ...',
+                    'Search budgets...': 'ស្វែងរកថវិកា...',
+                    'Search transfers...': 'ស្វែងរកការផ្ទេរប្រាក់...'
+                };
+                if (phMap[basePh]) {
+                    el.setAttribute('placeholder', phMap[basePh]);
+                }
+            }
+        });
+
+        applyTheme(root.getAttribute('data-theme') || getPreferredTheme());
     }
 
     applyTheme(getPreferredTheme());
@@ -242,6 +550,7 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         applyTheme(root.getAttribute('data-theme') || getPreferredTheme());
+        applyLanguage(getPreferredLang());
 
         const toggleBtn = document.getElementById('theme-toggle');
         if (toggleBtn) {
@@ -249,6 +558,15 @@
                 const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
                 localStorage.setItem(STORAGE_KEY, next);
                 applyTheme(next);
+            });
+        }
+
+        const langBtn = document.getElementById('lang-toggle');
+        if (langBtn) {
+            langBtn.addEventListener('click', function () {
+                const nextLang = (root.getAttribute('lang') || 'en') === 'km' ? 'en' : 'km';
+                localStorage.setItem(LANG_STORAGE_KEY, nextLang);
+                applyLanguage(nextLang);
             });
         }
 

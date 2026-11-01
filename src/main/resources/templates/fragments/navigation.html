@@ -12,6 +12,7 @@
         <a th:href="@{/reports}" th:attr="aria-current=${activePage == 'reports' ? 'page' : null}">Reports &amp; DSS</a>
     </div>
     <div class="nav-controls">
+        <button id="lang-toggle" type="button" class="btn-theme" aria-label="Switch language">🇰🇭 ខ្មែរ</button>
         <button id="theme-toggle" type="button" class="btn-theme" aria-label="Switch theme">☾ Dark</button>
         <form th:action="@{/logout}" method="post">
             <button type="submit" class="btn-logout">Sign out</button>

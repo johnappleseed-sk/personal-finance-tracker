@@ -326,10 +326,20 @@
     <section style="margin-top: 1.5rem;" aria-labelledby="recent-title">
         <div class="card-top">
             <h2 id="recent-title">Recent Transactions</h2>
-            <a th:href="@{/transactions}">View all transactions</a>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div class="view-toggle-group" role="group" aria-label="Recent transactions layout view"
+                     data-view-toggle-group="home-recent" th:if="${!#lists.isEmpty(dashboard.recentTransactions)}">
+                    <button type="button" class="btn-view-toggle active" data-view-mode="grid">⊞ Cards</button>
+                    <button type="button" class="btn-view-toggle" data-view-mode="table">☰ Compact Table</button>
+                </div>
+                <a th:href="@{/transactions}">View all transactions</a>
+            </div>
         </div>
         <p class="hint" th:if="${#lists.isEmpty(dashboard.recentTransactions)}">No transactions recorded yet.</p>
-        <div class="transaction-grid" th:if="${!#lists.isEmpty(dashboard.recentTransactions)}">
+
+        <!-- 1. Recent Transactions Card Grid View -->
+        <div class="transaction-grid" th:if="${!#lists.isEmpty(dashboard.recentTransactions)}"
+             data-view-group="home-recent" data-view-pane="grid">
             <article class="transaction-card"
                      th:classappend="${tx.transactionType.name() == 'INCOME' ? 'kpi-accent-income' : 'kpi-accent-expense'}"
                      th:each="tx : ${dashboard.recentTransactions}">
@@ -356,6 +366,43 @@
                 </dl>
                 <p class="hint" th:if="${!#strings.isEmpty(tx.description)}" th:text="${tx.description}"></p>
             </article>
+        </div>
+
+        <!-- 2. Recent Transactions Compact Table View -->
+        <div class="panel-card compact-table-panel hidden-view" th:if="${!#lists.isEmpty(dashboard.recentTransactions)}"
+             data-view-group="home-recent" data-view-pane="table">
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Type</th>
+                        <th>Account</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="tx : ${dashboard.recentTransactions}">
+                        <td><time th:datetime="${tx.transactionDate}" th:text="${tx.transactionDate}">2026-10-01</time></td>
+                        <td><strong th:text="${tx.categoryName}">Category</strong></td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${tx.transactionType.name() == 'INCOME' ? 'badge-income' : 'badge-expense'}"
+                                  th:text="${tx.transactionType.label}">Expense</span>
+                        </td>
+                        <td th:text="${tx.accountName}">Account</td>
+                        <td class="hint" style="margin:0;" th:text="${!#strings.isEmpty(tx.description) ? tx.description : '—'}">—</td>
+                        <td class="money"
+                            th:classappend="${tx.transactionType.name() == 'INCOME' ? 'money-income' : 'money-expense'}">
+                            <span th:text="${tx.transactionType.name() == 'INCOME' ? '+' : '-'}">-</span><span th:text="${tx.currency}">EUR</span>
+                            <span th:text="${tx.amount.toPlainString()}">0.00</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </section>
 
