@@ -39,3 +39,7 @@ build/
 
 ### macOS metadata ###
 .DS_Store
+
+### Local presentation editor lock files ###
+.~*.pptx
+~$*.pptx
