@@ -6,16 +6,18 @@
     <p class="brand">Personal Finance Tracker</p>
     <nav th:replace="~{fragments/navigation :: navigation('home')}"></nav>
 
-    <header class="page-header">
+    <header class="page-header dashboard-header">
         <div>
+            <p class="eyebrow">Your financial overview</p>
             <h1 id="page-title">Welcome, <span th:text="${displayName}">User</span></h1>
-            <p class="hint">Executive financial dashboard &amp; data analysis for <strong th:text="${dashboard.currentMonth}">2026-10</strong></p>
+            <p class="hint">Balances, spending, and progress in one place.
+                <span class="dashboard-period" th:text="${dashboard.currentMonth}">2026-11</span></p>
         </div>
         <div class="page-header-actions">
-            <a class="button-outline" th:href="@{/reports}">📊 MIS Reports &amp; DSS</a>
-            <a class="button-outline" th:href="@{/transfers/new}">⇄ Transfer Funds</a>
-            <a class="button-outline" th:href="@{/budgets/new}">◎ Set Budget</a>
-            <a class="button-link" th:href="@{/transactions/new}">+ New Transaction</a>
+            <a class="button-outline" th:href="@{/reports}"><i data-lucide="chart-no-axes-combined" aria-hidden="true"></i> MIS Reports &amp; DSS</a>
+            <a class="button-outline" th:href="@{/transfers/new}"><i data-lucide="arrow-left-right" aria-hidden="true"></i> Transfer Funds</a>
+            <a class="button-outline" th:href="@{/budgets/new}"><i data-lucide="target" aria-hidden="true"></i> Set Budget</a>
+            <a class="button-link" th:href="@{/transactions/new}"><i data-lucide="plus" aria-hidden="true"></i> New Transaction</a>
         </div>
     </header>
 
@@ -27,27 +29,6 @@
             <a class="button-link" th:href="@{/accounts/new}">1. Create an Account</a>
             <a class="button-outline" th:href="@{/categories/new}">2. Create a Category</a>
             <a class="button-outline" th:href="@{/transactions/new}">3. Record a Transaction</a>
-        </div>
-    </section>
-
-    <!-- 1. Executive Data Analysis & Insights Strip -->
-    <section th:if="${!#lists.isEmpty(dashboard.insights)}" aria-labelledby="insights-title" style="margin-bottom: 1.75rem;">
-        <div class="card-top">
-            <div>
-                <h2 id="insights-title">Automated Data Analysis &amp; Financial Health Signals</h2>
-                <p class="hint">Real-time statistical indicators computed from your 6-month ledger history, emergency reserve benchmarks, and budget utilization.</p>
-            </div>
-            <span class="badge badge-info" th:text="${dashboard.totalTransactions + ' Ledger Entries Analyzed'}">0 Entries</span>
-        </div>
-        <div class="insight-grid">
-            <article class="insight-card" th:each="insight : ${dashboard.insights}">
-                <div class="card-top" style="margin-bottom: 0.4rem;">
-                    <span class="hint" style="margin: 0; font-weight: 700;" th:text="${insight.title}">Metric</span>
-                    <span class="badge" th:classappend="${insight.badgeClass}" th:text="${insight.badgeLabel}">Status</span>
-                </div>
-                <p class="money-lg" style="margin: 0.15rem 0 0.35rem; font-size: 1.4rem;" th:text="${insight.metricValue}">0%</p>
-                <p class="hint" style="margin: 0; line-height: 1.45;" th:text="${insight.description}">Insight description</p>
-            </article>
         </div>
     </section>
 
@@ -125,6 +106,27 @@
         </div>
     </section>
 
+    <!-- Balances first; interpretation follows the source financial figures. -->
+    <section th:if="${!#lists.isEmpty(dashboard.insights)}" aria-labelledby="insights-title" class="dashboard-section">
+        <div class="card-top">
+            <div>
+                <h2 id="insights-title">Financial health signals</h2>
+                <p class="hint">A closer look at savings, spending, and reserves.</p>
+            </div>
+            <span class="badge badge-neutral" th:text="${dashboard.totalTransactions + ' Ledger Entries Analyzed'}">0 Entries</span>
+        </div>
+        <div class="insight-grid">
+            <article class="insight-card" th:each="insight : ${dashboard.insights}">
+                <div class="card-top">
+                    <span class="hint" th:text="${insight.title}">Metric</span>
+                    <span class="badge" th:classappend="${insight.badgeClass}" th:text="${insight.badgeLabel}">Status</span>
+                </div>
+                <p class="money-lg" th:text="${insight.metricValue}">0%</p>
+                <p class="hint" th:text="${insight.description}">Insight description</p>
+            </article>
+        </div>
+    </section>
+
     <!-- 3. Interactive Visual Charts & Multi-Currency Data Analysis Section -->
     <section th:if="${!#lists.isEmpty(dashboard.currencySummaries)}" style="margin-top: 1.75rem;" aria-labelledby="charts-title">
         <div class="card-top">
@@ -166,12 +168,12 @@
                         <div class="trend-chart">
                             <div class="trend-column" th:each="pt : ${summary.monthlyTrends}">
                                 <div class="trend-bars">
-                                    <div class="trend-bar income"
+                                    <div class="trend-bar income" role="img"
                                          th:style="${'height:' + (pt.incomeBarPercent > 0 ? pt.incomeBarPercent : 4) + '%'}"
-                                         th:attr="title=${'Income (' + pt.month + '): ' + summary.currency + ' ' + pt.income.toPlainString()}"></div>
-                                    <div class="trend-bar expense"
+                                         th:attr="title=${'Income (' + pt.month + '): ' + summary.currency + ' ' + pt.income.toPlainString()},aria-label=${'Income (' + pt.month + '): ' + summary.currency + ' ' + pt.income.toPlainString()}"></div>
+                                    <div class="trend-bar expense" role="img"
                                          th:style="${'height:' + (pt.expenseBarPercent > 0 ? pt.expenseBarPercent : 4) + '%'}"
-                                         th:attr="title=${'Expense (' + pt.month + '): ' + summary.currency + ' ' + pt.expense.toPlainString()}"></div>
+                                         th:attr="title=${'Expense (' + pt.month + '): ' + summary.currency + ' ' + pt.expense.toPlainString()},aria-label=${'Expense (' + pt.month + '): ' + summary.currency + ' ' + pt.expense.toPlainString()}"></div>
                                 </div>
                                 <span class="trend-month" th:text="${pt.shortMonth}">Oct</span>
                                 <span class="trend-net money"
@@ -329,8 +331,8 @@
             <div style="display: flex; align-items: center; gap: 0.75rem;">
                 <div class="view-toggle-group" role="group" aria-label="Recent transactions layout view"
                      data-view-toggle-group="home-recent" th:if="${!#lists.isEmpty(dashboard.recentTransactions)}">
-                    <button type="button" class="btn-view-toggle active" data-view-mode="grid">⊞ Cards</button>
-                    <button type="button" class="btn-view-toggle" data-view-mode="table">☰ Compact Table</button>
+                    <button type="button" class="btn-view-toggle active" data-view-mode="grid"><i data-lucide="layout-grid" aria-hidden="true"></i> Cards</button>
+                    <button type="button" class="btn-view-toggle" data-view-mode="table"><i data-lucide="table-2" aria-hidden="true"></i> Compact Table</button>
                 </div>
                 <a th:href="@{/transactions}">View all transactions</a>
             </div>
@@ -403,6 +405,50 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+    </section>
+
+    <!-- Savings Goals & Reserve Progress Section -->
+    <p id="custom-goals-notice" class="notice">
+        Custom browser-stored goals are unavailable because their owner cannot be verified on a shared browser.
+        Previously saved goals have not been deleted or migrated; they remain in this browser's local storage
+        and are no longer displayed or changed by the application. Account-based savings benchmarks remain available.
+    </p>
+    <section th:if="${!#lists.isEmpty(dashboard.currencySummaries)}" style="margin-top: 1.75rem;" aria-labelledby="goals-title">
+        <div class="card-top">
+            <div>
+                <h2 id="goals-title">Savings Goals &amp; Reserve Targets</h2>
+                <p class="hint">Track your monthly 20% savings benchmark and current liquid balance.</p>
+            </div>
+        </div>
+
+        <div class="savings-goal-grid" id="savings-goals-container">
+            <article class="goal-card" th:each="summary : ${dashboard.currencySummaries}">
+                <div>
+                    <div class="card-top" style="margin-bottom: 0.35rem;">
+                        <h3 th:text="${summary.currency + ' Monthly Savings Goal (20% Target)'}">USD Monthly Savings Goal</h3>
+                        <span class="badge"
+                              th:classappend="${summary.monthlySavingsRatePercent >= 20 ? 'badge-income' : 'badge-warning'}"
+                              th:text="${summary.monthlySavingsRatePercent + '% Saved Rate'}">0%</span>
+                    </div>
+                    <p class="hint" style="margin: 0;">
+                        Current Month Net Saved:
+                        <strong class="money" th:text="${summary.currency + ' ' + summary.monthlyNet.toPlainString()}">USD 0.00</strong>
+                        · Liquid Reserve:
+                        <strong class="money" th:text="${summary.currency + ' ' + summary.totalBalance.toPlainString()}">USD 0.00</strong>
+                    </p>
+                </div>
+                <div>
+                    <div class="progress-track">
+                        <div class="progress-fill savings"
+                             th:style="${'width:' + (summary.monthlySavingsRatePercent > 100 ? 100 : (summary.monthlySavingsRatePercent < 0 ? 0 : summary.monthlySavingsRatePercent)) + '%'}"></div>
+                    </div>
+                    <div class="flow-label" style="margin: 0.25rem 0 0;">
+                        <span th:text="${summary.monthlySavingsRatePercent >= 20 ? 'Benchmark achieved (≥20% of income)' : 'Below 20% monthly savings benchmark'}">Status</span>
+                        <a th:href="@{/reports(currency=${summary.currency})}" style="padding: 0; font-size: 0.8rem;">Simulate in DSS →</a>
+                    </div>
+                </div>
+            </article>
         </div>
     </section>
 

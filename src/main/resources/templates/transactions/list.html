@@ -13,12 +13,12 @@
         <div class="page-header-actions">
             <div class="view-toggle-group" role="group" aria-label="Transaction layout view"
                  data-view-toggle-group="transactions" th:if="${!#lists.isEmpty(transactions)}">
-                <button type="button" id="view-btn-grid" class="btn-view-toggle active" data-view-mode="grid">⊞ Cards</button>
-                <button type="button" id="view-btn-table" class="btn-view-toggle" data-view-mode="table">☰ Compact Table</button>
+                <button type="button" id="view-btn-grid" class="btn-view-toggle active" data-view-mode="grid"><i data-lucide="layout-grid" aria-hidden="true"></i> Cards</button>
+                <button type="button" id="view-btn-table" class="btn-view-toggle" data-view-mode="table"><i data-lucide="table-2" aria-hidden="true"></i> Compact Table</button>
             </div>
             <a class="button-outline"
                th:href="@{/transactions/export.csv(accountId=${filter != null ? filter.accountId : null},categoryId=${filter != null ? filter.categoryId : null},type=${filter != null ? filter.type : null},startDate=${filter != null ? filter.startDate : null},endDate=${filter != null ? filter.endDate : null},q=${filter != null ? filter.q : null})}">
-                ⇩ Export CSV
+                <i data-lucide="download" aria-hidden="true"></i> Export CSV
             </a>
             <a class="button-link" th:href="@{/transactions/new}">+ Create transaction</a>
         </div>
@@ -81,15 +81,24 @@
                 <button type="button" class="pill-btn" data-date-preset="30d">Last 30 days</button>
                 <button type="button" class="pill-btn" data-date-preset="6m">Last 6 months</button>
             </div>
-            <span class="hint" id="tx-live-count" style="margin: 0 0 0 auto;"
+            <span class="hint" id="tx-live-count" role="status" aria-live="polite" style="margin: 0 0 0 auto;"
                   th:if="${!#lists.isEmpty(transactions)}"
                   th:text="${#lists.size(transactions) + ' entries shown'}">0 entries shown</span>
         </div>
     </form>
 
-    <div class="empty-state" th:if="${#lists.isEmpty(transactions)}">
-        <p>No transactions yet. Record an income or expense to get started.</p>
-    </div>
+    <th:block th:if="${#lists.isEmpty(transactions)}">
+        <section class="empty-state" th:if="${filter != null and filter.hasActiveFilters()}">
+            <span class="empty-icon"><i data-lucide="search" aria-hidden="true"></i></span>
+            <h2>No matching transactions</h2>
+            <p>Try a wider date range or clear your filters to see the full ledger.</p>
+            <a class="button-outline" th:href="@{/transactions}">Clear filters</a>
+        </section>
+        <th:block th:unless="${filter != null and filter.hasActiveFilters()}">
+            <section th:replace="~{fragments/empty-state :: emptyState('receipt-text', 'Start your ledger', 'No transactions yet. Record an income or expense to get started.', '/transactions/new', 'Create transaction')}"></section>
+        </th:block>
+    </th:block>
+    <p id="tx-no-results" class="notice" hidden>No matching transactions. Try another search or clear your filters.</p>
 
     <!-- 1. Card Grid View -->
     <div class="transaction-grid" id="tx-grid-view" th:if="${!#lists.isEmpty(transactions)}"
@@ -112,13 +121,6 @@
                     <span th:text="${transaction.amount.toPlainString()}">0.00</span>
                 </p>
                 <dl>
-                    <div>
-                        <dt>Amount</dt>
-                        <dd class="money">
-                            <span th:text="${transaction.currency}">EUR</span>
-                            <span th:text="${transaction.amount.toPlainString()}">0.00</span>
-                        </dd>
-                    </div>
                     <div>
                         <dt>Account</dt>
                         <dd th:text="${transaction.accountName}">Account</dd>
@@ -146,21 +148,22 @@
     <div class="panel-card compact-table-panel hidden-view" id="tx-table-view" th:if="${!#lists.isEmpty(transactions)}"
          data-view-group="transactions" data-view-pane="table">
         <div class="table-responsive">
-            <table class="data-table">
+            <table class="data-table" id="tx-sortable-table">
                 <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Category</th>
-                    <th>Type</th>
-                    <th>Account</th>
-                    <th>Description</th>
-                    <th>Amount</th>
+                    <th data-sort-col="0" data-sort-type="text">Date</th>
+                    <th data-sort-col="1" data-sort-type="text">Category</th>
+                    <th data-sort-col="2" data-sort-type="text">Type</th>
+                    <th data-sort-col="3" data-sort-type="text">Account</th>
+                    <th data-sort-col="4" data-sort-type="text">Description</th>
+                    <th data-sort-col="5" data-sort-type="number">Amount</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr class="tx-filterable-row" th:each="transaction : ${transactions}"
-                    th:attr="data-search=${(transaction.categoryName + ' ' + transaction.accountName + ' ' + transaction.description + ' ' + transaction.currency + ' ' + transaction.amount.toPlainString()).toLowerCase()}">
+                    th:attr="data-search=${(transaction.categoryName + ' ' + transaction.accountName + ' ' + transaction.description + ' ' + transaction.currency + ' ' + transaction.amount.toPlainString()).toLowerCase()},
+                             data-raw-amount=${(transaction.transactionType.name() == 'INCOME' ? '' : '-') + transaction.amount.toPlainString()}">
                     <td><time th:datetime="${transaction.transactionDate}" th:text="${transaction.transactionDate}">2026-10-01</time></td>
                     <td><strong th:text="${transaction.categoryName}">Category</strong></td>
                     <td>

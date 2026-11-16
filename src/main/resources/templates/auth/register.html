@@ -6,8 +6,8 @@
     <div class="card-top" style="align-items: center;">
         <p class="brand" style="margin: 0;">Personal Finance Tracker</p>
         <div style="display: flex; gap: 0.45rem; align-items: center;">
-            <button id="lang-toggle" type="button" class="btn-theme" aria-label="Switch language">🇰🇭 ខ្មែរ</button>
-            <button id="theme-toggle" type="button" class="btn-theme" aria-label="Switch theme">☾ Dark</button>
+            <button id="lang-toggle" type="button" class="btn-theme" aria-label="Switch language"><i data-lucide="languages" aria-hidden="true"></i> ខ្មែរ</button>
+            <button id="theme-toggle" type="button" class="btn-theme" aria-label="Switch theme"><i data-lucide="moon" aria-hidden="true"></i> Dark</button>
         </div>
     </div>
     <h1 id="page-title">Create your account</h1>
@@ -33,18 +33,24 @@
             <div class="field field-full">
                 <label for="password">Password</label>
                 <!-- Deliberately omit th:field and value so submitted passwords are never rendered. -->
-                <input id="password" name="password" type="password" autocomplete="new-password" required
-                       minlength="12" maxlength="72" aria-describedby="password-help password-errors byte-errors"
-                       th:attr="aria-invalid=${#fields.hasErrors('password') or #fields.hasErrors('passwordWithinByteLimit')}">
+                <div class="password-input">
+                    <input id="password" name="password" type="password" autocomplete="new-password" required
+                           minlength="12" maxlength="72" aria-describedby="password-help password-errors byte-errors"
+                           th:attr="aria-invalid=${#fields.hasErrors('password') or #fields.hasErrors('passwordWithinByteLimit')}">
+                    <button type="button" class="password-toggle" data-icon-only data-toggle-password="password" aria-controls="password" aria-label="Show password" aria-pressed="false"><i data-lucide="eye" aria-hidden="true"></i></button>
+                </div>
                 <p id="password-help" class="hint">Use 12–72 characters (at most 72 UTF-8 bytes). A long, unique passphrase is best.</p>
                 <p id="password-errors" class="error" th:errors="*{password}"></p>
                 <p id="byte-errors" class="error" th:errors="*{passwordWithinByteLimit}"></p>
             </div>
             <div class="field field-full">
                 <label for="confirmPassword">Confirm password</label>
-                <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password"
-                       required maxlength="72" aria-describedby="confirmation-errors matching-errors"
-                       th:attr="aria-invalid=${#fields.hasErrors('confirmPassword') or #fields.hasErrors('passwordsMatching')}">
+                <div class="password-input">
+                    <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password"
+                           required maxlength="72" aria-describedby="confirmation-errors matching-errors"
+                           th:attr="aria-invalid=${#fields.hasErrors('confirmPassword') or #fields.hasErrors('passwordsMatching')}">
+                    <button type="button" class="password-toggle" data-icon-only data-toggle-password="confirmPassword" aria-controls="confirmPassword" aria-label="Show confirmation password" aria-pressed="false"><i data-lucide="eye" aria-hidden="true"></i></button>
+                </div>
                 <p id="confirmation-errors" class="error" th:errors="*{confirmPassword}"></p>
                 <p id="matching-errors" class="error" th:errors="*{passwordsMatching}"></p>
             </div>
@@ -56,6 +62,13 @@
     <p class="hint" style="margin-top: 1.25rem; text-align: center;">
         Already registered? <a th:href="@{/login}">Sign in</a>
     </p>
+    <div class="auth-trust-strip">
+        <span><i data-lucide="shield-check" aria-hidden="true"></i> BCrypt protected</span>
+        <span>•</span>
+        <span><i data-lucide="coins" aria-hidden="true"></i> Multi-Currency</span>
+        <span>•</span>
+        <span><i data-lucide="chart-no-axes-combined" aria-hidden="true"></i> Real-Time MIS &amp; DSS</span>
+    </div>
 </main>
 </body>
 </html>

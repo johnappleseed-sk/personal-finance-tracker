@@ -13,10 +13,10 @@
         <div class="page-header-actions">
             <div class="view-toggle-group" role="group" aria-label="Budget layout view"
                  data-view-toggle-group="budgets" th:if="${!#lists.isEmpty(budgets)}">
-                <button type="button" class="btn-view-toggle active" data-view-mode="grid">⊞ Cards</button>
-                <button type="button" class="btn-view-toggle" data-view-mode="table">☰ Compact Table</button>
+                <button type="button" class="btn-view-toggle active" data-view-mode="grid"><i data-lucide="layout-grid" aria-hidden="true"></i> Cards</button>
+                <button type="button" class="btn-view-toggle" data-view-mode="table"><i data-lucide="table-2" aria-hidden="true"></i> Compact Table</button>
             </div>
-            <a class="button-outline" th:href="@{/reports}">📊 View DSS Variance</a>
+            <a class="button-outline" th:href="@{/reports}"><i data-lucide="chart-no-axes-combined" aria-hidden="true"></i> View DSS Variance</a>
             <a class="button-link" th:href="@{/budgets/new}">+ Create budget</a>
         </div>
     </header>
@@ -33,6 +33,31 @@
         <span th:text="${nearLimitCount}">1</span>
         <span th:text="${nearLimitCount == 1 ? 'budget has reached at least 80% of its limit.' : 'budgets have reached at least 80% of their limits.'}"></span>
     </div>
+
+    <!-- Monthly Budget Health KPI Strip -->
+    <section class="insight-grid" style="margin: 0.5rem 0 1.25rem;" th:if="${!#lists.isEmpty(budgets)}" aria-label="Budget utilization summary">
+        <article class="insight-card kpi-accent-brand">
+            <p class="hint" style="margin:0;">Active Budgets</p>
+            <p class="money-lg" style="margin:0.25rem 0;" th:text="${#lists.size(budgets)}">0</p>
+            <p class="hint" style="margin:0;">Tracked category limits</p>
+        </article>
+        <article class="insight-card kpi-accent-income">
+            <p class="hint" style="margin:0;">On Track (&lt; 80%)</p>
+            <p class="money-lg money-income" style="margin:0.25rem 0;"
+               th:text="${#lists.size(budgets) - (overBudgetCount != null ? overBudgetCount : 0) - (nearLimitCount != null ? nearLimitCount : 0)}">0</p>
+            <p class="hint" style="margin:0;">Healthy monthly utilization</p>
+        </article>
+        <article class="insight-card">
+            <p class="hint" style="margin:0;">Near Limit (80–100%)</p>
+            <p class="money-lg" style="margin:0.25rem 0; color: var(--warning-text);" th:text="${nearLimitCount != null ? nearLimitCount : 0}">0</p>
+            <p class="hint" style="margin:0;">Approaching monthly cap</p>
+        </article>
+        <article class="insight-card kpi-accent-expense">
+            <p class="hint" style="margin:0;">Over Budget (&gt; 100%)</p>
+            <p class="money-lg money-expense" style="margin:0.25rem 0;" th:text="${overBudgetCount != null ? overBudgetCount : 0}">0</p>
+            <p class="hint" style="margin:0;">Requires spending review</p>
+        </article>
+    </section>
 
     <!-- Month filter bar -->
     <form class="filter-bar" th:action="@{/budgets}" method="get" aria-label="Filter budgets by month">
@@ -56,9 +81,9 @@
         </div>
     </form>
 
-    <div class="empty-state" th:if="${#lists.isEmpty(budgets)}">
-        <p>No budgets yet. Create a monthly spending limit for an expense category to get started.</p>
-    </div>
+    <th:block th:if="${#lists.isEmpty(budgets)}">
+        <section th:replace="~{fragments/empty-state :: emptyState('chart-pie', 'Give your spending a plan', 'No budgets yet. Create a monthly spending limit for an expense category to get started.', '/budgets/new', 'Create budget')}"></section>
+    </th:block>
 
     <!-- 1. Card Grid View -->
     <div class="budget-grid" th:if="${!#lists.isEmpty(budgets)}"
@@ -71,7 +96,8 @@
                           data-filter-text=${(budget.categoryName + ' ' + budget.currency + ' ' + budget.budgetMonth).toLowerCase()}">
             <div>
                 <div class="card-top">
-                    <h2 th:text="${budget.categoryName}">Category</h2>
+                    <h2 th:attr="data-category-icon=${budget.categoryName},data-category-kind='EXPENSE'"
+                        th:text="${budget.categoryName}">Category</h2>
                     <span class="badge"
                           th:classappend="${budget.overBudget ? 'badge-expense' : (budget.nearLimit ? 'badge-warning' : 'badge-income')}"
                           th:text="${budget.overBudget ? 'Over budget' : (budget.nearLimit ? 'Near limit' : 'On track')}">On track</span>
@@ -122,17 +148,17 @@
     <div class="panel-card compact-table-panel hidden-view" th:if="${!#lists.isEmpty(budgets)}"
          data-view-group="budgets" data-view-pane="table">
         <div class="table-responsive">
-            <table class="data-table">
+            <table class="data-table" data-sortable-table="true">
                 <thead>
                 <tr>
-                    <th>Category</th>
-                    <th>Month</th>
-                    <th>Currency</th>
-                    <th>Spent</th>
-                    <th>Limit</th>
-                    <th>Remaining</th>
-                    <th>Usage</th>
-                    <th>Status</th>
+                    <th data-sort-col="0">Category</th>
+                    <th data-sort-col="1">Month</th>
+                    <th data-sort-col="2">Currency</th>
+                    <th data-sort-col="3" data-sort-type="number">Spent</th>
+                    <th data-sort-col="4" data-sort-type="number">Limit</th>
+                    <th data-sort-col="5" data-sort-type="number">Remaining</th>
+                    <th data-sort-col="6" data-sort-type="number">Usage</th>
+                    <th data-sort-col="7">Status</th>
                     <th>Actions</th>
                 </tr>
                 </thead>

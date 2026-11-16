@@ -24,11 +24,11 @@
             </form>
             <a class="button-outline"
                th:href="@{/reports/export-monthly.csv(currency=${report.selectedCurrency})}">
-                ⇩ Export Excel Summary (.csv)
+                <i data-lucide="download" aria-hidden="true"></i> Export Excel Summary (.csv)
             </a>
             <a class="button-link"
                th:href="@{/transactions/export.csv}">
-                ⇩ Export Raw TPS Ledger (.csv)
+                <i data-lucide="download" aria-hidden="true"></i> Export Raw TPS Ledger (.csv)
             </a>
         </div>
     </header>
@@ -78,8 +78,8 @@
             </div>
             <div class="view-toggle-group" role="group" aria-label="DSS recommendations layout view"
                  data-view-toggle-group="reports-dss" th:if="${!#lists.isEmpty(report.dssSummary.recommendations)}">
-                <button type="button" class="btn-view-toggle active" data-view-mode="grid">⊞ Cards</button>
-                <button type="button" class="btn-view-toggle" data-view-mode="table">☰ Compact Table</button>
+                <button type="button" class="btn-view-toggle active" data-view-mode="grid"><i data-lucide="layout-grid" aria-hidden="true"></i> Cards</button>
+                <button type="button" class="btn-view-toggle" data-view-mode="table"><i data-lucide="table-2" aria-hidden="true"></i> Compact Table</button>
             </div>
         </div>
 
@@ -202,12 +202,12 @@
                 <div class="trend-chart">
                     <div class="trend-column" th:each="pt : ${report.monthlyTrends}">
                         <div class="trend-bars">
-                            <div class="trend-bar income"
+                            <div class="trend-bar income" role="img"
                                  th:style="${'height:' + (pt.incomeBarPercent > 0 ? pt.incomeBarPercent : 4) + '%'}"
-                                 th:attr="title=${'Income (' + pt.month + '): ' + report.selectedCurrency + ' ' + pt.income.toPlainString()}"></div>
-                            <div class="trend-bar expense"
+                                 th:attr="title=${'Income (' + pt.month + '): ' + report.selectedCurrency + ' ' + pt.income.toPlainString()},aria-label=${'Income (' + pt.month + '): ' + report.selectedCurrency + ' ' + pt.income.toPlainString()}"></div>
+                            <div class="trend-bar expense" role="img"
                                  th:style="${'height:' + (pt.expenseBarPercent > 0 ? pt.expenseBarPercent : 4) + '%'}"
-                                 th:attr="title=${'Expense (' + pt.month + '): ' + report.selectedCurrency + ' ' + pt.expense.toPlainString()}"></div>
+                                 th:attr="title=${'Expense (' + pt.month + '): ' + report.selectedCurrency + ' ' + pt.expense.toPlainString()},aria-label=${'Expense (' + pt.month + '): ' + report.selectedCurrency + ' ' + pt.expense.toPlainString()}"></div>
                         </div>
                         <span class="trend-month" th:text="${pt.month}">2026-10</span>
                         <span class="trend-net money"
@@ -235,20 +235,21 @@
                     No transactions recorded in <span th:text="${report.selectedCurrency}">EUR</span> yet.
                 </p>
                 <div class="table-responsive" th:if="${!#lists.isEmpty(report.categoryAnalytics)}">
-                    <table class="data-table">
+                    <table class="data-table" data-sortable-table="true">
                         <thead>
                         <tr>
-                            <th>Category</th>
-                            <th>Type</th>
-                            <th>Entries</th>
-                            <th>Total</th>
-                            <th>Average</th>
-                            <th>Share</th>
+                            <th data-sort-col="0">Category</th>
+                            <th data-sort-col="1">Type</th>
+                            <th data-sort-col="2" data-sort-type="number">Entries</th>
+                            <th data-sort-col="3" data-sort-type="number">Total</th>
+                            <th data-sort-col="4" data-sort-type="number">Average</th>
+                            <th data-sort-col="5" data-sort-type="number">Share</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:each="row : ${report.categoryAnalytics}">
-                            <td><strong th:text="${row.categoryName}">Groceries</strong></td>
+                            <td><strong th:attr="data-category-icon=${row.categoryName},data-category-kind=${row.categoryType.name()}"
+                                        th:text="${row.categoryName}">Groceries</strong></td>
                             <td>
                                 <span class="badge"
                                       th:classappend="${row.categoryType.name() == 'INCOME' ? 'badge-income' : 'badge-expense'}"

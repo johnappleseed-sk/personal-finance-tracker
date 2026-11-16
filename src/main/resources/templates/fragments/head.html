@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="${title} + ' | Personal Finance Tracker'">Personal Finance Tracker</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
+    <link rel="stylesheet" th:href="@{/css/product.css}">
+    <link th:if="${title == 'Sign in'}" rel="stylesheet" th:href="@{/css/login.css}">
+    <script th:src="@{/vendor/lucide/lucide.min.js}" defer></script>
     <script th:src="@{/js/app.js}" defer></script>
 </head>
 </html>

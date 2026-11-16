@@ -16,13 +16,29 @@
             <p class="alert" role="alert" th:if="${#fields.hasAnyErrors()}">Please check the highlighted fields.</p>
             <div class="form-grid">
                 <div class="field field-full">
-                    <label for="name">Account name</label>
+                    <div class="label-with-shortcuts">
+                        <label for="name" style="margin:0;">Account name</label>
+                        <span class="shortcut-pills">
+                            <button type="button" class="pill-btn" data-fill-target="name" data-fill-value="ABA Main Checking">ABA Checking</button>
+                            <button type="button" class="pill-btn" data-fill-target="name" data-fill-value="ACLEDA Savings">ACLEDA Savings</button>
+                            <button type="button" class="pill-btn" data-fill-target="name" data-fill-value="Cash Wallet">Cash Wallet</button>
+                            <button type="button" class="pill-btn" data-fill-target="name" data-fill-value="Emergency Reserve">Emergency Reserve</button>
+                        </span>
+                    </div>
                     <input id="name" type="text" th:field="*{name}" required maxlength="100"
+                           placeholder="e.g., ABA Checking, Cash Wallet, Savings Vault"
                            aria-describedby="name-errors" th:attr="aria-invalid=${#fields.hasErrors('name')}">
                     <p id="name-errors" class="error" th:errors="*{name}"></p>
                 </div>
                 <div class="field">
-                    <label for="accountType">Account type</label>
+                    <div class="label-with-shortcuts">
+                        <label for="accountType" style="margin:0;">Account type</label>
+                        <span class="shortcut-pills">
+                            <button type="button" class="pill-btn" th:each="type : ${accountTypes}"
+                                    data-select-target="accountType" th:attr="data-select-value=${type}"
+                                    th:text="${type.label}">Checking</button>
+                        </span>
+                    </div>
                     <select id="accountType" th:field="*{accountType}" required aria-describedby="type-errors"
                             th:attr="aria-invalid=${#fields.hasErrors('accountType')}">
                         <option value="">Choose a type</option>
@@ -31,7 +47,14 @@
                     <p id="type-errors" class="error" th:errors="*{accountType}"></p>
                 </div>
                 <div class="field">
-                    <label for="currency">Currency</label>
+                    <div class="label-with-shortcuts">
+                        <label for="currency" style="margin:0;">Currency</label>
+                        <span class="shortcut-pills">
+                            <button type="button" class="pill-btn" th:each="code : ${currencies}"
+                                    data-select-target="currency" th:attr="data-select-value=${code}"
+                                    th:text="${code}">USD</button>
+                        </span>
+                    </div>
                     <select id="currency" th:field="*{currency}" required aria-describedby="currency-errors"
                             th:attr="aria-invalid=${#fields.hasErrors('currency')}">
                         <option value="">Choose a currency</option>
@@ -41,7 +64,15 @@
                     <p class="hint">Currency cannot change while this account has transactions.</p>
                 </div>
                 <div class="field field-full">
-                    <label for="initialBalance">Opening balance</label>
+                    <div class="label-with-shortcuts">
+                        <label for="initialBalance" style="margin:0;">Opening balance</label>
+                        <span class="shortcut-pills">
+                            <button type="button" class="pill-btn" data-fill-target="initialBalance" data-fill-value="0.00">0.00</button>
+                            <button type="button" class="pill-btn" data-fill-target="initialBalance" data-fill-value="100.00">100.00</button>
+                            <button type="button" class="pill-btn" data-fill-target="initialBalance" data-fill-value="500.00">500.00</button>
+                            <button type="button" class="pill-btn" data-fill-target="initialBalance" data-fill-value="1000.00">1,000.00</button>
+                        </span>
+                    </div>
                     <input id="initialBalance" type="number" th:field="*{initialBalance}" step="0.01" required
                            aria-describedby="balance-help balance-errors" th:attr="aria-invalid=${#fields.hasErrors('initialBalance')}">
                     <p id="balance-help" class="hint">Use at most 2 decimal places. Negative amounts represent debt or overdrafts. Correcting this value also changes the current balance.</p>

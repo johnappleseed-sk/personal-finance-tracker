@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section th:fragment="emptyState(icon, title, description, actionUrl, actionLabel)" class="empty-state" aria-label="Getting started">
+    <span class="empty-icon"><i th:attr="data-lucide=${icon}" aria-hidden="true"></i></span>
+    <h2 th:text="${title}">Nothing here yet</h2>
+    <p th:text="${description}">Start by creating your first item.</p>
+    <a class="button-link" th:href="@{${actionUrl}}"><i data-lucide="plus" aria-hidden="true"></i> <span th:text="${actionLabel}">Create</span></a>
+</section>
+</body>
+</html>

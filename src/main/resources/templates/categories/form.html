@@ -16,13 +16,29 @@
             <p class="alert" role="alert" th:if="${#fields.hasAnyErrors()}">Please check the highlighted fields.</p>
             <div class="form-grid">
                 <div class="field">
-                    <label for="name">Category name</label>
+                    <div class="label-with-shortcuts">
+                        <label for="name" style="margin:0;">Category name</label>
+                        <span class="shortcut-pills">
+                            <button type="button" class="pill-btn" data-fill-target="name" data-fill-value="Salary" data-select-target="categoryType" data-select-value="INCOME"><i data-lucide="briefcase-business" aria-hidden="true"></i> Salary</button>
+                            <button type="button" class="pill-btn" data-fill-target="name" data-fill-value="Groceries" data-select-target="categoryType" data-select-value="EXPENSE"><i data-lucide="shopping-cart" aria-hidden="true"></i> Groceries</button>
+                            <button type="button" class="pill-btn" data-fill-target="name" data-fill-value="Dining Out" data-select-target="categoryType" data-select-value="EXPENSE"><i data-lucide="utensils" aria-hidden="true"></i> Dining</button>
+                            <button type="button" class="pill-btn" data-fill-target="name" data-fill-value="Housing &amp; Rent" data-select-target="categoryType" data-select-value="EXPENSE"><i data-lucide="house" aria-hidden="true"></i> Housing</button>
+                            <button type="button" class="pill-btn" data-fill-target="name" data-fill-value="Transport" data-select-target="categoryType" data-select-value="EXPENSE"><i data-lucide="car" aria-hidden="true"></i> Transport</button>
+                        </span>
+                    </div>
                     <input id="name" type="text" th:field="*{name}" required maxlength="100"
+                           placeholder="e.g., Salary, Groceries, Utilities, Healthcare"
                            aria-describedby="name-errors" th:attr="aria-invalid=${#fields.hasErrors('name')}">
                     <p id="name-errors" class="error" th:errors="*{name}"></p>
                 </div>
                 <div class="field">
-                    <label for="categoryType">Category type</label>
+                    <div class="label-with-shortcuts">
+                        <label for="categoryType" style="margin:0;">Category type</label>
+                        <span class="type-segmented-switch" role="group" aria-label="Quick category type selector">
+                            <button type="button" class="type-seg-btn" data-select-target="categoryType" data-select-value="INCOME">+ Income</button>
+                            <button type="button" class="type-seg-btn" data-select-target="categoryType" data-select-value="EXPENSE">− Expense</button>
+                        </span>
+                    </div>
                     <select id="categoryType" th:field="*{categoryType}" required aria-describedby="type-help type-errors"
                             th:attr="aria-invalid=${#fields.hasErrors('categoryType')}">
                         <option value="">Choose a type</option>

@@ -29,7 +29,14 @@
                     <p id="category-errors" class="error" th:errors="*{categoryId}"></p>
                 </div>
                 <div class="field">
-                    <label for="currency">Currency</label>
+                    <div class="label-with-shortcuts">
+                        <label for="currency" style="margin:0;">Currency</label>
+                        <span class="shortcut-pills">
+                            <button type="button" class="pill-btn" th:each="code : ${currencies}"
+                                    data-select-target="currency" th:attr="data-select-value=${code}"
+                                    th:text="${code}">USD</button>
+                        </span>
+                    </div>
                     <select id="currency" th:field="*{currency}" required aria-describedby="currency-errors"
                             th:attr="aria-invalid=${#fields.hasErrors('currency')}">
                         <option value="">Choose a currency</option>
@@ -38,13 +45,27 @@
                     <p id="currency-errors" class="error" th:errors="*{currency}"></p>
                 </div>
                 <div class="field">
-                    <label for="budgetMonth">Month (YYYY-MM)</label>
+                    <div class="label-with-shortcuts">
+                        <label for="budgetMonth" style="margin:0;">Month (YYYY-MM)</label>
+                        <span class="shortcut-pills">
+                            <button type="button" class="pill-btn" data-month-target="budgetMonth" data-month-offset="0">This month</button>
+                            <button type="button" class="pill-btn" data-month-target="budgetMonth" data-month-offset="1">Next month</button>
+                        </span>
+                    </div>
                     <input id="budgetMonth" type="month" th:field="*{budgetMonth}" required
                            aria-describedby="month-errors" th:attr="aria-invalid=${#fields.hasErrors('budgetMonth')}">
                     <p id="month-errors" class="error" th:errors="*{budgetMonth}"></p>
                 </div>
                 <div class="field field-full">
-                    <label for="limitAmount">Monthly spending limit</label>
+                    <div class="label-with-shortcuts">
+                        <label for="limitAmount" style="margin:0;">Monthly spending limit</label>
+                        <span class="shortcut-pills">
+                            <button type="button" class="pill-btn" data-fill-target="limitAmount" data-fill-value="100.00">100.00</button>
+                            <button type="button" class="pill-btn" data-fill-target="limitAmount" data-fill-value="250.00">250.00</button>
+                            <button type="button" class="pill-btn" data-fill-target="limitAmount" data-fill-value="500.00">500.00</button>
+                            <button type="button" class="pill-btn" data-fill-target="limitAmount" data-fill-value="1000.00">1,000.00</button>
+                        </span>
+                    </div>
                     <input id="limitAmount" type="number" th:field="*{limitAmount}" min="0.01" step="0.01" required
                            aria-describedby="limit-help limit-errors" th:attr="aria-invalid=${#fields.hasErrors('limitAmount')}">
                     <p id="limit-help" class="hint">Enter a positive monthly limit with at most 2 decimal places.</p>

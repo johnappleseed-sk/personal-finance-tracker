@@ -3,18 +3,51 @@
     const LANG_STORAGE_KEY = 'pf-lang';
     const root = document.documentElement;
 
+    // Display preferences are optional; blocked storage must not disable navigation or forms.
+    function readPreference(key) {
+        try { return localStorage.getItem(key); } catch (error) { return null; }
+    }
+    function writePreference(key, value) {
+        try { localStorage.setItem(key, value); } catch (error) { /* Session-only UI still works. */ }
+    }
+
     const KM_DICT = {
         // Brand & Navigation
         'Personal Finance Tracker': 'ប្រព័ន្ធគ្រប់គ្រងហិរញ្ញវត្ថុផ្ទាល់ខ្លួន',
         'Dashboard': 'ផ្ទាំងគ្រប់គ្រង',
+        'Personal Finance': 'ហិរញ្ញវត្ថុផ្ទាល់ខ្លួន',
+        'Your money, clearly.': 'មើលប្រាក់របស់អ្នកឱ្យច្បាស់។',
+        'Private workspace': 'កន្លែងធ្វើការឯកជន',
+        'Financial health signals': 'សញ្ញាសុខភាពហិរញ្ញវត្ថុ',
+        'A closer look at savings, spending, and reserves.': 'មើលការសន្សំ ការចំណាយ និងទុនបម្រុង។',
+        'No matching transactions': 'គ្មានប្រតិបត្តិការដែលត្រូវគ្នា',
+        'No matching transactions. Try another search or clear your filters.': 'គ្មានប្រតិបត្តិការដែលត្រូវគ្នា។ សូមស្វែងរកម្ដងទៀត ឬសម្អាតការចម្រាញ់។',
+        'Menu': 'ម៉ឺនុយ',
+        'Skip to content': 'រំលងទៅមាតិកា',
+        'Your financial overview': 'ទិដ្ឋភាពទូទៅហិរញ្ញវត្ថុរបស់អ្នក',
+        'Balances, spending, and progress in one place.': 'សមតុល្យ ការចំណាយ និងវឌ្ឍនភាពនៅកន្លែងតែមួយ។',
         'Accounts': 'គណនី',
         'Categories': 'ប្រភេទចំណូលចំណាយ',
         'Transactions': 'ប្រតិបត្តិការ',
         'Transfers': 'ការផ្ទេរប្រាក់',
         'Budgets': 'ផែនការថវិកា',
         'Reports & DSS': 'របាយការណ៍ និង DSS',
+        'New Entry': 'កត់ត្រាថ្មី',
         'Sign out': 'ចាកចេញ',
         'Sign in': 'ចូលប្រើប្រាស់',
+        'Welcome back': 'សូមស្វាគមន៍មកវិញ',
+        'A little clarity. Every day.': 'ភាពច្បាស់លាស់បន្តិចបន្តួច ជារៀងរាល់ថ្ងៃ។',
+        'Your money.': 'ប្រាក់របស់អ្នក។',
+        'A clearer picture.': 'ទិដ្ឋភាពកាន់តែច្បាស់។',
+        'Bring your accounts, everyday spending, and savings plans into one private workspace.': 'ប្រមូលគណនី ការចំណាយប្រចាំថ្ងៃ និងផែនការសន្សំក្នុងកន្លែងធ្វើការឯកជនតែមួយ។',
+        'All your accounts, together': 'គណនីទាំងអស់របស់អ្នកនៅជាមួយគ្នា',
+        'Keep each currency clear. No mixed totals.': 'បង្ហាញរូបិយប័ណ្ណនីមួយៗច្បាស់លាស់ ដោយមិនបូកបញ្ចូលគ្នា។',
+        'Know where your money goes': 'ដឹងថាប្រាក់របស់អ្នកចំណាយទៅណា',
+        'Track income and expenses as they happen.': 'តាមដានចំណូល និងចំណាយនៅពេលកើតឡើង។',
+        'Make room for what matters': 'ទុកកន្លែងសម្រាប់អ្វីដែលសំខាន់',
+        'Set monthly budgets and follow your progress.': 'កំណត់ថវិកាប្រចាំខែ និងតាមដានវឌ្ឍនភាពរបស់អ្នក។',
+        'Your financial workspace. Only your data.': 'កន្លែងធ្វើការហិរញ្ញវត្ថុរបស់អ្នក។ មានតែទិន្នន័យរបស់អ្នក។',
+        'Sign out when using a shared device.': 'សូមចាកចេញពេលប្រើឧបករណ៍រួមគ្នា។',
         'Create your account': 'បង្កើតគណនីរបស់អ្នក',
         'Create an account': 'បង្កើតគណនីថ្មី',
         'Create account': 'បង្កើតគណនី',
@@ -30,11 +63,21 @@
         'Start with your details. Your financial data will belong only to you.': 'ចាប់ផ្តើមជាមួយព័ត៌មានរបស់អ្នក។ ទិន្នន័យហិរញ្ញវត្ថុជារបស់អ្នកតែម្នាក់គត់។',
 
         // Common Actions & View Toggles
-        '⊞ Cards': '⊞ ទម្រង់កាត',
-        '☰ Compact Table': '☰ តារាងសង្ខេប',
-        '📊 MIS Reports & DSS': '📊 របាយការណ៍ MIS និង DSS',
-        '⇄ Transfer Funds': '⇄ ផ្ទេរប្រាក់',
-        '◎ Set Budget': '◎ កំណត់ថវិកា',
+        'Cards': 'ទម្រង់កាត',
+        'Compact Table': 'តារាងសង្ខេប',
+        'MIS Reports & DSS': 'របាយការណ៍ MIS និង DSS',
+        'Transfer Funds': 'ផ្ទេរប្រាក់',
+        'Transfer funds': 'ផ្ទេរប្រាក់',
+        'Set Budget': 'កំណត់ថវិកា',
+        'Set budget': 'កំណត់ថវិកា',
+        'New Transaction': 'ប្រតិបត្តិការថ្មី',
+        'Salary': 'ប្រាក់ខែ',
+        'Groceries': 'គ្រឿងទេស',
+        'Dining': 'អាហារ',
+        'Housing': 'លំនៅឋាន',
+        'Transport': 'ការដឹកជញ្ជូន',
+        'Show': 'បង្ហាញ',
+        'Hide': 'លាក់',
         '+ New Transaction': '+ ប្រតិបត្តិការថ្មី',
         '+ New Account': '+ បង្កើតគណនីថ្មី',
         '+ New Category': '+ បង្កើតប្រភេទថ្មី',
@@ -76,6 +119,17 @@
         'Recent Transactions': 'ប្រតិបត្តិការថ្មីៗ',
         'Budget Watch': 'តាមដានផែនការថវិកា',
         'Active Accounts': 'គណនីសកម្ម',
+        'Savings Goals & Reserve Targets': 'គោលដៅសន្សំប្រាក់ និងទុនបម្រុង',
+        'Track your monthly 20% savings benchmark, 6-month emergency fund target, and custom personal goals.': 'តាមដានគោលដៅសន្សំប្រចាំខែ ២០% ទុនបម្រុងបន្ទាន់ ៦ ខែ និងគោលដៅហិរញ្ញវត្ថុផ្ទាល់ខ្លួន។',
+        '+ Add Custom Goal': '+ បន្ថែមគោលដៅសន្សំថ្មី',
+        'Goal Name': 'ឈ្មោះគោលដៅ',
+        'Saved Amount': 'ប្រាក់សន្សំបាន',
+        'Target Amount': 'ទឹកប្រាក់គោលដៅ',
+        'Target Date': 'កាលបរិច្ឆេទគោលដៅ',
+        'Save Goal': 'រក្សាទុកគោលដៅ',
+        'Quick Workspace Links': 'តំណភ្ជាប់រហ័ស',
+        '+ Income': '+ ចំណូល',
+        '- Expense': '- ចំណាយ',
         'View all →': 'មើលទាំងអស់ →',
         'Manage →': 'គ្រប់គ្រង →',
         'All accounts →': 'គណនីទាំងអស់ →',
@@ -149,15 +203,31 @@
         'Search': 'ស្វែងរក',
         'All accounts': 'គណនីទាំងអស់',
         'All categories': 'ប្រភេទទាំងអស់',
+        'All types': 'គ្រប់ប្រភេទទាំងអស់',
+        'From date': 'ចាប់ពីថ្ងៃទី',
+        'To date': 'ដល់ថ្ងៃទី',
+        'Apply filters': 'អនុវត្តការចម្រាញ់',
+        'Clear filters': 'សម្អាតការចម្រាញ់',
+        'Quick range:': 'ជ្រើសរើសរហ័ស៖',
+        'This month': 'ខែនេះ',
+        'Last 30 days': '៣០ ថ្ងៃចុងក្រោយ',
+        'Last 6 months': '៦ ខែចុងក្រោយ',
         'Account transfers': 'ការផ្ទេរប្រាក់រវាងគណនី',
         'Move funds between your accounts using the same currency.': 'ផ្ទេរប្រាក់រវាងគណនីរបស់អ្នកដែលប្រើរូបិយប័ណ្ណដូចគ្នា។',
         'View accounts': 'មើលគណនី',
         '+ Transfer funds': '+ ផ្ទេរប្រាក់',
         'Monthly budgets': 'ផែនការថវិកាប្រចាំខែ',
         'Set spending limits for your expense categories and monitor monthly utilization.': 'កំណត់កម្រិតចំណាយសម្រាប់ប្រភេទចំណាយ និងតាមដានការប្រើប្រាស់ប្រចាំខែ។',
-        '📊 View DSS Variance': '📊 មើលរបាយការណ៍ DSS',
+        'View DSS Variance': 'មើលរបាយការណ៍ DSS',
         '+ Create budget': '+ បង្កើតថវិកាថ្មី',
         'Filter by month (YYYY-MM)': 'ចម្រាញ់តាមខែ (YYYY-MM)',
+        'Net change vs opening': 'បម្រែបម្រួលសុទ្ធធៀបនឹងសមតុល្យដើមគ្រា',
+        'Active Budgets': 'ផែនការថវិកាសកម្ម',
+        'On Track (< 80%)': 'តាមផែនការ (< 80%)',
+        'Near Limit (80–100%)': 'ជិតដល់កម្រិត (80–100%)',
+        'Over Budget (> 100%)': 'លើសថវិកា (> 100%)',
+        'Swap accounts': 'ប្តូរគណនីឆ្លាស់គ្នា',
+        'Next month': 'ខែក្រោយ',
         'Filter month': 'ចម្រាញ់តាមខែ',
         'Show all months': 'បង្ហាញគ្រប់ខែទាំងអស់',
         'Over budget': 'លើសថវិកា',
@@ -217,13 +287,38 @@
     ];
 
     function getPreferredTheme() {
-        const saved = localStorage.getItem(STORAGE_KEY);
+        const saved = readPreference(STORAGE_KEY);
         if (saved === 'dark' || saved === 'light') {
             return saved;
         }
         return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
             ? 'dark'
             : 'light';
+    }
+
+    // Lucide is vendored locally. Text remains usable even if the icon script is unavailable.
+    function renderIcons() {
+        if (!window.lucide || !document.querySelector('i[data-lucide]')) return;
+        window.lucide.createIcons({ attrs: { 'aria-hidden': 'true', focusable: 'false' } });
+        // Leave rendered SVGs alone on later label changes instead of recreating the whole page's icons.
+        document.querySelectorAll('svg[data-lucide]').forEach(function (icon) { icon.removeAttribute('data-lucide'); });
+    }
+
+    function setIconLabel(element, iconName, label) {
+        const icon = document.createElement('i');
+        icon.setAttribute('data-lucide', iconName);
+        icon.setAttribute('aria-hidden', 'true');
+        if (element.hasAttribute('data-icon-only')) {
+            element.replaceChildren(icon);
+            const isConfirmation = element.getAttribute('data-toggle-password') === 'confirmPassword';
+            const field = root.lang === 'km'
+                ? (isConfirmation ? 'បញ្ជាក់ពាក្យសម្ងាត់' : 'ពាក្យសម្ងាត់')
+                : (isConfirmation ? 'confirmation password' : 'password');
+            element.setAttribute('aria-label', label + ' ' + field);
+        } else {
+            element.replaceChildren(icon, document.createTextNode(' ' + label));
+        }
+        renderIcons();
     }
 
     function applyTheme(theme) {
@@ -233,11 +328,7 @@
             const isDark = theme === 'dark';
             const isKm = (root.getAttribute('lang') || 'en') === 'km';
             btn.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
-            if (isKm) {
-                btn.textContent = isDark ? '☀ ភ្លឺ' : '☾ ងងឹត';
-            } else {
-                btn.textContent = isDark ? '☀ Light' : '☾ Dark';
-            }
+            setIconLabel(btn, isDark ? 'sun' : 'moon', isKm ? (isDark ? 'ភ្លឺ' : 'ងងឹត') : (isDark ? 'Light' : 'Dark'));
         }
     }
 
@@ -245,10 +336,10 @@
         const params = new URLSearchParams(window.location.search);
         const qLang = params.get('lang');
         if (qLang === 'km' || qLang === 'en') {
-            localStorage.setItem(LANG_STORAGE_KEY, qLang);
+            writePreference(LANG_STORAGE_KEY, qLang);
             return qLang;
         }
-        const saved = localStorage.getItem(LANG_STORAGE_KEY);
+        const saved = readPreference(LANG_STORAGE_KEY);
         return saved === 'km' ? 'km' : 'en';
     }
 
@@ -276,7 +367,7 @@
         root.setAttribute('lang', lang);
         const langBtn = document.getElementById('lang-toggle');
         if (langBtn) {
-            langBtn.textContent = lang === 'km' ? '🇺🇸 EN' : '🇰🇭 ខ្មែរ';
+            setIconLabel(langBtn, 'languages', lang === 'km' ? 'EN' : 'ខ្មែរ');
             langBtn.setAttribute('aria-label', lang === 'km' ? 'Switch to English' : 'ប្តូរទៅភាសាខ្មែរ');
         }
 
@@ -286,7 +377,7 @@
             const node = walker.currentNode;
             const parentTag = node.parentElement ? node.parentElement.tagName : '';
             if (parentTag === 'SCRIPT' || parentTag === 'STYLE') continue;
-            if (node.parentElement && (node.parentElement.id === 'lang-toggle' || node.parentElement.id === 'theme-toggle')) continue;
+            if (node.parentElement && node.parentElement.closest('#lang-toggle, #theme-toggle, [data-toggle-password], svg')) continue;
             textNodes.push(node);
         }
 
@@ -315,7 +406,11 @@
             } else if (basePh) {
                 const phMap = {
                     'Enter your password': 'បញ្ចូលពាក្យសម្ងាត់របស់អ្នក',
+                    'Instant search description, category, account...': 'ស្វែងរកការពិពណ៌នា ប្រភេទ គណនី...',
                     'Search description, category, account...': 'ស្វែងរកការពិពណ៌នា ប្រភេទ គណនី...',
+                    'Filter accounts by name or type...': 'ស្វែងរកគណនីតាមឈ្មោះ ឬប្រភេទ...',
+                    'Search category name...': 'ស្វែងរកឈ្មោះប្រភេទ...',
+                    'Search transfers by account or description...': 'ស្វែងរកការផ្ទេរប្រាក់តាមគណនី ឬការពិពណ៌នា...',
                     'Search accounts...': 'ស្វែងរកគណនី...',
                     'Search categories...': 'ស្វែងរកប្រភេទ...',
                     'Search budgets...': 'ស្វែងរកថវិកា...',
@@ -328,6 +423,11 @@
         });
 
         applyTheme(root.getAttribute('data-theme') || getPreferredTheme());
+        document.querySelectorAll('[data-toggle-password]').forEach(function (button) {
+            const input = document.getElementById(button.getAttribute('data-toggle-password'));
+            const visible = input && input.type === 'text';
+            setIconLabel(button, visible ? 'eye-off' : 'eye', lang === 'km' ? (visible ? 'លាក់' : 'បង្ហាញ') : (visible ? 'Hide' : 'Show'));
+        });
     }
 
     applyTheme(getPreferredTheme());
@@ -415,7 +515,7 @@
                     btn.classList.toggle('active', active);
                     btn.setAttribute('aria-pressed', active ? 'true' : 'false');
                 });
-                localStorage.setItem(storageKey, mode);
+                writePreference(storageKey, mode);
             }
 
             buttons.forEach(function (btn) {
@@ -424,7 +524,7 @@
                 });
             });
 
-            setViewMode(localStorage.getItem(storageKey) === 'table' ? 'table' : 'grid');
+            setViewMode(readPreference(storageKey) === 'table' ? 'table' : 'grid');
         });
     }
 
@@ -456,6 +556,8 @@
                 if (countLabel) {
                     countLabel.textContent = visibleCount + ' entries shown';
                 }
+                const noResults = document.getElementById('tx-no-results');
+                if (noResults) noResults.hidden = visibleCount !== 0;
             });
         }
 
@@ -475,8 +577,8 @@
                 } else if (preset === '30d') {
                     start.setDate(today.getDate() - 30);
                 } else if (preset === '6m') {
-                    start.setMonth(today.getMonth() - 5);
                     start.setDate(1);
+                    start.setMonth(today.getMonth() - 5);
                 }
 
                 startInput.value = formatIsoDate(start);
@@ -486,6 +588,7 @@
                 }
             });
         });
+
     }
 
     function initSmartForms() {
@@ -502,7 +605,88 @@
             });
         });
 
-        // 2. Transaction Form: live currency badge + category type auto-filter
+        // 1b. Quick amount preset buttons (+10, +25, +50, +100)
+        const amountInput = document.getElementById('amount');
+        document.querySelectorAll('[data-amount-add]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                if (!amountInput) return;
+                const delta = decimalMinorUnits(btn.getAttribute('data-amount-add') || '0');
+                const current = decimalMinorUnits(amountInput.value || '0');
+                amountInput.value = formatMinorUnits(current + delta);
+                amountInput.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+        });
+
+        // 1c. Quick fill input buttons (data-fill-target / data-fill-value) + quick select buttons (data-select-target / data-select-value)
+        document.querySelectorAll('[data-fill-target], [data-select-target]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const fillTarget = btn.getAttribute('data-fill-target');
+                const fillVal = btn.getAttribute('data-fill-value');
+                if (fillTarget && fillVal !== null) {
+                    const input = document.getElementById(fillTarget);
+                    if (input) {
+                        input.value = fillVal;
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                }
+                const selectTarget = btn.getAttribute('data-select-target');
+                const selectVal = btn.getAttribute('data-select-value');
+                if (selectTarget && selectVal !== null) {
+                    const sel = document.getElementById(selectTarget);
+                    if (sel && !sel.disabled) {
+                        sel.value = selectVal;
+                        sel.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                }
+            });
+        });
+
+        // Sync active state on segmented categoryType switcher if present
+        const catTypeSelect = document.getElementById('categoryType');
+        if (catTypeSelect) {
+            function syncCatTypeSeg() {
+                const v = catTypeSelect.value;
+                document.querySelectorAll('.type-seg-btn[data-select-target="categoryType"]').forEach(function (btn) {
+                    const bv = btn.getAttribute('data-select-value');
+                    btn.classList.toggle('active-income', bv === 'INCOME' && v === 'INCOME');
+                    btn.classList.toggle('active-expense', bv === 'EXPENSE' && v === 'EXPENSE');
+                });
+            }
+            catTypeSelect.addEventListener('change', syncCatTypeSeg);
+            syncCatTypeSeg();
+        }
+
+        // 1d. Quick month preset buttons (This month / Next month)
+        document.querySelectorAll('[data-month-target]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const targetId = btn.getAttribute('data-month-target');
+                const offset = parseInt(btn.getAttribute('data-month-offset') || '0', 10);
+                const input = document.getElementById(targetId);
+                if (!input) return;
+                const d = new Date();
+                d.setDate(1);
+                d.setMonth(d.getMonth() + offset);
+                const yyyy = d.getFullYear();
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                input.value = yyyy + '-' + mm;
+            });
+        });
+
+        // 1e. Password Show / Hide toggle buttons
+        document.querySelectorAll('[data-toggle-password]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const targetId = btn.getAttribute('data-toggle-password');
+                const input = document.getElementById(targetId);
+                if (!input) return;
+                const showing = input.type === 'text';
+                input.type = showing ? 'password' : 'text';
+                btn.setAttribute('aria-pressed', String(!showing));
+                const isKm = root.getAttribute('lang') === 'km';
+                setIconLabel(btn, showing ? 'eye' : 'eye-off', isKm ? (showing ? 'បង្ហាញ' : 'លាក់') : (showing ? 'Show' : 'Hide'));
+            });
+        });
+
+        // 2. Transaction Form: live currency badge + category type auto-filter + quick type pills
         const accountSelect = document.getElementById('accountId');
         const currencyBadge = document.getElementById('amount-currency-badge');
         if (accountSelect && currencyBadge) {
@@ -517,18 +701,34 @@
 
         const typeSelect = document.getElementById('transactionType');
         const categorySelect = document.getElementById('categoryId');
-        if (typeSelect && categorySelect) {
-            function syncCategoriesByType() {
+        const quickTypeBtns = document.querySelectorAll('[data-quick-type]');
+        if (typeSelect) {
+            function syncTypeState() {
                 const selectedType = typeSelect.value;
-                Array.from(categorySelect.options).forEach(function (opt) {
-                    const catType = opt.getAttribute('data-category-type');
-                    if (!catType) return; // Keep placeholder option
-                    const matches = !selectedType || catType === selectedType;
-                    opt.hidden = !matches;
+                quickTypeBtns.forEach(function (btn) {
+                    const bType = btn.getAttribute('data-quick-type');
+                    btn.classList.toggle('active-income', bType === 'INCOME' && selectedType === 'INCOME');
+                    btn.classList.toggle('active-expense', bType === 'EXPENSE' && selectedType === 'EXPENSE');
                 });
+                if (categorySelect) {
+                    Array.from(categorySelect.options).forEach(function (opt) {
+                        const catType = opt.getAttribute('data-category-type');
+                        if (!catType) return;
+                        const matches = !selectedType || catType === selectedType;
+                        opt.hidden = !matches;
+                    });
+                    const current = categorySelect.selectedOptions[0];
+                    if (current && current.hidden) categorySelect.value = '';
+                }
             }
-            typeSelect.addEventListener('change', syncCategoriesByType);
-            syncCategoriesByType();
+            quickTypeBtns.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    typeSelect.value = btn.getAttribute('data-quick-type');
+                    syncTypeState();
+                });
+            });
+            typeSelect.addEventListener('change', syncTypeState);
+            syncTypeState();
         }
 
         // 3. Transfer Form: live currency badge + matching target accounts
@@ -539,13 +739,57 @@
             function syncTransferCurrency() {
                 const opt = sourceSelect.options[sourceSelect.selectedIndex];
                 const curr = opt ? opt.getAttribute('data-currency') : null;
+                const srcVal = sourceSelect.value;
                 if (transferBadge) {
                     transferBadge.textContent = curr ? ('Transfer in ' + curr) : 'Same Currency';
                 }
+                Array.from(targetSelect.options).forEach(function (tOpt) {
+                    const tCurr = tOpt.getAttribute('data-currency');
+                    if (!tCurr) return;
+                    tOpt.hidden = (curr && tCurr !== curr) || (srcVal && tOpt.value === srcVal);
+                });
+                const current = targetSelect.selectedOptions[0];
+                if (current && current.hidden) targetSelect.value = '';
             }
             sourceSelect.addEventListener('change', syncTransferCurrency);
             syncTransferCurrency();
+
+            const swapBtn = document.getElementById('swap-transfer-accounts-btn');
+            if (swapBtn) {
+                swapBtn.addEventListener('click', function () {
+                    const prevSource = sourceSelect.value;
+                    const prevTarget = targetSelect.value;
+                    sourceSelect.value = prevTarget;
+                    syncTransferCurrency();
+                    targetSelect.value = prevSource;
+                });
+            }
         }
+
+        // 4. Pending state preserves native validation and restores buttons after back navigation.
+        document.querySelectorAll('form[method="post"]').forEach(function (form) {
+            form.addEventListener('submit', function () {
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn && !submitBtn.disabled) {
+                    form.setAttribute('aria-busy', 'true');
+                    submitBtn.dataset.originalLabel = submitBtn.innerHTML;
+                    setTimeout(function () {
+                        submitBtn.disabled = true;
+                        setIconLabel(submitBtn, 'loader-circle', root.lang === 'km' ? 'កំពុងដំណើរការ…' : 'Working…');
+                    }, 0);
+                }
+            });
+        });
+        window.addEventListener('pageshow', function () {
+            document.querySelectorAll('form[aria-busy="true"]').forEach(function (form) {
+                form.removeAttribute('aria-busy');
+                form.querySelectorAll('button[data-original-label]').forEach(function (button) {
+                    button.innerHTML = button.dataset.originalLabel;
+                    button.disabled = false;
+                    delete button.dataset.originalLabel;
+                });
+            });
+        });
     }
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -556,7 +800,7 @@
         if (toggleBtn) {
             toggleBtn.addEventListener('click', function () {
                 const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-                localStorage.setItem(STORAGE_KEY, next);
+                writePreference(STORAGE_KEY, next);
                 applyTheme(next);
             });
         }
@@ -565,7 +809,7 @@
         if (langBtn) {
             langBtn.addEventListener('click', function () {
                 const nextLang = (root.getAttribute('lang') || 'en') === 'km' ? 'en' : 'km';
-                localStorage.setItem(LANG_STORAGE_KEY, nextLang);
+                writePreference(LANG_STORAGE_KEY, nextLang);
                 applyLanguage(nextLang);
             });
         }
@@ -575,30 +819,302 @@
         initDssSimulator();
         initTransactionsPage();
         initSmartForms();
+        initNavigation();
         initGenericCardFilters();
         initDashboardChartTabs();
+        initUniversalSortableTables();
+        initPortfolioAndCategoryEnhancements();
+        initFormFeedback();
+        initScrollableTables();
+        renderIcons();
     });
+
+    function initUniversalSortableTables() {
+        document.querySelectorAll('table[data-sortable-table="true"], #tx-sortable-table').forEach(function (table) {
+            const headers = table.querySelectorAll('th[data-sort-col]');
+            const tbody = table.querySelector('tbody');
+            if (!tbody) return;
+            headers.forEach(function (th) {
+                th.setAttribute('aria-sort', 'none');
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'table-sort-button';
+                button.appendChild(document.createTextNode(th.textContent.trim()));
+                const icon = document.createElement('i');
+                icon.setAttribute('data-lucide', 'arrow-up-down');
+                icon.setAttribute('aria-hidden', 'true');
+                button.appendChild(icon);
+                th.replaceChildren(button);
+                th.addEventListener('click', function () {
+                    const colIdx = parseInt(th.getAttribute('data-sort-col'), 10);
+                    const sortType = th.getAttribute('data-sort-type') || 'text';
+                    const currentDir = th.getAttribute('data-sort-dir') === 'asc' ? 'desc' : 'asc';
+                    headers.forEach(function (h) {
+                        h.removeAttribute('data-sort-dir');
+                        h.setAttribute('aria-sort', 'none');
+                    });
+                    th.setAttribute('data-sort-dir', currentDir);
+                    th.setAttribute('aria-sort', currentDir === 'asc' ? 'ascending' : 'descending');
+
+                    const rowArr = Array.from(tbody.querySelectorAll('tr'));
+                    rowArr.sort(function (a, b) {
+                        const cellA = (a.children[colIdx] ? a.children[colIdx].textContent : '').trim();
+                        const cellB = (b.children[colIdx] ? b.children[colIdx].textContent : '').trim();
+                        if (sortType === 'number') {
+                            const numA = decimalMinorUnits(a.getAttribute('data-raw-amount') || cellA);
+                            const numB = decimalMinorUnits(b.getAttribute('data-raw-amount') || cellB);
+                            const comparison = numA < numB ? -1 : (numA > numB ? 1 : 0);
+                            return currentDir === 'asc' ? comparison : -comparison;
+                        }
+                        return currentDir === 'asc'
+                            ? cellA.toLowerCase().localeCompare(cellB.toLowerCase())
+                            : cellB.toLowerCase().localeCompare(cellA.toLowerCase());
+                    });
+                    rowArr.forEach(function (r) { tbody.appendChild(r); });
+                });
+            });
+        });
+    }
+
+    // UI-only totals and numeric ordering use integer cents, never binary floating point.
+    function decimalMinorUnits(value) {
+        const cleaned = String(value).replace(/[^0-9.\-]/g, '');
+        const negative = cleaned.startsWith('-');
+        const parts = cleaned.replace(/-/g, '').split('.');
+        const whole = parts[0] || '0';
+        const fraction = ((parts[1] || '') + '00').slice(0, 2);
+        return (BigInt(whole) * 100n + BigInt(fraction)) * (negative ? -1n : 1n);
+    }
+
+    function formatMinorUnits(value) {
+        const absolute = value < 0n ? -value : value;
+        return (value < 0n ? '-' : '') + (absolute / 100n).toString() + '.' + (absolute % 100n).toString().padStart(2, '0');
+    }
+
+    function initFormFeedback() {
+        const invalidFields = document.querySelectorAll('input[aria-invalid="true"], select[aria-invalid="true"]');
+        if (!invalidFields.length) return;
+        const form = invalidFields[0].closest('form');
+        const summary = form && form.querySelector('.alert[role="alert"]');
+        if (!summary) return;
+        summary.tabIndex = -1;
+        const list = document.createElement('ul');
+        invalidFields.forEach(function (field) {
+            const item = document.createElement('li');
+            const link = document.createElement('a');
+            const label = document.querySelector('label[for="' + field.id + '"]');
+            link.href = '#' + field.id;
+            link.textContent = label ? label.textContent.trim() : field.name;
+            link.addEventListener('click', function () { field.focus(); });
+            item.appendChild(link);
+            list.appendChild(item);
+        });
+        summary.appendChild(list);
+        summary.focus();
+    }
+
+    function initScrollableTables() {
+        document.querySelectorAll('.table-responsive').forEach(function (region) {
+            region.tabIndex = 0;
+            region.setAttribute('role', 'region');
+            region.setAttribute('aria-label', 'Data table. Scroll horizontally to see all columns.');
+        });
+    }
+
+    function resolveCategoryIcon(name, kind) {
+        const lower = (name || '').toLowerCase();
+        if (lower.indexOf('salary') !== -1 || lower.indexOf('wage') !== -1 || lower.indexOf('payroll') !== -1) return 'briefcase-business';
+        if (lower.indexOf('freelance') !== -1 || lower.indexOf('bonus') !== -1 || lower.indexOf('business') !== -1) return 'rocket';
+        if (lower.indexOf('invest') !== -1 || lower.indexOf('dividend') !== -1 || lower.indexOf('interest') !== -1) return 'trending-up';
+        if (lower.indexOf('grocer') !== -1 || lower.indexOf('market') !== -1 || lower.indexOf('supermarket') !== -1) return 'shopping-cart';
+        if (lower.indexOf('food') !== -1 || lower.indexOf('dining') !== -1 || lower.indexOf('restaurant') !== -1 || lower.indexOf('coffee') !== -1) return 'utensils';
+        if (lower.indexOf('rent') !== -1 || lower.indexOf('hous') !== -1 || lower.indexOf('home') !== -1 || lower.indexOf('mortgage') !== -1) return 'house';
+        if (lower.indexOf('util') !== -1 || lower.indexOf('electric') !== -1 || lower.indexOf('water') !== -1 || lower.indexOf('internet') !== -1) return 'zap';
+        if (lower.indexOf('transp') !== -1 || lower.indexOf('fuel') !== -1 || lower.indexOf('gas') !== -1 || lower.indexOf('taxi') !== -1 || lower.indexOf('car') !== -1) return 'car';
+        if (lower.indexOf('health') !== -1 || lower.indexOf('med') !== -1 || lower.indexOf('doctor') !== -1 || lower.indexOf('fitness') !== -1) return 'heart-pulse';
+        if (lower.indexOf('shop') !== -1 || lower.indexOf('cloth') !== -1) return 'shopping-bag';
+        if (lower.indexOf('travel') !== -1 || lower.indexOf('flight') !== -1 || lower.indexOf('hotel') !== -1) return 'plane';
+        if (lower.indexOf('educ') !== -1 || lower.indexOf('tuition') !== -1 || lower.indexOf('book') !== -1 || lower.indexOf('school') !== -1) return 'graduation-cap';
+        return kind === 'INCOME' ? 'banknote' : 'tag';
+    }
+
+    function initPortfolioAndCategoryEnhancements() {
+        // 1. Contextual category icons on elements with [data-category-icon]
+        document.querySelectorAll('[data-category-icon]').forEach(function (el) {
+            if (el.querySelector('.cat-icon-badge')) return;
+            const catName = el.getAttribute('data-category-icon') || '';
+            const catKind = el.getAttribute('data-category-kind') || 'EXPENSE';
+            const badge = document.createElement('span');
+            badge.className = 'cat-icon-badge';
+            badge.setAttribute('aria-hidden', 'true');
+            const icon = document.createElement('i');
+            icon.setAttribute('data-lucide', resolveCategoryIcon(catName, catKind));
+            badge.appendChild(icon);
+            el.insertBefore(badge, el.firstChild);
+        });
+
+        // 2. Accounts Multi-Currency Portfolio Strip (#accounts-portfolio-strip)
+        const accStrip = document.getElementById('accounts-portfolio-strip');
+        const accCards = document.querySelectorAll('.account-card[data-account-currency]');
+        if (accStrip && accCards.length > 0) {
+            const byCurr = {};
+            accCards.forEach(function (card) {
+                const curr = card.getAttribute('data-account-currency') || 'USD';
+                const bal = decimalMinorUnits(card.getAttribute('data-account-balance') || '0');
+                const open = decimalMinorUnits(card.getAttribute('data-account-opening') || '0');
+                if (!byCurr[curr]) {
+                    byCurr[curr] = { count: 0, total: 0n, opening: 0n };
+                }
+                byCurr[curr].count += 1;
+                byCurr[curr].total += bal;
+                byCurr[curr].opening += open;
+            });
+
+            accStrip.innerHTML = '';
+            Object.keys(byCurr).forEach(function (curr) {
+                const info = byCurr[curr];
+                const netDelta = info.total - info.opening;
+                const sign = netDelta > 0n ? '+' : '';
+                const deltaClass = netDelta > 0n ? 'money-income' : (netDelta < 0n ? 'money-expense' : '');
+                const card = document.createElement('article');
+                card.className = 'insight-card kpi-accent-brand';
+                card.innerHTML =
+                    '<div class="card-top" style="margin-bottom:0.25rem;">' +
+                        '<p class="hint" style="margin:0;">' + curr + ' Portfolio Liquidity</p>' +
+                        '<span class="badge badge-info">' + info.count + (info.count === 1 ? ' account' : ' accounts') + '</span>' +
+                    '</div>' +
+                    '<p class="money-lg" style="margin:0.2rem 0;">' + curr + ' ' + formatMinorUnits(info.total) + '</p>' +
+                    '<p class="hint" style="margin:0;">Net vs opening: <strong class="money ' + deltaClass + '">' + sign + curr + ' ' + formatMinorUnits(netDelta) + '</strong></p>';
+                accStrip.appendChild(card);
+            });
+        }
+
+        // 3. Categories KPI Strip (#categories-kpi-strip)
+        const catStrip = document.getElementById('categories-kpi-strip');
+        const catCards = document.querySelectorAll('.category-card[data-category-type-code]');
+        if (catStrip && catCards.length > 0) {
+            let incomeCount = 0;
+            let expenseCount = 0;
+            catCards.forEach(function (c) {
+                if (c.getAttribute('data-category-type-code') === 'INCOME') incomeCount++;
+                else expenseCount++;
+            });
+            const total = incomeCount + expenseCount;
+            catStrip.innerHTML =
+                '<article class="insight-card kpi-accent-brand">' +
+                    '<p class="hint" style="margin:0;">Total Classifications</p>' +
+                    '<p class="money-lg" style="margin:0.25rem 0;">' + total + '</p>' +
+                    '<p class="hint" style="margin:0;">Active ledger categories</p>' +
+                '</article>' +
+                '<article class="insight-card kpi-accent-income">' +
+                    '<p class="hint" style="margin:0;">Income Streams</p>' +
+                    '<p class="money-lg money-income" style="margin:0.25rem 0;">' + incomeCount + '</p>' +
+                    '<p class="hint" style="margin:0;">Revenue &amp; inflow labels</p>' +
+                '</article>' +
+                '<article class="insight-card kpi-accent-expense">' +
+                    '<p class="hint" style="margin:0;">Expense Centres</p>' +
+                    '<p class="money-lg money-expense" style="margin:0.25rem 0;">' + expenseCount + '</p>' +
+                    '<p class="hint" style="margin:0;">Budgetable cost drivers</p>' +
+                '</article>';
+        }
+    }
+
+    function initNavigation() {
+        const nav = document.querySelector('.navigation');
+        if (!nav) return;
+        const toggle = nav.querySelector('.nav-menu-toggle');
+        const links = nav.querySelector('.nav-links');
+        if (!toggle || !links) return;
+        nav.classList.add('navigation-enhanced');
+        function setOpen(open) {
+            toggle.setAttribute('aria-expanded', String(open));
+            nav.classList.toggle('menu-open', open);
+        }
+        toggle.addEventListener('click', function () {
+            setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+        });
+        nav.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && nav.classList.contains('menu-open')) {
+                setOpen(false);
+                toggle.focus();
+            }
+        });
+        const skip = nav.querySelector('.skip-link');
+        if (skip) skip.addEventListener('click', function () {
+            const heading = document.getElementById('page-title');
+            if (heading) {
+                heading.tabIndex = -1;
+                heading.focus();
+            }
+        });
+    }
 
     function initDashboardChartTabs() {
         const tabBtns = document.querySelectorAll('[data-dash-currency-btn]');
         const panes = document.querySelectorAll('[data-currency-pane]');
         if (tabBtns.length === 0 || panes.length === 0) return;
 
-        tabBtns.forEach(function (btn) {
-            btn.addEventListener('click', function () {
-                const code = btn.getAttribute('data-currency-code');
-                tabBtns.forEach(function (b) { b.classList.toggle('active', b === btn); });
-                panes.forEach(function (pane) {
-                    const match = pane.getAttribute('data-currency-pane') === code;
-                    pane.classList.toggle('hidden-view', !match);
-                });
+        function selectTab(btn) {
+            const code = btn.getAttribute('data-currency-code');
+            tabBtns.forEach(function (b) {
+                const selected = b === btn;
+                b.classList.toggle('active', selected);
+                b.setAttribute('aria-selected', String(selected));
+                b.tabIndex = selected ? 0 : -1;
+            });
+            panes.forEach(function (pane) {
+                const match = pane.getAttribute('data-currency-pane') === code;
+                pane.classList.toggle('hidden-view', !match);
+                pane.hidden = !match;
+            });
+        }
+        tabBtns.forEach(function (btn, index) {
+            btn.id = 'currency-tab-' + index;
+            btn.setAttribute('role', 'tab');
+            const pane = Array.from(panes).find(function (candidate) {
+                return candidate.getAttribute('data-currency-pane') === btn.getAttribute('data-currency-code');
+            });
+            if (pane) {
+                pane.id = 'currency-panel-' + index;
+                pane.setAttribute('role', 'tabpanel');
+                pane.setAttribute('aria-labelledby', btn.id);
+                pane.tabIndex = 0;
+                btn.setAttribute('aria-controls', pane.id);
+            }
+            btn.addEventListener('click', function () { selectTab(btn); });
+            btn.addEventListener('keydown', function (event) {
+                let next;
+                if (event.key === 'ArrowRight') next = (index + 1) % tabBtns.length;
+                if (event.key === 'ArrowLeft') next = (index - 1 + tabBtns.length) % tabBtns.length;
+                if (event.key === 'Home') next = 0;
+                if (event.key === 'End') next = tabBtns.length - 1;
+                if (next === undefined) return;
+                event.preventDefault();
+                selectTab(tabBtns[next]);
+                tabBtns[next].focus();
             });
         });
+        selectTab(Array.from(tabBtns).find(function (btn) { return btn.classList.contains('active'); }) || tabBtns[0]);
     }
 
     function initGenericCardFilters() {
         const activeTagByGroup = {};
         const searchQueryByGroup = {};
+        const feedbackByGroup = {};
+
+        function feedbackFor(group) {
+            if (feedbackByGroup[group]) return feedbackByGroup[group];
+            const control = document.querySelector('[data-card-filter-group="' + group + '"], [data-card-search-target="' + group + '"]');
+            const container = control && control.closest('.quick-filter-strip, .filter-bar');
+            if (!container) return null;
+            const feedback = document.createElement('p');
+            feedback.className = 'filter-feedback';
+            feedback.setAttribute('role', 'status');
+            feedback.setAttribute('aria-live', 'polite');
+            container.insertAdjacentElement('afterend', feedback);
+            feedbackByGroup[group] = feedback;
+            return feedback;
+        }
 
         function applyGroupFilter(group) {
             const tag = activeTagByGroup[group] || 'all';
@@ -612,9 +1128,17 @@
                 const textMatch = !query || itemText.indexOf(query) !== -1;
                 item.style.display = (tagMatch && textMatch) ? '' : 'none';
             });
+            const grid = document.querySelector('[data-view-group="' + group + '"][data-view-pane="grid"]');
+            const counted = grid ? grid.querySelectorAll('[data-filter-item]') : items;
+            const count = Array.from(counted).filter(function (item) { return item.style.display !== 'none'; }).length;
+            const feedback = feedbackFor(group);
+            if (feedback) feedback.textContent = count === 0
+                ? (root.lang === 'km' ? 'គ្មានលទ្ធផលដែលត្រូវគ្នា។ សូមផ្លាស់ប្តូរការស្វែងរក។' : 'No matches. Choose another filter or clear your search.')
+                : count + (root.lang === 'km' ? ' លទ្ធផល' : ' results shown');
         }
 
         document.querySelectorAll('[data-card-filter-group]').forEach(function (btn) {
+            btn.setAttribute('aria-pressed', String(btn.classList.contains('active')));
             btn.addEventListener('click', function () {
                 const group = btn.getAttribute('data-card-filter-group');
                 const val = btn.getAttribute('data-filter-val') || 'all';
@@ -622,6 +1146,7 @@
 
                 document.querySelectorAll('[data-card-filter-group="' + group + '"]').forEach(function (sibling) {
                     sibling.classList.toggle('active', sibling === btn);
+                    sibling.setAttribute('aria-pressed', String(sibling === btn));
                 });
 
                 applyGroupFilter(group);

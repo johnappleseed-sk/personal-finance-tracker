@@ -32,7 +32,13 @@
                     <p id="account-errors" class="error" th:errors="*{accountId}"></p>
                 </div>
                 <div class="field">
-                    <label for="transactionType">Transaction type</label>
+                    <div class="label-with-shortcuts">
+                        <label for="transactionType" style="margin:0;">Transaction type</label>
+                        <span class="type-segmented-switch" role="group" aria-label="Quick select transaction type">
+                            <button type="button" class="type-seg-btn" data-quick-type="INCOME">+ Income</button>
+                            <button type="button" class="type-seg-btn" data-quick-type="EXPENSE">- Expense</button>
+                        </span>
+                    </div>
                     <select id="transactionType" th:field="*{transactionType}" required aria-describedby="type-errors"
                             th:attr="aria-invalid=${#fields.hasErrors('transactionType')}">
                         <option value="">Choose a type</option>
@@ -67,7 +73,13 @@
                 <div class="field field-full">
                     <div class="label-with-shortcuts">
                         <label for="amount" style="margin:0;">Amount</label>
-                        <span id="amount-currency-badge" class="badge badge-info">Account Currency</span>
+                        <span class="shortcut-pills">
+                            <button type="button" class="pill-btn" data-amount-add="10">+10</button>
+                            <button type="button" class="pill-btn" data-amount-add="25">+25</button>
+                            <button type="button" class="pill-btn" data-amount-add="50">+50</button>
+                            <button type="button" class="pill-btn" data-amount-add="100">+100</button>
+                            <span id="amount-currency-badge" class="badge badge-info">Account Currency</span>
+                        </span>
                     </div>
                     <input id="amount" type="number" th:field="*{amount}" min="0.01" step="0.01" required
                            aria-describedby="amount-help amount-errors" th:attr="aria-invalid=${#fields.hasErrors('amount')}">

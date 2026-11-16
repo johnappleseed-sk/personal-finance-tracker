@@ -31,7 +31,10 @@
                     <p id="source-errors" class="error" th:errors="*{sourceAccountId}"></p>
                 </div>
                 <div class="field">
-                    <label for="targetAccountId">To account</label>
+                    <div class="label-with-shortcuts">
+                        <label for="targetAccountId" style="margin:0;">To account</label>
+                        <button type="button" id="swap-transfer-accounts-btn" class="pill-btn" aria-label="Swap source and target accounts"><i data-lucide="arrow-left-right" aria-hidden="true"></i> Swap accounts</button>
+                    </div>
                     <select id="targetAccountId" th:field="*{targetAccountId}" required aria-describedby="target-help target-errors"
                             th:attr="aria-invalid=${#fields.hasErrors('targetAccountId')}">
                         <option value="">Choose target account</option>
@@ -45,7 +48,13 @@
                 <div class="field">
                     <div class="label-with-shortcuts">
                         <label for="amount" style="margin:0;">Amount</label>
-                        <span id="transfer-currency-badge" class="badge badge-info">Same Currency</span>
+                        <span class="shortcut-pills">
+                            <button type="button" class="pill-btn" data-amount-add="10">+10</button>
+                            <button type="button" class="pill-btn" data-amount-add="25">+25</button>
+                            <button type="button" class="pill-btn" data-amount-add="50">+50</button>
+                            <button type="button" class="pill-btn" data-amount-add="100">+100</button>
+                            <span id="transfer-currency-badge" class="badge badge-info">Same Currency</span>
+                        </span>
                     </div>
                     <input id="amount" type="number" th:field="*{amount}" min="0.01" step="0.01" required
                            aria-describedby="amount-errors" th:attr="aria-invalid=${#fields.hasErrors('amount')}">

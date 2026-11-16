@@ -13,14 +13,19 @@
         <div class="page-header-actions">
             <div class="view-toggle-group" role="group" aria-label="Account layout view"
                  data-view-toggle-group="accounts" th:if="${!#lists.isEmpty(accounts)}">
-                <button type="button" class="btn-view-toggle active" data-view-mode="grid">⊞ Cards</button>
-                <button type="button" class="btn-view-toggle" data-view-mode="table">☰ Compact Table</button>
+                <button type="button" class="btn-view-toggle active" data-view-mode="grid"><i data-lucide="layout-grid" aria-hidden="true"></i> Cards</button>
+                <button type="button" class="btn-view-toggle" data-view-mode="table"><i data-lucide="table-2" aria-hidden="true"></i> Compact Table</button>
             </div>
-            <a class="button-outline" th:href="@{/transfers/new}">⇄ Transfer funds</a>
+            <a class="button-outline" th:href="@{/transfers/new}"><i data-lucide="arrow-left-right" aria-hidden="true"></i> Transfer funds</a>
             <a class="button-link" th:href="@{/accounts/new}">+ Create account</a>
         </div>
     </header>
     <p class="notice" role="status" th:if="${successMessage != null}" th:text="${successMessage}"></p>
+
+    <!-- Multi-Currency Portfolio Liquidity Strip (Populated by app.js without combining currencies) -->
+    <section id="accounts-portfolio-strip" class="insight-grid" style="margin: 0.5rem 0 1.25rem;"
+             th:if="${!#lists.isEmpty(accounts)}" aria-label="Portfolio liquidity by currency">
+    </section>
 
     <!-- Instant Currency & Search Filter Bar -->
     <div class="quick-filter-strip" th:if="${!#lists.isEmpty(accounts)}">
@@ -36,9 +41,9 @@
                data-card-search-target="accounts" aria-label="Search accounts">
     </div>
 
-    <div class="empty-state" th:if="${#lists.isEmpty(accounts)}">
-        <p>No accounts yet. Create your first account to get started.</p>
-    </div>
+    <th:block th:if="${#lists.isEmpty(accounts)}">
+        <section th:replace="~{fragments/empty-state :: emptyState('wallet', 'Your accounts start here', 'No accounts yet. Create your first account to get started.', '/accounts/new', 'Create account')}"></section>
+    </th:block>
 
     <!-- 1. Card Grid View -->
     <div class="account-grid" th:if="${!#lists.isEmpty(accounts)}"
@@ -46,7 +51,10 @@
         <article class="account-card kpi-accent-brand" th:each="account : ${accounts}"
                  data-filter-item="accounts"
                  th:attr="data-filter-tag=${account.currency.name().toLowerCase()},
-                          data-filter-text=${(account.name + ' ' + account.accountType.label + ' ' + account.currency).toLowerCase()}">
+                          data-filter-text=${(account.name + ' ' + account.accountType.label + ' ' + account.currency).toLowerCase()},
+                          data-account-currency=${account.currency},
+                          data-account-balance=${account.currentBalance.toPlainString()},
+                          data-account-opening=${account.initialBalance.toPlainString()}">
             <div>
                 <div class="card-top">
                     <h2 th:text="${account.name}">Account name</h2>
@@ -57,6 +65,15 @@
                     <span th:text="${account.currency}">EUR</span>
                     <span th:text="${account.currentBalance.toPlainString()}">0.00</span>
                 </p>
+                <div class="flow-row" style="margin: 0.45rem 0 0.75rem;">
+                    <div class="flow-label">
+                        <span>Net change vs opening</span>
+                        <strong class="money"
+                                th:with="delta=${account.currentBalance.subtract(account.initialBalance)}"
+                                th:classappend="${delta.signum() > 0 ? 'money-income' : (delta.signum() < 0 ? 'money-expense' : '')}"
+                                th:text="${(delta.signum() > 0 ? '+' : '') + account.currency + ' ' + delta.toPlainString()}">+0.00</strong>
+                    </div>
+                </div>
                 <dl>
                     <div>
                         <dt>Type</dt>
@@ -86,14 +103,14 @@
     <div class="panel-card compact-table-panel hidden-view" th:if="${!#lists.isEmpty(accounts)}"
          data-view-group="accounts" data-view-pane="table">
         <div class="table-responsive">
-            <table class="data-table">
+            <table class="data-table" data-sortable-table="true">
                 <thead>
                 <tr>
-                    <th>Account</th>
-                    <th>Type</th>
-                    <th>Currency</th>
-                    <th>Opening balance</th>
-                    <th>Current balance</th>
+                    <th data-sort-col="0">Account</th>
+                    <th data-sort-col="1">Type</th>
+                    <th data-sort-col="2">Currency</th>
+                    <th data-sort-col="3" data-sort-type="number">Opening balance</th>
+                    <th data-sort-col="4" data-sort-type="number">Current balance</th>
                     <th>Actions</th>
                 </tr>
                 </thead>

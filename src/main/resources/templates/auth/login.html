@@ -1,24 +1,41 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('Sign in')}"></head>
-<body>
-<main class="auth-card" aria-labelledby="page-title">
-    <div class="card-top" style="align-items: center;">
-        <p class="brand" style="margin: 0;">Personal Finance Tracker</p>
-        <div style="display: flex; gap: 0.45rem; align-items: center;">
-            <button id="lang-toggle" type="button" class="btn-theme" aria-label="Switch language">🇰🇭 ខ្មែរ</button>
-            <button id="theme-toggle" type="button" class="btn-theme" aria-label="Switch theme">☾ Dark</button>
+<body class="login-page">
+<main class="login-layout" aria-labelledby="page-title">
+    <section class="login-introduction" aria-labelledby="login-intro-title">
+        <a class="login-brand" th:href="@{/login}" aria-label="Personal Finance Tracker">
+            <span class="nav-brand-mark"><i data-lucide="chart-no-axes-combined" aria-hidden="true"></i></span>
+            <span>Personal Finance Tracker</span>
+        </a>
+        <div class="login-story">
+            <p class="eyebrow">A little clarity. Every day.</p>
+            <h2 id="login-intro-title">Your money.<br>A clearer picture.</h2>
+            <p>Bring your accounts, everyday spending, and savings plans into one private workspace.</p>
+            <ul class="login-feature-list">
+                <li><span class="login-feature-icon"><i data-lucide="wallet" aria-hidden="true"></i></span><div><strong>All your accounts, together</strong><span>Keep each currency clear. No mixed totals.</span></div></li>
+                <li><span class="login-feature-icon"><i data-lucide="receipt-text" aria-hidden="true"></i></span><div><strong>Know where your money goes</strong><span>Track income and expenses as they happen.</span></div></li>
+                <li><span class="login-feature-icon"><i data-lucide="chart-pie" aria-hidden="true"></i></span><div><strong>Make room for what matters</strong><span>Set monthly budgets and follow your progress.</span></div></li>
+            </ul>
         </div>
-    </div>
+        <p class="login-privacy"><i data-lucide="shield-check" aria-hidden="true"></i> Your financial workspace. Only your data.</p>
+    </section>
+    <section class="login-form-side" aria-labelledby="page-title">
+        <div class="login-preferences" aria-label="Display preferences">
+            <button id="lang-toggle" type="button" class="btn-theme" aria-label="Switch language"><i data-lucide="languages" aria-hidden="true"></i> ខ្មែរ</button>
+            <button id="theme-toggle" type="button" class="btn-theme" aria-label="Switch theme"><i data-lucide="moon" aria-hidden="true"></i> Dark</button>
+        </div>
+        <div class="login-form-content">
+    <p class="eyebrow">Welcome back</p>
     <h1 id="page-title">Sign in</h1>
-    <p class="hint" style="margin-bottom: 1.25rem;">Use the email address and password you registered with.</p>
+    <p class="login-description">Use the email address and password you registered with.</p>
     <div class="alert" role="alert" th:if="${param.error != null}">
         Invalid email or password. Please try again.
     </div>
     <div class="notice" role="status" th:if="${param.logout != null}">
         You have been signed out.
     </div>
-    <form th:action="@{/login}" method="post">
+    <form th:action="@{/login}" method="post" class="login-form">
         <div class="field">
             <label for="email">Email address</label>
             <input id="email" name="email" type="email" autocomplete="username" inputmode="email"
@@ -26,14 +43,20 @@
         </div>
         <div class="field">
             <label for="password">Password</label>
-            <input id="password" name="password" type="password" autocomplete="current-password"
-                   placeholder="Enter your password" required maxlength="72">
+            <div class="password-input">
+                <input id="password" name="password" type="password" autocomplete="current-password"
+                       placeholder="Enter your password" required maxlength="72">
+                <button type="button" class="password-toggle" data-icon-only data-toggle-password="password" aria-controls="password" aria-label="Show password" aria-pressed="false"><i data-lucide="eye" aria-hidden="true"></i></button>
+            </div>
         </div>
-        <button type="submit">Sign in</button>
+        <button type="submit" class="login-submit">Sign in <i data-lucide="arrow-right" aria-hidden="true"></i></button>
     </form>
-    <p class="hint" style="margin-top: 1.25rem; text-align: center;">
+    <p class="login-register">
         New here? <a th:href="@{/register}">Create an account</a>
     </p>
+    <p class="login-session-note"><i data-lucide="lock-keyhole" aria-hidden="true"></i> Sign out when using a shared device.</p>
+        </div>
+    </section>
 </main>
 </body>
 </html>

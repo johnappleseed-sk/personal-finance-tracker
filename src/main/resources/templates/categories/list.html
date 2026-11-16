@@ -13,14 +13,19 @@
         <div class="page-header-actions">
             <div class="view-toggle-group" role="group" aria-label="Category layout view"
                  data-view-toggle-group="categories" th:if="${!#lists.isEmpty(categories)}">
-                <button type="button" class="btn-view-toggle active" data-view-mode="grid">⊞ Cards</button>
-                <button type="button" class="btn-view-toggle" data-view-mode="table">☰ Compact Table</button>
+                <button type="button" class="btn-view-toggle active" data-view-mode="grid"><i data-lucide="layout-grid" aria-hidden="true"></i> Cards</button>
+                <button type="button" class="btn-view-toggle" data-view-mode="table"><i data-lucide="table-2" aria-hidden="true"></i> Compact Table</button>
             </div>
-            <a class="button-outline" th:href="@{/budgets/new}">◎ Set budget</a>
+            <a class="button-outline" th:href="@{/budgets/new}"><i data-lucide="target" aria-hidden="true"></i> Set budget</a>
             <a class="button-link" th:href="@{/categories/new}">+ Create category</a>
         </div>
     </header>
     <p class="notice" role="status" th:if="${successMessage != null}" th:text="${successMessage}"></p>
+
+    <!-- Category Classification Summary Strip -->
+    <section id="categories-kpi-strip" class="insight-grid" style="margin: 0.5rem 0 1.25rem;"
+             th:if="${!#lists.isEmpty(categories)}" aria-label="Category classification summary">
+    </section>
 
     <!-- Instant Type & Search Filter Strip -->
     <div class="quick-filter-strip" th:if="${!#lists.isEmpty(categories)}">
@@ -34,9 +39,9 @@
                data-card-search-target="categories" aria-label="Search categories">
     </div>
 
-    <div class="empty-state" th:if="${#lists.isEmpty(categories)}">
-        <p>No categories yet. Create an income or expense category to get started.</p>
-    </div>
+    <th:block th:if="${#lists.isEmpty(categories)}">
+        <section th:replace="~{fragments/empty-state :: emptyState('tags', 'Make your money meaningful', 'No categories yet. Create an income or expense category to get started.', '/categories/new', 'Create category')}"></section>
+    </th:block>
 
     <!-- 1. Card Grid View -->
     <div class="category-grid" th:if="${!#lists.isEmpty(categories)}"
@@ -46,10 +51,12 @@
                  th:each="category : ${categories}"
                  data-filter-item="categories"
                  th:attr="data-filter-tag=${category.categoryType.name().toLowerCase()},
-                          data-filter-text=${(category.name + ' ' + category.categoryType.label).toLowerCase()}">
+                          data-filter-text=${(category.name + ' ' + category.categoryType.label).toLowerCase()},
+                          data-category-type-code=${category.categoryType.name()}">
             <div>
                 <div class="card-top">
-                    <h2 th:text="${category.name}">Category name</h2>
+                    <h2 th:attr="data-category-icon=${category.name},data-category-kind=${category.categoryType.name()}"
+                        th:text="${category.name}">Category name</h2>
                     <span class="badge"
                           th:classappend="${category.categoryType.name() == 'INCOME' ? 'badge-income' : 'badge-expense'}"
                           th:text="${category.categoryType.label}">Expense</span>
@@ -75,11 +82,11 @@
     <div class="panel-card compact-table-panel hidden-view" th:if="${!#lists.isEmpty(categories)}"
          data-view-group="categories" data-view-pane="table">
         <div class="table-responsive">
-            <table class="data-table">
+            <table class="data-table" data-sortable-table="true">
                 <thead>
                 <tr>
-                    <th>Category</th>
-                    <th>Type</th>
+                    <th data-sort-col="0">Category</th>
+                    <th data-sort-col="1">Type</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
@@ -88,7 +95,8 @@
                     data-filter-item="categories"
                     th:attr="data-filter-tag=${category.categoryType.name().toLowerCase()},
                              data-filter-text=${(category.name + ' ' + category.categoryType.label).toLowerCase()}">
-                    <td><strong th:text="${category.name}">Category</strong></td>
+                    <td><strong th:attr="data-category-icon=${category.name},data-category-kind=${category.categoryType.name()}"
+                                th:text="${category.name}">Category</strong></td>
                     <td>
                         <span class="badge"
                               th:classappend="${category.categoryType.name() == 'INCOME' ? 'badge-income' : 'badge-expense'}"

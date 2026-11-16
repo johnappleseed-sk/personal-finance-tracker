@@ -13,8 +13,8 @@
         <div class="page-header-actions">
             <div class="view-toggle-group" role="group" aria-label="Transfer layout view"
                  data-view-toggle-group="transfers" th:if="${!#lists.isEmpty(transfers)}">
-                <button type="button" class="btn-view-toggle active" data-view-mode="grid">⊞ Cards</button>
-                <button type="button" class="btn-view-toggle" data-view-mode="table">☰ Compact Table</button>
+                <button type="button" class="btn-view-toggle active" data-view-mode="grid"><i data-lucide="layout-grid" aria-hidden="true"></i> Cards</button>
+                <button type="button" class="btn-view-toggle" data-view-mode="table"><i data-lucide="table-2" aria-hidden="true"></i> Compact Table</button>
             </div>
             <a class="button-outline" th:href="@{/accounts}">View accounts</a>
             <a class="button-link" th:href="@{/transfers/new}">+ Transfer funds</a>
@@ -36,9 +36,9 @@
                data-card-search-target="transfers" aria-label="Search transfers">
     </div>
 
-    <div class="empty-state" th:if="${#lists.isEmpty(transfers)}">
-        <p>No transfers yet. Record a transfer between two same-currency accounts to get started.</p>
-    </div>
+    <th:block th:if="${#lists.isEmpty(transfers)}">
+        <section th:replace="~{fragments/empty-state :: emptyState('arrow-left-right', 'Move money between accounts', 'No transfers yet. Record a transfer between two same-currency accounts to get started.', '/transfers/new', 'Create transfer')}"></section>
+    </th:block>
 
     <!-- 1. Card Grid View -->
     <div class="transfer-grid" th:if="${!#lists.isEmpty(transfers)}"
@@ -50,10 +50,15 @@
             <div>
                 <div class="card-top">
                     <h2>
-                        <span th:text="${transfer.sourceAccountName}">Source</span> →
+                        <span th:text="${transfer.sourceAccountName}">Source</span> <i data-lucide="arrow-right" aria-hidden="true"></i>
                         <span th:text="${transfer.targetAccountName}">Target</span>
                     </h2>
                     <span class="badge badge-info" th:text="${'Transfer · ' + transfer.currency}">Transfer</span>
+                </div>
+                <div class="transfer-route-pill">
+                    <span class="route-node" th:text="${transfer.sourceAccountName}">Source</span>
+                    <span class="route-arrow" aria-hidden="true"><i data-lucide="arrow-left-right" aria-hidden="true"></i></span>
+                    <span class="route-node" th:text="${transfer.targetAccountName}">Target</span>
                 </div>
                 <p class="money-lg">
                     <span th:text="${transfer.currency}">EUR</span>
@@ -89,14 +94,14 @@
     <div class="panel-card compact-table-panel hidden-view" th:if="${!#lists.isEmpty(transfers)}"
          data-view-group="transfers" data-view-pane="table">
         <div class="table-responsive">
-            <table class="data-table">
+            <table class="data-table" data-sortable-table="true">
                 <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>From</th>
-                    <th>To</th>
-                    <th>Amount</th>
-                    <th>Description</th>
+                    <th data-sort-col="0">Date</th>
+                    <th data-sort-col="1">From</th>
+                    <th data-sort-col="2">To</th>
+                    <th data-sort-col="3" data-sort-type="number">Amount</th>
+                    <th data-sort-col="4">Description</th>
                     <th>Actions</th>
                 </tr>
                 </thead>

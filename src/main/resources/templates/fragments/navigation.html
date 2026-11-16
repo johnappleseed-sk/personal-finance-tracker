@@ -2,22 +2,32 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <body>
 <nav th:fragment="navigation(activePage)" class="navigation" aria-label="Main navigation">
-    <div class="nav-links">
-        <a th:href="@{/home}" th:attr="aria-current=${activePage == 'home' ? 'page' : null}">Dashboard</a>
-        <a th:href="@{/accounts}" th:attr="aria-current=${activePage == 'accounts' ? 'page' : null}">Accounts</a>
-        <a th:href="@{/categories}" th:attr="aria-current=${activePage == 'categories' ? 'page' : null}">Categories</a>
-        <a th:href="@{/transactions}" th:attr="aria-current=${activePage == 'transactions' ? 'page' : null}">Transactions</a>
-        <a th:href="@{/transfers}" th:attr="aria-current=${activePage == 'transfers' ? 'page' : null}">Transfers</a>
-        <a th:href="@{/budgets}" th:attr="aria-current=${activePage == 'budgets' ? 'page' : null}">Budgets</a>
-        <a th:href="@{/reports}" th:attr="aria-current=${activePage == 'reports' ? 'page' : null}">Reports &amp; DSS</a>
+    <a class="skip-link" href="#page-title">Skip to content</a>
+    <a class="nav-brand" th:href="@{/home}" aria-label="Personal Finance Tracker home">
+        <span class="nav-brand-mark"><i data-lucide="chart-no-axes-combined" aria-hidden="true"></i></span>
+        <span><strong>Personal Finance</strong><small>Your money, clearly.</small></span>
+    </a>
+    <button type="button" class="nav-menu-toggle" aria-expanded="false" aria-controls="primary-nav-links">
+        <i data-lucide="menu" aria-hidden="true"></i> <span>Menu</span>
+    </button>
+    <div class="nav-links" id="primary-nav-links">
+        <a th:href="@{/home}" th:attr="aria-current=${activePage == 'home' ? 'page' : null}"><i data-lucide="layout-dashboard" aria-hidden="true"></i> Dashboard</a>
+        <a th:href="@{/accounts}" th:attr="aria-current=${activePage == 'accounts' ? 'page' : null}"><i data-lucide="wallet" aria-hidden="true"></i> Accounts</a>
+        <a th:href="@{/categories}" th:attr="aria-current=${activePage == 'categories' ? 'page' : null}"><i data-lucide="tags" aria-hidden="true"></i> Categories</a>
+        <a th:href="@{/transactions}" th:attr="aria-current=${activePage == 'transactions' ? 'page' : null}"><i data-lucide="receipt-text" aria-hidden="true"></i> Transactions</a>
+        <a th:href="@{/transfers}" th:attr="aria-current=${activePage == 'transfers' ? 'page' : null}"><i data-lucide="arrow-left-right" aria-hidden="true"></i> Transfers</a>
+        <a th:href="@{/budgets}" th:attr="aria-current=${activePage == 'budgets' ? 'page' : null}"><i data-lucide="chart-pie" aria-hidden="true"></i> Budgets</a>
+        <a th:href="@{/reports}" th:attr="aria-current=${activePage == 'reports' ? 'page' : null}"><i data-lucide="chart-no-axes-combined" aria-hidden="true"></i> Reports &amp; DSS</a>
     </div>
     <div class="nav-controls">
-        <button id="lang-toggle" type="button" class="btn-theme" aria-label="Switch language">🇰🇭 ខ្មែរ</button>
-        <button id="theme-toggle" type="button" class="btn-theme" aria-label="Switch theme">☾ Dark</button>
+        <a th:href="@{/transactions/new}" class="btn-quick-entry" aria-label="Record new transaction"><i data-lucide="plus" aria-hidden="true"></i> New Entry</a>
+        <button id="lang-toggle" type="button" class="btn-theme" aria-label="Switch language"><i data-lucide="languages" aria-hidden="true"></i> ខ្មែរ</button>
+        <button id="theme-toggle" type="button" class="btn-theme" aria-label="Switch theme"><i data-lucide="moon" aria-hidden="true"></i> Dark</button>
         <form th:action="@{/logout}" method="post">
-            <button type="submit" class="btn-logout">Sign out</button>
+            <button type="submit" class="btn-logout"><i data-lucide="log-out" aria-hidden="true"></i> Sign out</button>
         </form>
     </div>
+    <p class="nav-footnote"><i data-lucide="shield-check" aria-hidden="true"></i> Private workspace</p>
 </nav>
 </body>
 </html>

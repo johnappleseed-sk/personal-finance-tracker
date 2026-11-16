@@ -33,6 +33,8 @@ import com.personalfinance.user.User;
 import com.personalfinance.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -220,6 +222,58 @@ class NewFeaturesIntegrationTests {
 				.andExpect(header().string("Content-Disposition", "attachment; filename=\"mis-financial-report.csv\""))
 				.andExpect(content().string(containsString("Monthly Trend")))
 				.andExpect(content().string(containsString("Category Analysis,Groceries,Expense,EUR,80.00")));
+	}
+
+	@Test
+	void homeRendersSavingsGoalsForAccountsWithoutTransactionsInEachCurrency() throws Exception {
+		String html = mvc.perform(get("/home").with(user(alicePrincipal)))
+				.andExpect(status().isOk())
+				.andReturn().getResponse().getContentAsString();
+		String goals = html.substring(html.indexOf("id=\"savings-goals-container\""));
+		assertThat(goals).contains("EUR Monthly Savings Goal (20% Target)",
+				"USD Monthly Savings Goal (20% Target)", "EUR 0.00", "USD 0.00", "0% Saved Rate");
+	}
+
+	@ParameterizedTest
+	@CsvSource({
+			"0.00,100.00,100,badge-income,100",
+			"80.00,20.00,20,badge-income,20",
+			"90.00,10.00,10,badge-warning,10",
+			"150.00,-50.00,-50,badge-warning,0"
+	})
+	void homeSavingsGoalsRenderMonthlyNetRateBenchmarkAndClampedProgress(
+			String expense, String net, int rate, String badge, int progress) throws Exception {
+		transactions.createTransaction(alice.getId(),
+				txForm(checkingEur.id(), salaryCategory.id(), CategoryType.INCOME, "100.00", "Current income"));
+		if (new BigDecimal(expense).signum() > 0) {
+			transactions.createTransaction(alice.getId(),
+					txForm(checkingEur.id(), groceriesCategory.id(), CategoryType.EXPENSE, expense, "Current expense"));
+		}
+		TransactionForm previousMonth = txForm(checkingEur.id(), salaryCategory.id(),
+				CategoryType.INCOME, "900.00", "Previous month income");
+		previousMonth.setTransactionDate(YearMonth.now().minusMonths(1).atDay(1));
+		transactions.createTransaction(alice.getId(), previousMonth);
+
+		String html = mvc.perform(get("/home").with(user(alicePrincipal)))
+				.andExpect(status().isOk())
+				.andReturn().getResponse().getContentAsString();
+		int start = html.indexOf("id=\"savings-goals-container\"");
+		String euroGoal = html.substring(start, html.indexOf("</article>", start));
+		assertThat(euroGoal).contains("EUR " + net, rate + "% Saved Rate", "badge " + badge,
+				"width:" + progress + "%", rate >= 20
+						? "Benchmark achieved (≥20% of income)" : "Below 20% monthly savings benchmark");
+	}
+
+	@Test
+	void homeRendersOnboardingForAuthenticatedUserWithoutAccounts() throws Exception {
+		User newcomer = users.saveAndFlush(new User("Newcomer", "newcomer@example.test", "synthetic-unused-hash"));
+		FinanceUserDetails principal = new FinanceUserDetails(newcomer.getId(), newcomer.getName(),
+				newcomer.getEmail(), newcomer.getPasswordHash());
+
+		mvc.perform(get("/home").with(user(principal)))
+				.andExpect(status().isOk())
+				.andExpect(content().string(containsString("id=\"onboarding-title\"")))
+				.andExpect(content().string(not(containsString("id=\"savings-goals-container\""))));
 	}
 
 	private AccountForm accountForm(String name, String balance, AccountCurrency currency) {
