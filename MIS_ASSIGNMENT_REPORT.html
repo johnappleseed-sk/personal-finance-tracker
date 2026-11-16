@@ -362,7 +362,11 @@
       border-radius: 999px;
     }
 
+    figure { margin: 1.5rem 0; break-inside: avoid; }
+    figure img { display: block; max-width: 100%; max-height: 850px; object-fit: contain; margin: auto; }
+    figcaption { margin-top: .5rem; font-size: .85rem; color: #475569; text-align: center; }
     @media print {
+      figure img { max-height: 215mm; }
       body {
         background: #ffffff;
         font-size: 10pt;
@@ -493,8 +497,8 @@
         <div class="box">
           <h4>Operational Efficiency Gains</h4>
           <ul>
-            <li><strong>85% Reduction in Reconciliation Time:</strong> Monthly closing drops from 45–60 minutes of manual Excel work to <strong>under 10 seconds</strong>.</li>
-            <li><strong>Zero Balance Drift:</strong> Account balances are derived dynamically (`initial_balance + Σ income - Σ expense ± Σ transfers`), eliminating stale counters.</li>
+            <li><strong>Less Manual Reconciliation:</strong> Derived balances and reusable reports replace repeated spreadsheet calculations. A formal time-saving benchmark has not been performed.</li>
+            <li><strong>No Stale Balance Counters:</strong> Account balances are derived dynamically (`initial_balance + Σ income - Σ expense ± Σ transfers`). Correct source entries and opening balances are still essential.</li>
           </ul>
         </div>
         <div class="box">
@@ -554,6 +558,7 @@
       </table>
 
       <h3>2.2 End-to-End System Flowchart</h3>
+      <figure><img src="docs/submission/system-flow.svg" alt="System flowchart connecting authentication, TPS validation, PostgreSQL, MIS aggregation, and DSS outputs"><figcaption>Rendered system information flow; diagram source is included in the Markdown report.</figcaption></figure>
       <div class="diagram-box">
         <div class="diagram-caption">Figure 2.1 — End-to-End Information Flow (TPS Capture → ACID Ledger → MIS Aggregation → DSS Output)</div>
         <div class="flow-chain">
@@ -581,6 +586,7 @@
       </div>
 
       <h3>2.3 Database Entity-Relationship Diagram (ERD — 6 Normalized Tables)</h3>
+      <figure><img src="docs/submission/database-erd.svg" alt="Entity relationship diagram with ownership and account, category, transaction, transfer, and budget relationships"><figcaption>Entity relationships and cardinalities for all six database tables.</figcaption></figure>
       <div class="diagram-box">
         <div class="diagram-caption">Figure 2.2 — Relational Database Schema (Flyway Migrations V1–V5 in PostgreSQL 18)</div>
         <div class="erd-grid">
@@ -699,17 +705,17 @@
           <tr>
             <td><strong>Rule 1: Capital Allocation &amp; Surplus Rule</strong></td>
             <td>6-Month Savings Rate = <strong>42%</strong> (exceeds 20% target benchmark; net surplus = <strong>+$4,672.00</strong>).</td>
-            <td><strong>Action:</strong> Allocate 50% of the 6-month net surplus (<strong>$2,336.00</strong>) into a 5.5% APY fixed-term deposit while retaining 50% in liquid accounts.</td>
+            <td><strong>Illustrative action:</strong> Consider 50% of the net surplus (<strong>$2,336.00</strong>) only after retaining the reserve and assessing risk. A hypothetical 5.5% APY would yield $128.48 over one year; this is not an offered product or financial advice.</td>
           </tr>
           <tr>
             <td><strong>Rule 2: Primary Cost Driver &amp; 15% Sensitivity</strong></td>
             <td><em>Housing &amp; Rent</em> ($2,700 / 42%) is fixed; <em>Food &amp; Dining</em> ($2,165 / 33%) is the #1 controllable expense.</td>
-            <td><strong>Action:</strong> Reducing <em>Food &amp; Dining</em> by <strong>15%</strong> saves <strong>$324.75</strong> per 6 months ($54.13/mo), bringing monthly food spend back below the $380 budget cap.</td>
+            <td><strong>Action:</strong> A 15% food reduction saves <strong>$324.75</strong> over six months. October spending would fall from $425 to $361.25, below the assumed $380 cap. The budget limit is a scenario input, not a field in the source CSV.</td>
           </tr>
           <tr>
             <td><strong>Rule 3: 3-Month Emergency Reserve Benchmark</strong></td>
             <td>Required Reserve = 3 × $1,079.67 = <strong>$3,239.01</strong>. Current USD Liquidity = <strong>$9,722.00</strong> (3.0× covered).</td>
-            <td><strong>Action:</strong> Emergency reserve is healthy; automating a $400/month transfer to Savings maintains full protection against income disruption.</td>
+            <td><strong>Action:</strong> Opening USD funds are assumed to be $5,050.00; adding $4,672.00 net cash flow gives $9,722.00. After the illustrative $2,336.00 allocation, $7,386.00 remains above the target. No recurring-transfer automation is claimed.</td>
           </tr>
         </tbody>
       </table>
@@ -725,8 +731,10 @@
       </div>
 
       <p>
-        The dataset below is exported directly from the application's MIS endpoint (<code>/reports/export-monthly.csv</code>
-        and saved in the project root as <code>mis_6month_summary.csv</code> and <code>mis_transactions_6months.csv</code>).
+        This fixed May–October 2026 classroom dataset contains 66 synthetic entries in
+        <code>mis_transactions_6months.csv</code>. The workbook and <code>mis_6month_summary.csv</code>
+        use the same source. The live application reports a rolling six-month window based on the server date,
+        so a current screenshot is not a claim that its time window remains frozen in October.
       </p>
 
       <h3>4.1 Six-Month Cash Flow Summary Table (Excel Formulas: SUM, AVERAGE, Savings Rate)</h3>
@@ -847,10 +855,18 @@
           </tr>
         </tbody>
       </table>
-      <div class="callout">
-        <strong>Screenshot placeholder:</strong> Insert a screenshot of <code>http://localhost:8080/home</code>
-        (sign in as <code>demo@mis.edu.kh</code>) here. Switch between the <em>USD Analytics</em> and <em>KHR Analytics</em> tabs to capture both currencies.
-      </div>
+      <h3>4.5 Native Excel Dashboard</h3>
+      <p>Open <a href="MIS_Financial_Analysis.xlsx">MIS_Financial_Analysis.xlsx</a> on
+        <code>0_Executive_Dashboard</code>. Six native, editable Excel charts show USD income/expense,
+        net cash flow, savings rate, expense composition and category spending, plus a separate KHR cash-flow chart.
+        SUMIFS/COUNTIFS link the original sheets to all 66 source entries. The original worksheets and ledger are preserved.</p>
+      <h3>4.6 Actual Application Evidence</h3>
+      <p>These are real application captures using the same synthetic CSV in a disposable database.
+        No private user data is shown. The accounts reconcile to $9,722.00; the ledger is filtered to May–October.
+        The live dashboard uses the server's current month and rolling window, unlike the fixed Excel study.</p>
+      <figure><img src="docs/submission/accounts.png" alt="Real application accounts showing the synthetic study balances" style="width:100%;height:auto;"><figcaption>Accounts: $5,050.00 assumed opening funds + $4,672.00 net = $9,722.00 USD. KHR remains separate.</figcaption></figure>
+      <figure><img src="docs/submission/ledger.png" alt="Real application ledger filtered to the May through October 2026 study" style="width:100%;height:auto;"><figcaption>Source ledger: 66 synthetic transactions, fixed May–October 2026 filter.</figcaption></figure>
+      <figure><img src="docs/submission/dashboard.png" alt="Live application dashboard using its current rolling date window" style="width:100%;height:auto;"><figcaption>Current-date application dashboard. Its date-dependent analytics are not substituted for the fixed-period Excel totals.</figcaption></figure>
     </section>
 
     <!-- ===================================================================== -->
@@ -862,6 +878,8 @@
         <h2>5. Business Process Re-Engineering ("As-Is" vs. "To-Be")</h2>
       </div>
 
+      <figure><img src="docs/submission/as-is.svg" alt="As-Is process showing manual receipts, delayed spreadsheet entry, error reconciliation and late decisions"><figcaption>As-Is: delayed manual entry and reconciliation loop.</figcaption></figure>
+      <figure><img src="docs/submission/to-be.svg" alt="To-Be process showing validated web entry, atomic persistence, calculated balances, budget alerts and decision support"><figcaption>To-Be: validated MIS workflow, exception handling, and timely decision support.</figcaption></figure>
       <div class="grid-2">
         <div class="box" style="border-top: 4px solid var(--rose);">
           <h4>"As-Is" Process (Manual Notebooks &amp; Spreadsheets)</h4>
@@ -873,19 +891,19 @@
             <li>Manually compare bank app balances against spreadsheet totals; spend 45+ minutes hunting missing entries.</li>
             <li>Discover category overspending weeks after the money was already spent.</li>
           </ol>
-          <p style="margin-top:8px; font-weight:700; color:var(--rose);">Cycle Time: 45–60 Minutes / Month • Error Rate: High</p>
+          <p style="margin-top:8px; font-weight:700; color:var(--rose);">Illustrative baseline: delayed monthly reconciliation; not a measured timing study.</p>
         </div>
 
         <div class="box" style="border-top: 4px solid var(--emerald);">
           <h4>"To-Be" Process (Automated MIS &amp; DSS Web System)</h4>
           <ol>
-            <li>User logs transaction or transfer in 5 seconds via responsive desktop/mobile form.</li>
+            <li>User logs a transaction or transfer through a validated desktop/mobile form.</li>
             <li><code>TransactionService</code> automatically infers currency from the authorized account and validates rules.</li>
             <li>PostgreSQL atomically commits the entry under row lock; derived balances update instantaneously.</li>
             <li><code>BudgetService</code> recalculates monthly category utilization and triggers visual progress bar alerts.</li>
             <li><code>ReportService</code> updates 6-month trend charts, DSS recommendations, and 1-click Excel CSV exports.</li>
           </ol>
-          <p style="margin-top:8px; font-weight:700; color:var(--emerald);">Cycle Time: &lt; 10 Seconds (Real-Time) • Formula Drift: 0%</p>
+          <p style="margin-top:8px; font-weight:700; color:var(--emerald);">Expected improvement: immediate recalculation after valid entry; no response-time guarantee is claimed.</p>
         </div>
       </div>
 
@@ -896,7 +914,7 @@
             <th>Performance Dimension</th>
             <th>"As-Is" Manual Spreadsheet Workflow</th>
             <th>"To-Be" Personal Finance MIS / DSS</th>
-            <th>Measurable Improvement</th>
+            <th>Expected Improvement / Verification</th>
           </tr>
         </thead>
         <tbody>
@@ -904,13 +922,13 @@
             <td><strong>Data Entry &amp; Validation</strong></td>
             <td>Unvalidated free-text cells; typos &amp; negative signs go unnoticed</td>
             <td>Strict DTO + PostgreSQL <code>CHECK</code> constraints &amp; composite FKs</td>
-            <td>100% prevention of invalid currency/category mismatches</td>
+            <td>Application validation and database constraints reject mismatched references; covered by integration tests</td>
           </tr>
           <tr>
             <td><strong>Balance Reconciliation</strong></td>
             <td>45–60 minutes at month-end comparing bank apps vs. Excel</td>
             <td>Derived in real time from opening balance + ledger deltas</td>
-            <td><strong>&gt; 85% time saved</strong>; zero cached balance drift</td>
+            <td>No stale cached balance counter; time saving requires a separate benchmark</td>
           </tr>
           <tr>
             <td><strong>Budget Monitoring</strong></td>

@@ -1,0 +1,12 @@
+{
+  "captured_on": "2026-11-16",
+  "source": "mis_transactions_6months.csv",
+  "synthetic_entries": 66,
+  "fixed_period": "2026-05 to 2026-10",
+  "opening_usd": "5050.00",
+  "closing_usd": "9722.00",
+  "opening_khr": "12000000.00",
+  "closing_khr": "15000000.00",
+  "note": "Live dashboard analytics use the server date and rolling window; the workbook is a fixed-period study.",
+  "normal_database_modified": false
+}

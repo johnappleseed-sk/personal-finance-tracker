@@ -6,12 +6,20 @@ User registration, login/logout, an executive multi-currency financial dashboard
 ## MIS Assignment Deliverables (Lecturer: Pay Laten)
 
 - **5-Part MIS Assignment Report (Markdown)**: [`MIS_ASSIGNMENT_REPORT.md`](MIS_ASSIGNMENT_REPORT.md)
-- **5-Part MIS Assignment Report (Print-Ready HTML / PDF)**: [`MIS_ASSIGNMENT_REPORT.html`](MIS_ASSIGNMENT_REPORT.html) (Business Case Study, System Flowchart & Database ERD, Decision Support Scenario, Excel/Data Analysis, and "As-Is" vs. "To-Be" Business Process Mapping)
-- **Interactive 8-Slide Classroom Presentation Deck**: [`MIS_PRESENTATION_DECK.html`](MIS_PRESENTATION_DECK.html) (includes live What-If DSS Savings Simulator, charts, and speaker notes)
+- **5-Part MIS Assignment Report**: [Print-ready HTML](MIS_ASSIGNMENT_REPORT.html) · [PDF](MIS_ASSIGNMENT_REPORT.pdf), including rendered diagrams and real synthetic-data application screenshots
+- **Group 6, 14-Slide Presentation**: [Interactive HTML](MIS_PRESENTATION_DECK.html) · [PDF preview](MIS_PRESENTATION_DECK.pdf) · [PowerPoint](MIS_Assignment_Presentation.pptx)
+- **Editable Canva Import**: [`Group_6_MIS_Canva_Import.pptx`](Group_6_MIS_Canva_Import.pptx). Import the PPTX in Canva; fonts/layout may require minor adjustment. This is not a native Canva share link.
 - **Excel / Data Analysis Datasets (Part 4)**:
-  - [`MIS_Financial_Analysis.xlsx`](MIS_Financial_Analysis.xlsx) — Native 3-sheet Microsoft Excel workbook (`1_6Month_Trend_DSS`, `2_Category_Breakdown`, `3_TPS_Ledger_66_Rows`) with live `=SUM(...)`, `=AVERAGE(...)`, and `=COUNT(...)` formulas
+  - [`MIS_Financial_Analysis.xlsx`](MIS_Financial_Analysis.xlsx) — Four sheets: `0_Executive_Dashboard` with **six native Excel charts**, plus the three preserved source/analysis sheets; SUMIFS/COUNTIFS link the 66-row ledger to summaries, with SUM/AVERAGE/COUNT and decision formulas
   - [`mis_6month_summary.csv`](mis_6month_summary.csv) — 6-month trend and category analytics (`SUM`, `AVERAGE`, `COUNT`, Savings Rate %, Share %)
   - [`mis_transactions_6months.csv`](mis_transactions_6months.csv) — 66-transaction multi-currency ledger (`USD` & `KHR`)
+
+The fixed May–October 2026 study reconciles to USD income **11,150.00**, expense
+**6,478.00**, and net **4,672.00** (42% rounded savings rate). KHR is analyzed
+separately. All case records are synthetic; budgets, opening funds, and investment
+rates are explicitly labeled scenario assumptions. The live app's rolling window
+advances with the server date. See [SUBMISSION_CHECKLIST.md](SUBMISSION_CHECKLIST.md)
+for the requirement mapping, verification, and rebuild instructions.
 
 ## Current foundation
 
@@ -32,6 +40,44 @@ Registration flows from `RegistrationController` to `RegistrationService` to
 `UserRepository`. A form DTO accepts browser input; the JPA `User` entity holds
 persistent state. Flyway creates the schema before Hibernate validates it;
 Hibernate does not generate or update tables.
+
+## Interface accessibility
+
+The interface uses a neutral, bordered design system with indigo actions and
+locally served Lucide SVG icons instead of emoji. Desktop (1024px+) uses a persistent
+navigation rail; smaller widths use a Menu disclosure. Escape closes it and returns
+focus. Navigation remains visible without JavaScript. Balances appear before analysis
+on the dashboard; forms use a focused content width rather than stretching across the screen.
+
+A keyboard skip link moves focus to the page heading. Currency tabs support arrow
+keys and Home/End. Sortable tables use real buttons and announce sort direction;
+wide tables scroll inside labeled, keyboard-focusable regions. Search/filter views
+show no-match feedback, error summaries link to invalid inputs, and POST actions
+show pending feedback. Reduced motion, dark mode, and Khmer switching remain available.
+Browser preferences fail gracefully if local storage is blocked. No financial data
+is stored by these new interface controls.
+
+`app.css` defines theme/component tokens; `product.css` supplies the shared product
+layout and refinement layer without discarding earlier styles. Lucide 0.468.0 is
+vendored under `static/vendor/lucide` with its license; no runtime CDN or frontend
+framework/build tool is required. See [UI_REDESIGN.md](UI_REDESIGN.md) for the audit,
+implementation scope, and verification limits.
+
+Optional browser regression checks (use an external Python environment with
+`playwright` installed and `playwright install chromium` completed):
+
+```bash
+./mvnw clean verify
+python scripts/ui_smoke.py
+```
+
+The script starts a disposable PostgreSQL container and the built JAR on a random
+loopback port, then stops both. It does not use the normal Compose database.
+Screenshots and results are saved under ignored `target/ui-review/`. Pass
+`--axe /path/to/axe.min.js` to include automated WCAG-tagged axe-core checks.
+
+To run locally with an existing configured `.env`, use `docker compose up -d --wait`
+followed by `./mvnw spring-boot:run`, then open `http://localhost:8080`.
 
 ## Requirements
 
@@ -77,8 +123,9 @@ needed by the UI within their transactional boundaries.
 Visit `http://localhost:8080`. Anonymous visitors are redirected to `/login`.
 Register a user at `/register`, then sign in with its email and password.
 Registration still does not sign you in automatically. There is no generated
-development account. The authenticated `/home` page is a welcome screen, not a
-financial dashboard. Do not deploy this foundation as a finished application.
+development account. The authenticated `/home` page shows the user's real account
+balances, cash-flow charts, and budget signals. Review the deployment/security
+limitations before exposing this development application publicly.
 
 ## Registration
 
@@ -116,8 +163,9 @@ Successful authentication always redirects to `/home`, rotates an existing
 session ID, and erases credentials from the security context. A detached
 `FinanceUserDetails` principal retains the trusted database user ID and display
 name; ownership checks use that ID, never a submitted `userId`.
-The welcome page renders only that user's escaped display name, not their entity,
-email, or hash. Display names are session snapshots and refresh on a new login.
+The dashboard renders that user's escaped display name and ownership-scoped financial
+data, never their user entity, email, or hash. Display names are session snapshots
+and refresh on a new login.
 
 Login and logout require CSRF tokens. Sign out uses `POST /logout`, invalidates
 the session, clears authentication, and deletes the session cookie. `GET /logout`
@@ -189,8 +237,9 @@ including invalid foreign edit submissions.
 
 Categories can be renamed. A category with transactions cannot change type or be
 deleted; the application gives safe HTTP 409 feedback rather than cascading history.
-Unused categories can change type or be permanently deleted. Category totals are
-not implemented yet. Renames are reflected in ledger views; names are not snapshots.
+Unused categories can change type or be permanently deleted. Category breakdowns
+are available in the dashboard and reports. Renames are reflected in ledger views;
+names are not snapshots.
 
 To check manually, create both types, edit one, cancel deletion, then confirm it.
 Try an empty name and verify that nothing is saved. In a second browser profile,
@@ -204,7 +253,8 @@ category. Create, list (newest date/ID first), edit, and delete ledger entries:
 
 - Account and category: both must belong to the signed-in user. Browser-submitted
   reference IDs are untrusted and are checked at the service boundary.
-- Type: Income or Expense; it must match the chosen category. Transfers are not supported.
+- Type: Income or Expense; it must match the chosen category. Use the separate
+  `/transfers` workflow for same-currency account transfers.
 - Amount: positive, at least 0.01, at most 17 whole-number digits and 2 decimal
   places; extra decimals are rejected, not rounded. Income adds and expenses subtract.
 - Date: required, today or earlier according to the server's date. Future/scheduled
@@ -219,8 +269,8 @@ effect and applies the submitted amount in the new account's currency; it is a
 correction, **not an exchange or transfer**. Enter the intended amount in that
 currency yourself. Deletion requires a read-only confirmation page and CSRF-protected
 POST and permanently removes the entry and its balance effect. There is no audit
-trail, reconciliation, undo, pagination, or transaction filtering yet; lists are
-intended for assignment-sized datasets.
+trail, reconciliation, undo, or pagination yet. Search, account/category/type/date
+filters, and CSV export are available; lists are intended for assignment-sized datasets.
 
 Balances are not mutable cached counters. `TransactionRepository` calculates exact
 income-minus-expense deltas in one grouped query, and `AccountService` adds each
@@ -240,6 +290,22 @@ of 5.20, and verify its current balance is 114.90. Edit/delete an entry and conf
 the balance changes. Try a mismatching category or another user's reference IDs:
 nothing must be saved. Try deleting the used account/category: history must remain
 and the response must explain the conflict. Use synthetic ledger data.
+
+## Custom browser-stored goals
+
+Custom goals previously used browser-wide local storage without a verified user
+identity. That feature is disabled to prevent goals from appearing under another
+login on a shared browser. The dashboard still shows account-based savings benchmarks.
+
+Existing `pf-custom-goals` records are **not read, overwritten, deleted, or automatically
+imported** by the application. They remain in the originating browser's local storage,
+which can still be inspected by someone with access to that browser profile. Already
+open pages running the old JavaScript must be reloaded after deployment.
+
+Restoring custom goals requires authenticated, server-side ownership. The old records
+cannot safely be assigned to whoever logs in next. Any recovery/import must establish
+ownership explicitly; any destructive cleanup requires the owner's approval. Disabling
+the UI does not erase previously stored information.
 
 ## Database operations
 
@@ -362,6 +428,7 @@ compose.yaml                           Local PostgreSQL service and volume
 
 ## Next milestone
 
-Add transaction filtering/pagination and user-owned budgets before financial dashboards
-and reports. Transfers, currency conversion, and an audit trail remain future work.
-Applied V1–V3 migrations remain unchanged.
+Add pagination for larger datasets, complete localization through server-managed
+message bundles, and expand cross-browser/manual assistive-technology testing.
+Currency conversion, reconciliation, and an audit trail remain future work.
+This UI redesign does not change any applied migrations.
